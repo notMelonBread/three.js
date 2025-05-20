@@ -9,6 +9,7 @@
         }
       }
     </script>
+    <!-- ES Modules対応 -->
     <script type="module">
       import * as THREE from "three";
 
@@ -20,21 +21,28 @@
       const renderer = new THREE.WebGLRenderer({
         canvas: document.querySelector("#myCanvas"),
       });
-      renderer.setPixelRatio(window.devicePixelRatio);
       renderer.setSize(width, height);
 
       // シーンを作成
       const scene = new THREE.Scene();
 
       // カメラを作成
-      const camera = new THREE.PerspectiveCamera(45, width / height);
+      const camera = new THREE.PerspectiveCamera(45, width / height,1,10000);
       camera.position.set(0, 0, +1000);
 
       // 箱を作成
-      const geometry = new THREE.BoxGeometry(400, 400, 400);
-      const material = new THREE.MeshNormalMaterial();
+      const geometry = new THREE.SphereGeometry(300,30,30);
+      const material = new THREE.MeshNormalMaterial({color:0xff0000});
+      // メッシュを作成
       const box = new THREE.Mesh(geometry, material);
+      // 3D空間にメッシュを追加
       scene.add(box);
+
+      // 平行高原
+      const directionalLight = new THREE.DirectionalLight(0xffffff);
+      directionalLight.position.set(1, 1, 1);
+      // シーンに追加
+      scene.add(directionalLight);
 
       tick();
 
