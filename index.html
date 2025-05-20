@@ -13,46 +13,50 @@
     <script type="module">
       import * as THREE from "three";
 
-      // サイズを指定
+      // 設定
       const width = 960;
       const height = 540;
 
-      // レンダラーを作成
+      // レンダラーの設定
       const renderer = new THREE.WebGLRenderer({
-        canvas: document.querySelector("#myCanvas"),
+        canvas: document.querySelector('#myCanvas')
       });
       renderer.setSize(width, height);
 
-      // シーンを作成
+      // シーンの設定
       const scene = new THREE.Scene();
 
-      // カメラを作成
-      const camera = new THREE.PerspectiveCamera(45, width / height,1,10000);
+      // カメラの設定
+      const camera = new THREE.PerspectiveCamera(45, width / height, 1, 10000);
       camera.position.set(0, 0, +1000);
 
-      // 箱を作成
-      const geometry = new THREE.SphereGeometry(300,30,30);
-      const material = new THREE.MeshNormalMaterial({color:0xff0000});
-      // メッシュを作成
-      const box = new THREE.Mesh(geometry, material);
-      // 3D空間にメッシュを追加
-      scene.add(box);
+      // 地球の作成
+      const geometry = new THREE.SphereGeometry(300, 30, 30);
+      const loader = new THREE.TextureLoader();
+      const texture = loader.load('imgs/earthmap1k.jpg');
+      texture.colorSpace = THREE.SRGBColorSpace;
+      
+      const material = new THREE.MeshStandardMaterial({
+        map: texture
+      });
+      
+      const mesh = new THREE.Mesh(geometry, material);
+      scene.add(mesh);
 
-      // 平行高原
-      const directionalLight = new THREE.DirectionalLight(0xffffff);
+      // 光源の設定
+      const directionalLight = new THREE.DirectionalLight(0xFFFFFF);
       directionalLight.position.set(1, 1, 1);
-      // シーンに追加
       scene.add(directionalLight);
 
-      tick();
-
-      // 毎フレーム時に実行されるループイベントです
+      // アニメーション
       function tick() {
-        box.rotation.y += 0.01;
-        renderer.render(scene, camera); // レンダリング
-
+        mesh.rotation.y += 0.01;
+        renderer.render(scene, camera);
         requestAnimationFrame(tick);
       }
+
+      // アニメーション開始
+      tick();
     </script>
   </head>
   <body>
