@@ -8,7 +8,8 @@ Spotify から取ってきた曲やアルバムのジャケットを、7×7 の�
 
 | source | 内容 | 並び順 |
 |---|---|---|
-| `top`(既定) | 聴取履歴から Spotify が出す Top Tracks(直近およそ 4 週間) | よく聴いた順 |
+| `popular`(既定) | 今ポピュラーな曲。検索で集めて Spotify の popularity で並べる | popularity 順 |
+| `top` | 聴取履歴から Spotify が出す Top Tracks(直近およそ 4 週間) | よく聴いた順 |
 | `playlist` | 任意のプレイリスト(自分のでも他人の公開でも) | プレイリストの曲順 |
 | `artist` | アーティストのアルバム / シングル | リリースが新しい順 |
 | `saved-albums` | 自分が保存したアルバム | 保存が新しい順 |
@@ -26,7 +27,7 @@ spotify-tracks/
     ├── get-refresh-token.mjs         初回だけ: ブラウザでログインして refresh token を取る
     ├── fetch-tracks.mjs              Spotify から取得して data/ に JSON を書く
     └── spotify-auth.mjs              共通処理
-.github/workflows/spotify-tracks.yml  毎月 1 日に Top Tracks を自動取得して data/ をコミット
+.github/workflows/spotify-tracks.yml  毎週 popular を自動取得して data/ をコミット(手動実行で他の source も可)
 ```
 
 依存パッケージはなし。Node 22 以上で動く。
@@ -59,15 +60,19 @@ three.js は既存の練習ファイルと同じく importmap で CDN (`three@0.
 
 | 取得元 | 必要なもの |
 |---|---|
-| `playlist` / `artist` | Spotify アプリの Client ID と Client Secret だけ(手順 1 のみ) |
+| `popular` / `playlist` / `artist` | Spotify アプリの Client ID と Client Secret だけ(手順 1 のみ) |
 | `top` / `saved-albums` / `saved-tracks` | 上に加えて、自分でログインして取る refresh token(手順 2 も) |
 
-### 最短ルート(プレイリストを GitHub Actions から取る)
+### 最短ルート(今ポピュラーな曲を GitHub Actions から取る)
 
 1. 手順 1 で Spotify アプリを作る(Redirect URI の登録は不要)。
 2. GitHub のリポジトリ → Settings → Secrets and variables → Actions に `SPOTIFY_CLIENT_ID` と `SPOTIFY_CLIENT_SECRET` を登録する。
-3. Actions タブ → "Update Spotify tracks" → "Run workflow" で、ブランチを選び、source に `playlist`、id にプレイリストの URL を入れて実行する。
-4. 成功すると `data/` にコミットされ、Netlify が自動で再デプロイする。
+3. Actions タブ → "Update Spotify tracks" → "Run workflow" で、ブランチを選んでそのまま実行する(source は `popular` が既定)。
+4. 成功すると `data/popular.json` がコミットされ、Netlify が自動で再デプロイする。以後は毎週月曜に自動更新(デフォルトブランチの場合)。
+
+`popular` は Spotify の検索 API で今年の曲を最大 200 件集め、各曲の popularity(0-100)で並べ替えたもの。
+Spotify 公式の「Top 50」などのチャートプレイリストは 2024 年 11 月以降、開発モードのアプリからは取れないための代替。
+`--query` で検索条件を変えられる(例: `"genre:j-pop year:2026"`、`"year:2020-2026"`)。`--market` は既定 `JP`。
 
 ### 1. Spotify のアプリを作る
 
@@ -89,11 +94,15 @@ node scripts/get-refresh-token.mjs
 ### 3. データを作る
 
 ```sh
-# 聴取履歴ベース(先月の Top Tracks / 月を指定)
+# 今ポピュラーな曲(ログイン不要)
 node scripts/fetch-tracks.mjs
-node scripts/fetch-tracks.mjs --month 2026-08
+node scripts/fetch-tracks.mjs --query "genre:j-pop year:2026"
 
-# 履歴に関係なく取る
+# 聴取履歴ベース(先月の Top Tracks / 月を指定。refresh token が必要)
+node scripts/fetch-tracks.mjs --source top
+node scripts/fetch-tracks.mjs --source top --month 2026-08
+
+# その他
 node scripts/fetch-tracks.mjs --source playlist --id "https://open.spotify.com/playlist/xxxx"
 node scripts/fetch-tracks.mjs --source artist --id "https://open.spotify.com/artist/xxxx" --limit 30
 node scripts/fetch-tracks.mjs --source saved-albums
@@ -104,7 +113,8 @@ node scripts/fetch-tracks.mjs --source saved-tracks --name likes --label "Liked 
 - `--limit` は最大 49(7×7)。20 だとぴったり埋まり、それ以外は空きマスが出るか 1 マスの比率が増える。
 - `--name` で出力ファイル名、`--label` で画面の見出しを変えられる。
 - 実行すると `data/<name>.json` が書かれ、`data/index.json` が `data/` の中身から作り直される。並びは月ものが新しい順、それ以外は生成が新しい順。
-- 2D 版・3D 版とも同じ JSON を読む。同梱の `2026-08.json` はサンプルなので、実行すると上書きされる。
+- 2D 版・3D 版とも同じ JSON を読む。同梱の `popular.json` はサンプルなので、実行すると上書きされる。
+- ページが 1 つだけのときは見出しと ← → を出さない。2 つ以上あると切り替え UI が出る。
 - Spotify 公式のエディトリアル / アルゴリズム系プレイリスト(Today's Top Hits など)は 2024 年 11 月以降、開発モードのアプリからは取れない。自分や他ユーザーが作ったプレイリストは取れる。
 
 ### 4. ローカルで見る
@@ -117,14 +127,14 @@ python3 -m http.server 8000
 # http://localhost:8000/grid.html  2D 版
 ```
 
-### 5. 毎月自動更新する(GitHub Actions)
+### 5. 自動更新する(GitHub Actions)
 
 リポジトリの Settings → Secrets and variables → Actions に登録する。
 
 - `SPOTIFY_CLIENT_ID`、`SPOTIFY_CLIENT_SECRET`(必須)
 - `SPOTIFY_REFRESH_TOKEN`(top / saved-* を使うときだけ)
 
-毎月 1 日 09:30 JST に先月の Top Tracks を生成して `data/` にコミットする(スケジュール実行はデフォルトブランチでのみ動く。refresh token が無いと失敗する)。
+毎週月曜 09:30 JST に `popular` を更新して `data/` にコミットする(スケジュール実行はデフォルトブランチでのみ動く)。
 Actions タブの "Run workflow" からは取得元・URL・件数を指定して任意のブランチで手動実行できる。
 公開は GitHub Pages や Netlify で `spotify-tracks/` を配信すればよい(リポジトリ直下の `netlify.toml` で設定済み)。
 
@@ -133,17 +143,17 @@ Actions タブの "Run workflow" からは取得元・URL・件数を指定し�
 `data/index.json`:
 
 ```json
-{ "entries": [ { "file": "2026-08", "label": "2026年8月", "month": "2026-08" } ] }
+{ "entries": [ { "file": "popular", "label": "Popular", "month": null } ] }
 ```
 
-`data/<name>.json`(`month` は `top` のときだけ):
+`data/<name>.json`(`month` は `top` のときだけ、`popularity` は `popular` のときだけ):
 
 ```json
 {
-  "source": "top",
-  "label": "2026年8月",
-  "month": "2026-08",
-  "time_range": "short_term",
+  "source": "popular",
+  "label": "Popular",
+  "query": "year:2026",
+  "market": "JP",
   "generated_at": "2026-09-01T00:30:00.000Z",
   "tracks": [
     {
@@ -154,6 +164,7 @@ Actions タブの "Run workflow" からは取得元・URL・件数を指定し�
       "album": "アルバム",
       "image_url": "https://i.scdn.co/image/...",
       "spotify_url": "https://open.spotify.com/track/...",
+      "popularity": 92,
       "size": "large"
     }
   ]

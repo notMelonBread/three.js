@@ -113,6 +113,7 @@ async function main() {
 
     for (const entry of entries) {
       const section = createSection(entry);
+      if (entries.length <= 1) section.querySelector(".month__title").hidden = true;
       container.append(section);
       observer.observe(section);
     }

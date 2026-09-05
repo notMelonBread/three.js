@@ -410,6 +410,7 @@ canvas.addEventListener("pointerup", (event) => {
 
 // ---------- 月のナビゲーション ----------
 
+const navEl = document.querySelector(".nav");
 const titleEl = document.getElementById("month-title");
 const prevButton = document.getElementById("prev");
 const nextButton = document.getElementById("next");
@@ -431,6 +432,8 @@ async function goTo(index) {
   prevButton.disabled = current >= entries.length - 1;
   nextButton.disabled = current <= 0;
   titleEl.textContent = entry.label;
+  // ページが 1 つだけなら見出しも矢印も要らない
+  navEl.hidden = entries.length <= 1;
 
   let data;
   try {

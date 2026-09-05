@@ -1,7 +1,8 @@
 // Spotify から曲(またはアルバム)の一覧を取得して data/<name>.json と data/index.json を書き出す。
 //
-//   node scripts/fetch-tracks.mjs                                  # 先月の Top Tracks(聴取履歴ベース)
-//   node scripts/fetch-tracks.mjs --month 2026-08                  # 月を指定
+//   node scripts/fetch-tracks.mjs                                  # 今ポピュラーな曲(ログイン不要)
+//   node scripts/fetch-tracks.mjs --query "genre:j-pop year:2026"  # 検索条件を変える
+//   node scripts/fetch-tracks.mjs --source top --month 2026-08     # 自分の Top Tracks(聴取履歴ベース)
 //   node scripts/fetch-tracks.mjs --source playlist --id <URL|ID>  # プレイリストの曲順
 //   node scripts/fetch-tracks.mjs --source artist --id <URL|ID>    # アーティストのアルバム/シングル
 //   node scripts/fetch-tracks.mjs --source saved-albums            # 自分が保存したアルバム
@@ -12,12 +13,13 @@
 //   --name KEY   出力ファイル名 data/KEY.json(省略時は自動)
 //   --label TEXT 画面に出す見出し(省略時はプレイリスト名など)
 //   --time-range short_term|medium_term|long_term  (top のみ)
+//   --query TEXT --market CC                       (popular のみ。既定は year:<今年> と JP)
 //
 // --id には URL (https://open.spotify.com/playlist/xxxx?si=...)、URI (spotify:playlist:xxxx)、
 // 生の ID のどれを渡してもよい。
 //
 // 必要な認証情報:
-//   playlist / artist   … SPOTIFY_CLIENT_ID + SPOTIFY_CLIENT_SECRET だけでよい(ログイン不要)
+//   popular / playlist / artist … SPOTIFY_CLIENT_ID + SPOTIFY_CLIENT_SECRET だけでよい(ログイン不要)
 //   top / saved-*       … 上に加えて SPOTIFY_REFRESH_TOKEN(get-refresh-token.mjs で取得)
 
 import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
@@ -33,7 +35,9 @@ const SPOTIFY_REFRESH_TOKEN = process.env.SPOTIFY_REFRESH_TOKEN || "";
 
 const { values: args } = parseArgs({
   options: {
-    source: { type: "string", default: "top" },
+    source: { type: "string", default: "popular" },
+    query: { type: "string" },
+    market: { type: "string", default: "JP" },
     id: { type: "string" },
     month: { type: "string" },
     name: { type: "string" },
@@ -146,6 +150,30 @@ async function collect(path, params, mapItem) {
 }
 
 const sources = {
+  // 今ポピュラーな曲。Spotify 公式のチャート系プレイリストは開発モードのアプリから取れないので、
+  // 検索で候補を集めて Spotify の popularity(0-100)で並べ替える。
+  async popular() {
+    const query = args.query || `year:${new Date().getUTCFullYear()}`;
+    const market = args.market;
+    const seen = new Set();
+    const pool = [];
+    for (let offset = 0; offset < 200; offset += 50) {
+      const json = await api("/search", { q: query, type: "track", market, limit: 50, offset });
+      const page = json.tracks?.items || [];
+      for (const track of page) {
+        if (!track?.id) continue;
+        // 同じ曲の別エディション(Deluxe 版など)を除く
+        const key = `${track.name}|${track.artists?.[0]?.name || ""}`.toLowerCase();
+        if (seen.has(key)) continue;
+        seen.add(key);
+        pool.push({ ...trackToItem(track), popularity: track.popularity ?? 0 });
+      }
+      if (!json.tracks?.next || page.length === 0) break;
+    }
+    pool.sort((a, b) => b.popularity - a.popularity);
+    return { name: "popular", label: "Popular", meta: { query, market }, items: pool.slice(0, limit) };
+  },
+
   // 聴取履歴から Spotify が出す Top Tracks(short_term ≒ 直近 4 週間)
   async top() {
     const month = args.month || previousMonthKey();

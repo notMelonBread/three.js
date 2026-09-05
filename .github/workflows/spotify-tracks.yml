@@ -2,15 +2,19 @@ name: Update Spotify tracks
 
 on:
   schedule:
-    # 毎月 1 日 09:30 JST (00:30 UTC) に先月の Top Tracks を生成(デフォルトブランチでのみ動く)
-    - cron: "30 0 1 * *"
+    # 毎週月曜 09:30 JST (00:30 UTC) に「今ポピュラーな曲」を更新(デフォルトブランチでのみ動く)
+    - cron: "30 0 * * 1"
   workflow_dispatch:
     inputs:
       source:
         description: "取得元"
         type: choice
-        default: playlist
-        options: [top, playlist, artist, saved-albums, saved-tracks]
+        default: popular
+        options: [popular, playlist, artist, top, saved-albums, saved-tracks]
+      query:
+        description: "popular の検索条件(空なら year:今年)"
+        required: false
+        default: ""
       id:
         description: "playlist / artist の URL か ID"
         required: false
@@ -49,13 +53,15 @@ jobs:
           SPOTIFY_CLIENT_ID: ${{ secrets.SPOTIFY_CLIENT_ID }}
           SPOTIFY_CLIENT_SECRET: ${{ secrets.SPOTIFY_CLIENT_SECRET }}
           SPOTIFY_REFRESH_TOKEN: ${{ secrets.SPOTIFY_REFRESH_TOKEN }}
-          SOURCE: ${{ github.event.inputs.source || 'top' }}
+          SOURCE: ${{ github.event.inputs.source || 'popular' }}
+          QUERY: ${{ github.event.inputs.query }}
           ID: ${{ github.event.inputs.id }}
           LIMIT: ${{ github.event.inputs.limit || '20' }}
           LABEL: ${{ github.event.inputs.label }}
           MONTH: ${{ github.event.inputs.month }}
         run: |
           set -- --source "$SOURCE" --limit "$LIMIT"
+          [ -n "$QUERY" ] && set -- "$@" --query "$QUERY"
           [ -n "$ID" ] && set -- "$@" --id "$ID"
           [ -n "$LABEL" ] && set -- "$@" --label "$LABEL"
           [ -n "$MONTH" ] && set -- "$@" --month "$MONTH"
@@ -73,4 +79,4 @@ jobs:
           git commit -m "chore(spotify-tracks): update data ($SOURCE)"
           git push
         env:
-          SOURCE: ${{ github.event.inputs.source || 'top' }}
+          SOURCE: ${{ github.event.inputs.source || 'popular' }}
