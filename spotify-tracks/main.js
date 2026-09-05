@@ -1,6 +1,6 @@
-// 3D 版: 7x7 の配置をそのまま 3D 空間に置き、各曲を CD のジュエルケースにする。
+// 3D 版(デフォルト): 7x7 の配置をそのまま 3D 空間に置き、各曲を CD のジュエルケースにする。
 //   - 透明プラスチックの箱(MeshPhysicalMaterial)の中に、ジャケットを貼った紙とトレイ
-//   - ホバーで持ち上がって少し回る(Raycaster)、クリックで Spotify を開く
+//   - カーソルの真下を頂点にして周囲のケースがなだらかに持ち上がる、クリックで Spotify を開く
 //   - 月の切り替えはケースが奥に飛んでいって入れ替わる
 
 import * as THREE from "three";
@@ -19,6 +19,9 @@ const CELL = 1; // 1 マスの大きさ(ワールド単位)
 const GAP = 0.12; // ケース同士の隙間
 const CASE_DEPTH = 0.1;
 const FLY_DISTANCE = -9; // 出入りするときの奥行き
+const LIFT_HEIGHT = 1.0; // カーソル直下のケースが持ち上がる高さ
+const LIFT_RADIUS = 1.6; // 盛り上がりの広がり(マス単位)
+const TILT = 0.28; // 盛り上がりの斜面に沿ってケースが傾く強さ
 
 // ---------- レンダラー / シーン ----------
 
@@ -171,7 +174,6 @@ function createCase(track, span) {
     hitTarget: shell,
     base: new THREE.Vector3(),
     phase: Math.random() * Math.PI * 2,
-    hover: 0, // 0..1 でホバー状態を滑らかに
     tween: null,
   };
   return group;
@@ -255,9 +257,23 @@ function hideMonth(onDone) {
 // ---------- 毎フレームの更新 ----------
 
 const clock = new THREE.Clock();
-const tmpQuat = new THREE.Quaternion();
+const tmpEuler = new THREE.Euler();
 const restQuat = new THREE.Quaternion();
-const hoverQuat = new THREE.Quaternion().setFromEuler(new THREE.Euler(0.12, -0.45, 0));
+
+// カーソルのワールド座標(グリッドの面 z=0 上)と、その有効度 0..1
+const cursor = {
+  point: new THREE.Vector3(0, 0, 0),
+  target: new THREE.Vector3(0, 0, 0),
+  strength: 0,
+  active: false,
+};
+const gridPlane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
+
+function updateCursor() {
+  // 位置と強さをなめらかに追従させる(急に跳ねない)
+  cursor.point.lerp(cursor.target, 0.18);
+  cursor.strength += ((cursor.active ? 1 : 0) - cursor.strength) * 0.1;
+}
 
 function updateCase(group, t) {
   const data = group.userData;
@@ -284,19 +300,22 @@ function updateCase(group, t) {
     return;
   }
 
-  // ホバー状態を 0..1 でなめらかに追従
-  const target = group === hovered ? 1 : 0;
-  data.hover += (target - data.hover) * 0.12;
-  const h = data.hover;
+  // カーソルの真下を頂点にした盛り上がり。
+  // 高さはガウス関数 exp(-r^2 / R^2)、傾きはその斜面(勾配)に沿わせる。
+  const dx = cursor.point.x - base.x;
+  const dy = cursor.point.y - base.y;
+  const g = Math.exp(-(dx * dx + dy * dy) / (LIFT_RADIUS * LIFT_RADIUS)) * cursor.strength;
 
-  // アイドル時のゆらぎ + ホバーで持ち上げ
+  // アイドル時のゆらぎ + 盛り上がり
   const bob = Math.sin(t * 1.1 + phase) * 0.025;
-  group.position.set(base.x, base.y + bob, THREE.MathUtils.lerp(0, 0.9, h));
-  group.scale.setScalar(1 + 0.06 * h);
+  group.position.set(base.x, base.y + bob, LIFT_HEIGHT * g);
+  group.scale.setScalar(1 + 0.04 * g);
 
+  // 頂点(カーソル)に向かって面が起き上がるように傾ける。
+  // カーソルが右にあれば右端が手前に(rotation.y < 0)、上にあれば上端が手前に(rotation.x > 0)。
   const idleY = Math.sin(t * 0.6 + phase) * 0.05;
-  tmpQuat.setFromEuler(new THREE.Euler(0, idleY, 0));
-  group.quaternion.copy(tmpQuat).slerp(hoverQuat, h);
+  tmpEuler.set(TILT * dy * g, idleY - TILT * dx * g, 0);
+  group.quaternion.setFromEuler(tmpEuler);
 }
 
 function resize() {
@@ -316,6 +335,7 @@ function resize() {
 function animate() {
   resize();
   const t = clock.getElapsedTime();
+  updateCursor();
   for (const group of casesRoot.children) updateCase(group, t);
   controls.update();
   renderer.render(scene, camera);
@@ -337,19 +357,28 @@ function setCaption(track) {
   caption.append(name, ` / ${track.artist}`);
 }
 
-function pickCase(event) {
+function updatePointer(event) {
   const rect = canvas.getBoundingClientRect();
   pointer.set(
     ((event.clientX - rect.left) / rect.width) * 2 - 1,
     -((event.clientY - rect.top) / rect.height) * 2 + 1,
   );
   raycaster.setFromCamera(pointer, camera);
+}
+
+function pickCase(event) {
+  updatePointer(event);
   const targets = cases.filter((g) => !g.userData.tween).map((g) => g.userData.hitTarget);
   const hit = raycaster.intersectObjects(targets, false)[0];
   return hit ? hit.object.parent : null;
 }
 
 canvas.addEventListener("pointermove", (event) => {
+  // カーソルがグリッドの面のどこを指しているか(ケースの外でも盛り上がる)
+  updatePointer(event);
+  const hit = raycaster.ray.intersectPlane(gridPlane, cursor.target);
+  cursor.active = hit !== null;
+
   const next = pickCase(event);
   if (next !== hovered) {
     hovered = next;
@@ -359,6 +388,7 @@ canvas.addEventListener("pointermove", (event) => {
 });
 
 canvas.addEventListener("pointerleave", () => {
+  cursor.active = false;
   hovered = null;
   setCaption(null);
   canvas.style.cursor = "";

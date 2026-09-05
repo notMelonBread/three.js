@@ -1,6 +1,6 @@
 // 7x7 のグリッドに、月間トップ曲のジャケットを
 // large(3x3) / medium(2x2) / small(1x1) でランダムに敷き詰める(2D 版)。
-// 配置アルゴリズムは layout.js に切り出してあり、3D 版 (3d.js) と共用。
+// 配置アルゴリズムは layout.js に切り出してあり、3D 版 (main.js) と共用。
 
 import { assignSizes, formatMonth, layout, placeholderColor } from "./layout.js";
 

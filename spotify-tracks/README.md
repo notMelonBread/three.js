@@ -6,8 +6,8 @@
 
 ```
 spotify-tracks/
-├── index.html / style.css / app.js   2D 版(素の HTML + CSS Grid + JS、ビルド不要)
-├── 3d.html / 3d.js                   3D 版(three.js、ジャケットを CD ケースにして並べる)
+├── index.html / main.js              3D 版(デフォルト。three.js でジャケットを CD ケースにして並べる)
+├── grid.html / style.css / grid.js   2D 版(素の HTML + CSS Grid + JS)
 ├── layout.js                         7x7 の配置アルゴリズム(2D / 3D 共用)
 ├── data/
 │   ├── index.json                    月の一覧
@@ -29,14 +29,15 @@ spotify-tracks/
 - 3×3 をど真ん中 (3,3) には置かない。
 - 月ごとのセクションは `scroll-snap` で 1 画面ずつ、`IntersectionObserver` で見えたときに JSON を読む。
 
-## 3D 版 (3d.html)
+## 3D 版 (index.html)
 
 同じ 7x7 の配置を three.js で 3D 空間に置いたもの。1 曲 = 1 枚の CD ジュエルケース。
 
 - `BoxGeometry` を 3 枚重ねてケースにしている: 透明プラスチックの外側 (`MeshPhysicalMaterial`、clearcoat + 半透明)、中の黒いトレイ、前面にだけジャケットを貼った紙 (`BoxGeometry` に 6 面分のマテリアル配列を渡し、前面だけ `map` を差す)。
 - ジャケットは `TextureLoader` で Spotify の CDN から直接読む (`crossOrigin = "anonymous"`)。読めなかったときはランクと曲名を描いた `CanvasTexture` に落ちる。
 - 映り込みは `RoomEnvironment` + `PMREMGenerator` の環境マップ。
-- `Raycaster` でホバー判定して、当たったケースを手前に持ち上げて少し回す。クリックで Spotify を開く(ドラッグと区別するため移動量で判定)。
+- カーソルの位置をグリッドの面 (z=0) に投影し、そこを頂点にしたガウス関数 `exp(-r²/R²)` で周囲のケースを持ち上げる。傾きはその斜面(勾配)に沿わせるので、面がカーソルの下で盛り上がっているように見える。
+- `Raycaster` でカーソル直下のケースを判定してキャプションを出し、クリックで Spotify を開く(ドラッグと区別するため移動量で判定)。
 - `OrbitControls` で回せる範囲を狭めに制限。グリッド全体が収まるカメラ距離は画面サイズから計算する。
 - 月の切り替えは、今のケースを奥に飛ばしてから次の月を手前に飛ばしてくる。← → キーでも切り替え可。
 
@@ -75,7 +76,8 @@ node scripts/fetch-top-tracks.mjs --month 2026-08  # 月を指定
 
 ```sh
 python3 -m http.server 8000
-# http://localhost:8000/
+# http://localhost:8000/        3D 版
+# http://localhost:8000/grid.html  2D 版
 ```
 
 ### 5. 毎月自動更新する(GitHub Actions)
