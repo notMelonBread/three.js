@@ -1,7 +1,7 @@
 // Spotify から曲(またはアルバム)の一覧を取得して data/<name>.json と data/index.json を書き出す。
 //
 //   node scripts/fetch-tracks.mjs                                  # 今ポピュラーな曲(ログイン不要)
-//   node scripts/fetch-tracks.mjs --query "genre:j-pop year:2026"  # 検索条件を変える
+//   node scripts/fetch-tracks.mjs --query "genre:j-pop year:2026" --query "genre:anime year:2026"
 //   node scripts/fetch-tracks.mjs --source top --month 2026-08     # 自分の Top Tracks(聴取履歴ベース)
 //   node scripts/fetch-tracks.mjs --source playlist --id <URL|ID>  # プレイリストの曲順
 //   node scripts/fetch-tracks.mjs --source artist --id <URL|ID>    # アーティストのアルバム/シングル
@@ -13,7 +13,8 @@
 //   --name KEY   出力ファイル名 data/KEY.json(省略時は自動)
 //   --label TEXT 画面に出す見出し(省略時はプレイリスト名など)
 //   --time-range short_term|medium_term|long_term  (top のみ)
-//   --query TEXT --market CC --pool N              (popular のみ。既定は year:<今年>、JP、候補 100 件)
+//   --query TEXT --market CC --pool N              (popular のみ。--query は複数回指定できる。既定は
+//                                                   year:<今年> と genre 別の数パターン、JP、候補 40 件)
 //
 // --id には URL (https://open.spotify.com/playlist/xxxx?si=...)、URI (spotify:playlist:xxxx)、
 // 生の ID のどれを渡してもよい。
@@ -36,9 +37,9 @@ const SPOTIFY_REFRESH_TOKEN = process.env.SPOTIFY_REFRESH_TOKEN || "";
 const { values: args } = parseArgs({
   options: {
     source: { type: "string", default: "popular" },
-    query: { type: "string" },
+    query: { type: "string", multiple: true },
     market: { type: "string", default: "JP" },
-    pool: { type: "string", default: "100" },
+    pool: { type: "string", default: "40" },
     id: { type: "string" },
     month: { type: "string" },
     name: { type: "string" },
@@ -174,40 +175,56 @@ async function collect(path, params, mapItem) {
 
 const sources = {
   // 今ポピュラーな曲。Spotify 公式のチャート系プレイリストは開発モードのアプリから取れないので、
-  // 検索で候補を集めて Spotify の popularity(0-100)で並べ替える。
-  // 2026 年 2 月の API 変更で検索の limit は最大 10 になったので、offset でページングして集める。
+  // 検索で候補を集める。2026 年の開発モード制限で、検索は 1 回あたり数件しか返らず、
+  // popularity フィールドも返らない(常に 0)ことがある。そのため:
+  //   - offset を進めながら、新しい曲が出なくなるまでページングする
+  //   - クエリを複数用意して(--query を複数回指定可)、足りなければ次のクエリに進む
+  //   - 順位は popularity があればそれ、無ければ検索結果の並び(Spotify 側の関連度順)
   async popular() {
-    const query = args.query || `year:${new Date().getUTCFullYear()}`;
+    const year = new Date().getUTCFullYear();
+    const queries = args.query?.length
+      ? args.query
+      : [`year:${year}`, `year:${year} genre:j-pop`, `year:${year} genre:pop`, `year:${year} genre:hip-hop`, `year:${year - 1}`];
     const market = args.market;
-    const pageSize = 10;
-    const poolSize = Math.max(limit, Math.min(200, Number(args.pool) || 100));
+    const pageSize = 10; // 2026 年 2 月以降の上限
+    const poolSize = Math.max(limit, Math.min(200, Number(args.pool) || 40));
     const seen = new Set();
     const pool = [];
-    for (let offset = 0; offset < poolSize; offset += pageSize) {
-      let json;
-      try {
-        json = await api("/search", { q: query, type: "track", market, limit: pageSize, offset });
-      } catch (error) {
-        // 途中のページで弾かれたら、そこまでで打ち切る
-        if (pool.length >= limit) {
-          console.warn(`offset=${offset} で中断: ${error.message}`);
+
+    for (const query of queries) {
+      if (pool.length >= poolSize) break;
+      for (let offset = 0; offset < 200 && pool.length < poolSize; offset += pageSize) {
+        let json;
+        try {
+          json = await api("/search", { q: query, type: "track", market, limit: pageSize, offset });
+        } catch (error) {
+          if (pool.length === 0) throw error;
+          console.warn(`search "${query}" offset=${offset} で中断: ${error.message}`);
           break;
         }
-        throw error;
+        const page = json.tracks?.items || [];
+        let added = 0;
+        for (const track of page) {
+          if (!track?.id) continue;
+          // 同じ曲の別エディション(Deluxe 版など)を除く
+          const key = `${track.name}|${track.artists?.[0]?.name || ""}`.toLowerCase();
+          if (seen.has(key)) continue;
+          seen.add(key);
+          pool.push({ ...trackToItem(track), popularity: track.popularity ?? 0 });
+          added += 1;
+        }
+        console.log(`search "${query}" offset=${offset}: ${page.length} 件 (新規 ${added}, 累計 ${pool.length})`);
+        // 空ページ、または新しい曲が出なくなったらこのクエリは終わり
+        if (page.length === 0 || added === 0) break;
       }
-      const page = json.tracks?.items || [];
-      for (const track of page) {
-        if (!track?.id) continue;
-        // 同じ曲の別エディション(Deluxe 版など)を除く
-        const key = `${track.name}|${track.artists?.[0]?.name || ""}`.toLowerCase();
-        if (seen.has(key)) continue;
-        seen.add(key);
-        pool.push({ ...trackToItem(track), popularity: track.popularity ?? 0 });
-      }
-      if (!json.tracks?.next || page.length < pageSize) break;
     }
+
+    if (pool.length < limit) {
+      console.warn(`候補が ${pool.length} 件しか集まりませんでした(目標 ${limit} 件)。--query を追加してみてください。`);
+    }
+    // popularity が取れていれば降順、全部 0 なら検索順のまま(sort は安定)
     pool.sort((a, b) => b.popularity - a.popularity);
-    return { name: "popular", label: "Popular", meta: { query, market }, items: pool.slice(0, limit) };
+    return { name: "popular", label: "Popular", meta: { queries, market }, items: pool.slice(0, limit) };
   },
 
   // 聴取履歴から Spotify が出す Top Tracks(short_term ≒ 直近 4 週間)
