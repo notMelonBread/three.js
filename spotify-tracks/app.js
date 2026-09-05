@@ -1,124 +1,12 @@
 // 7x7 のグリッドに、月間トップ曲のジャケットを
-// large(3x3) / medium(2x2) / small(1x1) でランダムに敷き詰める。
+// large(3x3) / medium(2x2) / small(1x1) でランダムに敷き詰める(2D 版)。
+// 配置アルゴリズムは layout.js に切り出してあり、3D 版 (3d.js) と共用。
 
-const GRID_SIZE = 7;
-const SPAN = { large: 3, medium: 2, small: 1 };
-const MAX_LAYOUT_RETRIES = 200;
+import { assignSizes, formatMonth, layout, placeholderColor } from "./layout.js";
+
 const DATA_DIR = "data";
 
-// ---------- 配置アルゴリズム ----------
-
-function shuffle(array) {
-  const copy = array.slice();
-  for (let i = copy.length - 1; i > 0; i -= 1) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [copy[i], copy[j]] = [copy[j], copy[i]];
-  }
-  return copy;
-}
-
-function createUsedGrid() {
-  // CSS Grid に合わせて 1 始まりで扱う
-  return Array.from({ length: GRID_SIZE + 2 }, () =>
-    Array(GRID_SIZE + 2).fill(false),
-  );
-}
-
-function canPlace(used, col, row, span) {
-  for (let r = row; r < row + span; r += 1) {
-    for (let c = col; c < col + span; c += 1) {
-      if (used[r][c]) return false;
-    }
-  }
-  return true;
-}
-
-function markUsed(used, col, row, span) {
-  for (let r = row; r < row + span; r += 1) {
-    for (let c = col; c < col + span; c += 1) {
-      used[r][c] = true;
-    }
-  }
-}
-
-function findRandomSlot(used, span) {
-  const candidates = [];
-  const last = GRID_SIZE - span + 1;
-  for (let row = 1; row <= last; row += 1) {
-    for (let col = 1; col <= last; col += 1) {
-      // 3x3 をど真ん中に置くと単調になるので候補から外す
-      if (span === 3 && col === 3 && row === 3) continue;
-      if (canPlace(used, col, row, span)) candidates.push({ col, row });
-    }
-  }
-  return shuffle(candidates)[0] || null;
-}
-
-function sortForPlacement(tracks) {
-  // 大きいものから置くと失敗しにくい。同サイズ内は順位順。
-  return tracks.slice().sort((a, b) => {
-    const spanDiff = SPAN[b.size] - SPAN[a.size];
-    return spanDiff !== 0 ? spanDiff : a.rank - b.rank;
-  });
-}
-
-function tryLayout(tracks) {
-  const used = createUsedGrid();
-  const placements = [];
-  for (const track of tracks) {
-    const span = SPAN[track.size] || 1;
-    const slot = findRandomSlot(used, span);
-    if (!slot) return null;
-    markUsed(used, slot.col, slot.row, span);
-    placements.push({ track, span, ...slot });
-  }
-  return placements;
-}
-
-function layout(tracks) {
-  const ordered = sortForPlacement(tracks);
-  for (let attempt = 0; attempt < MAX_LAYOUT_RETRIES; attempt += 1) {
-    const placements = tryLayout(ordered);
-    if (placements) return placements;
-  }
-  // 最後の手段: 置けるものだけ置く
-  const used = createUsedGrid();
-  const placements = [];
-  for (const track of ordered) {
-    const span = SPAN[track.size] || 1;
-    const slot = findRandomSlot(used, span);
-    if (!slot) continue;
-    markUsed(used, slot.col, slot.row, span);
-    placements.push({ track, span, ...slot });
-  }
-  return placements;
-}
-
-// size が無いデータ用のフォールバック。
-// 20 曲なら large 1 / medium 7 / small 12 で 49 マスぴったり。
-function assignSizes(tracks) {
-  const sorted = tracks.slice().sort((a, b) => a.rank - b.rank);
-  const n = sorted.length;
-  const mediumCount = Math.max(0, Math.min(n - 1, Math.floor((41 - n) / 3)));
-  return sorted.map((track, i) => {
-    if (track.size) return track;
-    const size = i === 0 ? "large" : i <= mediumCount ? "medium" : "small";
-    return { ...track, size };
-  });
-}
-
 // ---------- 描画 ----------
-
-function placeholderColor(seed) {
-  let hash = 0;
-  for (const ch of String(seed)) hash = (hash * 31 + ch.charCodeAt(0)) >>> 0;
-  return `hsl(${hash % 360} 35% 28%)`;
-}
-
-function formatMonth(key) {
-  const [year, month] = key.split("-");
-  return `${year}年${Number(month)}月`;
-}
 
 function renderGrid(section, data) {
   const grid = section.querySelector(".grid");

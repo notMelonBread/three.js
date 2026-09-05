@@ -169,3 +169,13 @@ body {
   .month { transition: none; }
   .hero__hint { animation: none; }
 }
+
+.hero__link {
+  color: var(--muted);
+  text-decoration: none;
+  border-bottom: 1px solid currentColor;
+}
+
+.hero__link:hover {
+  color: var(--fg);
+}

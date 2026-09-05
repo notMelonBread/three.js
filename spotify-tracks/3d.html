@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tracks 3D</title>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.175.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.175.0/examples/jsm/"
+      }
+    }
+  </script>
+  <style>
+    :root {
+      --bg: #0b0b0c;
+      --fg: #f2f2f2;
+      --muted: #8a8a90;
+      font-size: clamp(12px, 2.2vw, 18px);
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; overflow: hidden; }
+    body {
+      background: var(--bg);
+      color: var(--fg);
+      font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+      -webkit-font-smoothing: antialiased;
+    }
+    #stage { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+    .ui { position: fixed; z-index: 1; pointer-events: none; }
+    .ui a, .ui button { pointer-events: auto; }
+    .top {
+      top: 1.2rem; left: 1.4rem; right: 1.4rem;
+      display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem;
+    }
+    .top h1 { margin: 0; font-size: 1.1rem; font-weight: 400; letter-spacing: 0.06em; }
+    .top p { margin: 0.2em 0 0; color: var(--muted); font-size: 0.8rem; }
+    .top a { color: var(--muted); text-decoration: none; border-bottom: 1px solid currentColor; font-size: 0.8rem; }
+    .top a:hover { color: var(--fg); }
+    .nav {
+      bottom: 3.4rem; left: 0; right: 0;
+      display: flex; justify-content: center; align-items: center; gap: 1rem;
+    }
+    .nav button {
+      appearance: none; background: none; border: 1px solid var(--muted); color: var(--fg);
+      font: inherit; padding: 0.3em 0.8em; border-radius: 999px; cursor: pointer;
+    }
+    .nav button:hover:not(:disabled) { border-color: var(--fg); }
+    .nav button:disabled { opacity: 0.3; cursor: default; }
+    .nav h2 { margin: 0; min-width: 8em; text-align: center; font-size: 1rem; font-weight: 400; letter-spacing: 0.1em; }
+    .nav h2 small { color: var(--muted); margin-left: 0.6em; }
+    .caption {
+      bottom: 1.4rem; left: 1.4rem; right: 1.4rem; min-height: 1.6em;
+      text-align: center; font-size: 0.8rem; color: var(--muted);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .caption strong { color: var(--fg); font-weight: 400; }
+    .attribution { top: auto; bottom: 0.3rem; left: 0; right: 0; text-align: center; font-size: 0.6rem; color: var(--muted); }
+    .attribution a { color: inherit; }
+    #loading {
+      position: fixed; inset: 0; z-index: 2; display: grid; place-items: center;
+      background: var(--bg); color: var(--muted); transition: opacity 0.5s ease;
+    }
+    #loading.is-hidden { opacity: 0; pointer-events: none; }
+  </style>
+</head>
+<body>
+  <canvas id="stage"></canvas>
+
+  <div class="ui top">
+    <div>
+      <h1>No Music, No Life.</h1>
+      <p>ドラッグで回転 / ホバーで持ち上げ / クリックで Spotify</p>
+    </div>
+    <a href="index.html">← 2D 版</a>
+  </div>
+
+  <div class="ui nav">
+    <button id="prev" type="button" aria-label="前の月">←</button>
+    <h2 id="month-title"></h2>
+    <button id="next" type="button" aria-label="次の月">→</button>
+  </div>
+
+  <p class="ui caption" id="caption"></p>
+
+  <p class="ui attribution">
+    楽曲データとアートワークは <a href="https://open.spotify.com/" target="_blank" rel="noopener">Spotify</a> から取得しています。
+  </p>
+
+  <div id="loading" aria-live="polite">読み込み中...</div>
+
+  <script type="module" src="3d.js"></script>
+</body>
+</html>
