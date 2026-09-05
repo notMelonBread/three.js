@@ -1,0 +1,10 @@
+# Netlify: ビルドなしで spotify-tracks/ をそのまま配信する
+[build]
+  publish = "spotify-tracks"
+  command = ""
+
+# data/*.json は毎月更新されるので長くキャッシュしない
+[[headers]]
+  for = "/data/*"
+  [headers.values]
+    Cache-Control = "public, max-age=300"
