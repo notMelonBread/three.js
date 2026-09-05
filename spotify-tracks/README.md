@@ -55,6 +55,13 @@ spotify-tracks/
 
 three.js は既存の練習ファイルと同じく importmap で CDN (`three@0.175.0`) から読む。
 
+### 軽量化
+
+- **止まっているときは描画しない。** カーソル・カメラ・アニメーションのどれも動いていないフレームは `renderer.render` を呼ばない(`needsRender` フラグと `OrbitControls.update()` の戻り値で判定)。
+- **画質の自動切り替え。** 起動直後(入場アニメーション中)のフレーム時間の中央値が 25ms(40fps)を超えたら `low` に落とす。`low` はガラスの屈折(`transmission`)をやめて半透明のみ、ピクセル比 1。`?quality=low` / `?quality=high` を URL に付けると固定できる。判定結果は `<html data-quality>` に入る。
+- ピクセル比の上限は 1.5、テクスチャの異方性フィルタは 4。
+- それでも重い端末向けに右上から 2D 版(`grid.html`)へ行ける。
+
 ## セットアップ
 
 必要なものは取得元によって違う。

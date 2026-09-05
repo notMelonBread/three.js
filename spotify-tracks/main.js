@@ -26,9 +26,15 @@ const TILT = 0.28; // 盛り上がりの斜面に沿ってケースが傾く強�
 
 // ---------- レンダラー / シーン ----------
 
+// 画質: "high" はガラスの屈折あり、"low" は半透明のみ(屈折はシーンをもう 1 回描くので重い)。
+// ?quality=low / ?quality=high で固定。指定が無ければ起動直後のフレームレートで自動判定する。
+const QUALITY_PARAM = new URLSearchParams(location.search).get("quality");
+let quality = QUALITY_PARAM === "low" || QUALITY_PARAM === "high" ? QUALITY_PARAM : "high";
+const autoQuality = !QUALITY_PARAM;
+
 const canvas = document.querySelector("#stage");
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: "high-performance" });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, quality === "low" ? 1 : 1.5));
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.1;
 renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -96,12 +102,33 @@ const shellMaterial = new THREE.MeshPhysicalMaterial({
   attenuationColor: new THREE.Color(0xdde8ff), // 厚みを通る光がわずかに青みがかる
   attenuationDistance: 3,
 });
+
+function applyQuality(next) {
+  quality = next;
+  if (quality === "low") {
+    // 屈折をやめて、以前の「半透明の膜」に戻す(シェーダーが変わるので needsUpdate)
+    shellMaterial.transmission = 0;
+    shellMaterial.transparent = true;
+    shellMaterial.opacity = 0.18;
+    shellMaterial.depthWrite = false;
+    renderer.setPixelRatio(1);
+  } else {
+    shellMaterial.transmission = 1;
+    shellMaterial.transparent = false;
+    shellMaterial.opacity = 1;
+    shellMaterial.depthWrite = true;
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+  }
+  shellMaterial.needsUpdate = true;
+  document.documentElement.dataset.quality = quality;
+  requestRender();
+}
 const trayMaterial = new THREE.MeshStandardMaterial({ color: 0x141416, roughness: 0.55 });
 const paperBackMaterial = new THREE.MeshStandardMaterial({ color: 0x0e0e10, roughness: 0.9 });
 
 const textureLoader = new THREE.TextureLoader();
 textureLoader.setCrossOrigin("anonymous");
-const maxAnisotropy = renderer.capabilities.getMaxAnisotropy();
+const maxAnisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy());
 
 function prepareTexture(texture) {
   texture.colorSpace = THREE.SRGBColorSpace;
@@ -160,6 +187,7 @@ function createCase(track, span) {
     frontMaterial.map = texture;
     frontMaterial.color.set(0xffffff);
     frontMaterial.needsUpdate = true;
+    requestRender();
   });
 
   // トレイ(中の黒いプラスチック)
@@ -181,7 +209,6 @@ function createCase(track, span) {
     track,
     hitTarget: shell,
     base: new THREE.Vector3(),
-    phase: Math.random() * Math.PI * 2,
     tween: null,
   };
   return group;
@@ -277,15 +304,23 @@ const cursor = {
 };
 const gridPlane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
 
+// 位置と強さをなめらかに追従させる(急に跳ねない)。まだ動いていれば true。
 function updateCursor() {
-  // 位置と強さをなめらかに追従させる(急に跳ねない)
+  const targetStrength = cursor.active ? 1 : 0;
+  const moving = cursor.point.distanceToSquared(cursor.target) > 1e-6 || Math.abs(cursor.strength - targetStrength) > 1e-3;
+  if (!moving) {
+    cursor.point.copy(cursor.target);
+    cursor.strength = targetStrength;
+    return false;
+  }
   cursor.point.lerp(cursor.target, 0.18);
-  cursor.strength += ((cursor.active ? 1 : 0) - cursor.strength) * 0.1;
+  cursor.strength += (targetStrength - cursor.strength) * 0.1;
+  return true;
 }
 
 function updateCase(group, t) {
   const data = group.userData;
-  const { base, phase } = data;
+  const { base } = data;
 
   // 出入りのアニメーション
   if (data.tween) {
@@ -314,15 +349,12 @@ function updateCase(group, t) {
   const dy = cursor.point.y - base.y;
   const g = Math.exp(-(dx * dx + dy * dy) / (LIFT_RADIUS * LIFT_RADIUS)) * cursor.strength;
 
-  // アイドル時のゆらぎ + 盛り上がり
-  const bob = Math.sin(t * 1.1 + phase) * 0.025;
-  group.position.set(base.x, base.y + bob, LIFT_HEIGHT * g);
+  group.position.set(base.x, base.y, LIFT_HEIGHT * g);
   group.scale.setScalar(1 + 0.04 * g);
 
   // 頂点(カーソル)に向かって面が起き上がるように傾ける。
   // カーソルが右にあれば右端が手前に(rotation.y < 0)、上にあれば上端が手前に(rotation.x > 0)。
-  const idleY = Math.sin(t * 0.6 + phase) * 0.05;
-  tmpEuler.set(TILT * dy * g, idleY - TILT * dx * g, 0);
+  tmpEuler.set(TILT * dy * g, -TILT * dx * g, 0);
   group.quaternion.setFromEuler(tmpEuler);
 }
 
@@ -332,6 +364,7 @@ function resize() {
   renderer.setSize(w, h, false);
   camera.aspect = w / h;
   camera.updateProjectionMatrix();
+  needsRender = true;
   if (autoFit) {
     const distance = fitDistance(camera.aspect);
     camera.position.set(0, 0.6, distance);
@@ -340,14 +373,57 @@ function resize() {
   }
 }
 
-function animate() {
+// 何かが動いているときだけ描画する(止まっていれば GPU を使わない)
+let needsRender = true;
+function requestRender() {
+  needsRender = true;
+}
+controls.addEventListener("change", requestRender);
+
+// 自動画質: 実際に描画したフレームの所要時間を測り、遅ければ low に落とす
+const probe = { samples: [], done: !autoQuality, last: 0 };
+function probeFrame(now) {
+  if (probe.done) return;
+  if (probe.last) probe.samples.push(now - probe.last);
+  probe.last = now;
+  // 入場アニメーション中の 60 フレーム、または描画時間の合計 1.5 秒ぶんを見る
+  // (遅い端末ほどフレーム数が稼げないので、時間でも打ち切る)
+  const total = probe.samples.reduce((sum, v) => sum + v, 0);
+  if (probe.samples.length < 60 && (total < 1500 || probe.samples.length < 5)) return;
+  probe.done = true;
+  const sorted = probe.samples.slice(Math.min(10, probe.samples.length - 5)).sort((a, b) => a - b);
+  const median = sorted[Math.floor(sorted.length / 2)];
+  if (median > 1000 / 40) {
+    console.info(`frame ${median.toFixed(1)}ms → quality: low`);
+    applyQuality("low");
+  }
+}
+
+function animate(now) {
+  requestAnimationFrame(animate);
   resize();
   const t = clock.getElapsedTime();
-  updateCursor();
-  for (const group of casesRoot.children) updateCase(group, t);
-  controls.update();
+
+  let active = updateCursor();
+  for (const group of casesRoot.children) {
+    updateCase(group, t);
+    if (group.userData.tween) active = true;
+  }
+  if (controls.update()) active = true; // ダンピング中も true
+
+  if (!active && !needsRender) {
+    probe.last = 0; // 描いていない間は計測しない
+    return;
+  }
+  needsRender = false;
   renderer.render(scene, camera);
-  requestAnimationFrame(animate);
+  renderCount += 1;
+  probeFrame(now);
+}
+let renderCount = 0; // 動作確認用(?debug=1 で window.__renders から読める)
+if (new URLSearchParams(location.search).has("debug")) {
+  Object.defineProperty(window, "__renders", { get: () => renderCount });
+  window.__probe = probe;
 }
 
 // ---------- ホバー / クリック ----------
@@ -386,6 +462,7 @@ canvas.addEventListener("pointermove", (event) => {
   updatePointer(event);
   const hit = raycaster.ray.intersectPlane(gridPlane, cursor.target);
   cursor.active = hit !== null;
+  requestRender();
 
   const next = pickCase(event);
   if (next !== hovered) {
@@ -397,6 +474,7 @@ canvas.addEventListener("pointermove", (event) => {
 
 canvas.addEventListener("pointerleave", () => {
   cursor.active = false;
+  requestRender();
   hovered = null;
   setCaption(null);
   canvas.style.cursor = "";
@@ -458,6 +536,7 @@ async function goTo(index) {
   hideMonth(() => {
     showMonth(data);
     switching = false;
+    requestRender();
   });
 }
 
@@ -469,7 +548,8 @@ window.addEventListener("keydown", (event) => {
 });
 
 async function main() {
-  animate();
+  applyQuality(quality);
+  requestAnimationFrame(animate);
   try {
     entries = readIndexEntries(await fetchJson(`${DATA_DIR}/index.json`));
     if (entries.length === 0) {
