@@ -30,12 +30,7 @@
     #stage { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
     .ui { position: fixed; z-index: 1; pointer-events: none; }
     .ui a, .ui button { pointer-events: auto; }
-    .top {
-      top: 1.2rem; left: 1.4rem; right: 1.4rem;
-      display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem;
-    }
-    .top h1 { margin: 0; font-size: 1.1rem; font-weight: 400; letter-spacing: 0.06em; }
-    .top p { margin: 0.2em 0 0; color: var(--muted); font-size: 0.8rem; }
+    .top { top: 1.2rem; right: 1.4rem; }
     .top a { color: var(--muted); text-decoration: none; border-bottom: 1px solid currentColor; font-size: 0.8rem; }
     .top a:hover { color: var(--fg); }
     .nav {
@@ -69,11 +64,7 @@
   <canvas id="stage"></canvas>
 
   <div class="ui top">
-    <div>
-      <h1>No Music, No Life.</h1>
-      <p>ドラッグで回転 / ホバーで持ち上げ / クリックで Spotify</p>
-    </div>
-    <a href="grid.html">2D 版 →</a>
+    <a href="grid.html" title="動作が重いときはこちら">2D 版 →</a>
   </div>
 
   <div class="ui nav">

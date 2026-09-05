@@ -23,7 +23,8 @@ const { SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET } = requireEnv(
 
 const PORT = Number(process.env.SPOTIFY_AUTH_PORT || 8888);
 const REDIRECT_URI = `http://127.0.0.1:${PORT}/callback`;
-const SCOPES = "user-top-read";
+// user-top-read: Top Tracks / user-library-read: 保存したアルバム・曲 / playlist-read-private: 非公開プレイリスト
+const SCOPES = "user-top-read user-library-read playlist-read-private";
 const state = randomBytes(12).toString("hex");
 
 const authUrl = new URL(AUTHORIZE_URL);

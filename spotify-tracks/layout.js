@@ -111,3 +111,21 @@ export function formatMonth(key) {
   const [year, month] = key.split("-");
   return `${year}年${Number(month)}月`;
 }
+
+// data/index.json を「ページの一覧」に正規化する。
+// 新形式: { entries: [{ file, label, month }] }
+// 旧形式: { months: ["2026-08", ...] } も読めるようにしておく。
+export function readIndexEntries(index) {
+  if (Array.isArray(index?.entries)) {
+    return index.entries.filter((e) => e && e.file).map((e) => ({
+      file: e.file,
+      label: e.label || (e.month ? formatMonth(e.month) : e.file),
+      month: e.month || null,
+    }));
+  }
+  return (index?.months || [])
+    .slice()
+    .sort()
+    .reverse()
+    .map((month) => ({ file: month, label: formatMonth(month), month }));
+}

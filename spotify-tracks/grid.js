@@ -2,7 +2,7 @@
 // large(3x3) / medium(2x2) / small(1x1) でランダムに敷き詰める(2D 版)。
 // 配置アルゴリズムは layout.js に切り出してあり、3D 版 (main.js) と共用。
 
-import { assignSizes, formatMonth, layout, placeholderColor } from "./layout.js";
+import { assignSizes, layout, placeholderColor, readIndexEntries } from "./layout.js";
 
 const DATA_DIR = "data";
 
@@ -51,22 +51,23 @@ function renderGrid(section, data) {
   }
 }
 
-function createSection(monthKey) {
+function createSection(entry) {
   const section = document.createElement("section");
   section.className = "month";
-  section.dataset.month = monthKey;
+  section.dataset.file = entry.file;
   section.innerHTML = `
-    <h2 class="month__title">${formatMonth(monthKey)}</h2>
+    <h2 class="month__title"></h2>
     <div class="grid" role="list"></div>
     <p class="grid__caption"></p>
   `;
+  section.querySelector(".month__title").textContent = entry.label;
   return section;
 }
 
 async function loadMonth(section) {
   if (section.dataset.loaded) return;
   section.dataset.loaded = "true";
-  const key = section.dataset.month;
+  const key = section.dataset.file;
   try {
     const response = await fetch(`${DATA_DIR}/${key}.json`);
     if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
@@ -93,10 +94,9 @@ async function main() {
   try {
     const response = await fetch(`${DATA_DIR}/index.json`);
     if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
-    const index = await response.json();
-    const months = (index.months || []).slice().sort().reverse();
+    const entries = readIndexEntries(await response.json());
 
-    if (months.length === 0) {
+    if (entries.length === 0) {
       container.innerHTML = '<section class="month"><p>まだデータがありません。</p></section>';
     }
 
@@ -111,8 +111,8 @@ async function main() {
       { rootMargin: "200px 0px" },
     );
 
-    for (const key of months) {
-      const section = createSection(key);
+    for (const entry of entries) {
+      const section = createSection(entry);
       container.append(section);
       observer.observe(section);
     }

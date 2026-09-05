@@ -1,8 +1,18 @@
 # spotify-tracks
 
-自分の Spotify の「月間いっぱい聞いた曲」を、7×7 のコラージュで並べる静的サイト。
-[k4nkan/track-memory](https://github.com/k4nkan/track-memory) のレイアウトを参考に、
-データ取得を Spotify の Top Tracks API に置き換えて DB なしで動くようにしたもの。
+Spotify から取ってきた曲やアルバムのジャケットを、7×7 のコラージュで並べる静的サイト。
+[k4nkan/track-memory](https://github.com/k4nkan/track-memory) のレイアウトを参考にしつつ、
+データ取得を Spotify Web API 直叩きにして DB なしで動くようにしたもの。
+
+取れるもの(`--source`):
+
+| source | 内容 | 並び順 |
+|---|---|---|
+| `top`(既定) | 聴取履歴から Spotify が出す Top Tracks(直近およそ 4 週間) | よく聴いた順 |
+| `playlist` | 任意のプレイリスト(自分のでも他人の公開でも) | プレイリストの曲順 |
+| `artist` | アーティストのアルバム / シングル | リリースが新しい順 |
+| `saved-albums` | 自分が保存したアルバム | 保存が新しい順 |
+| `saved-tracks` | 自分の「お気に入りの曲」 | 保存が新しい順 |
 
 ```
 spotify-tracks/
@@ -10,13 +20,13 @@ spotify-tracks/
 ├── grid.html / style.css / grid.js   2D 版(素の HTML + CSS Grid + JS)
 ├── layout.js                         7x7 の配置アルゴリズム(2D / 3D 共用)
 ├── data/
-│   ├── index.json                    月の一覧
-│   └── YYYY-MM.json                  月ごとのトップ曲(スクリプトが生成)
+│   ├── index.json                    表示するページの一覧(スクリプトが生成)
+│   └── <name>.json                   ページごとの曲一覧(スクリプトが生成)
 └── scripts/
     ├── get-refresh-token.mjs         初回だけ: ブラウザでログインして refresh token を取る
-    ├── fetch-top-tracks.mjs          Top Tracks を取得して data/ に JSON を書く
+    ├── fetch-tracks.mjs              Spotify から取得して data/ に JSON を書く
     └── spotify-auth.mjs              共通処理
-.github/workflows/spotify-tracks.yml  毎月 1 日に自動実行して data/ をコミット
+.github/workflows/spotify-tracks.yml  毎月 1 日に Top Tracks を自動取得して data/ をコミット
 ```
 
 依存パッケージはなし。Node 22 以上で動く。
@@ -60,15 +70,28 @@ node scripts/get-refresh-token.mjs
 ```
 
 表示された URL をブラウザで開いてログインすると、ターミナルに `SPOTIFY_REFRESH_TOKEN=...` が出るので `.env` に追記する。
+要求するスコープは `user-top-read`(Top Tracks)、`user-library-read`(保存したアルバム・曲)、`playlist-read-private`(非公開プレイリスト)。スコープを変えたら取り直す。
 
 ### 3. データを作る
 
 ```sh
-node scripts/fetch-top-tracks.mjs                  # 先月分
-node scripts/fetch-top-tracks.mjs --month 2026-08  # 月を指定
+# 聴取履歴ベース(先月の Top Tracks / 月を指定)
+node scripts/fetch-tracks.mjs
+node scripts/fetch-tracks.mjs --month 2026-08
+
+# 履歴に関係なく取る
+node scripts/fetch-tracks.mjs --source playlist --id "https://open.spotify.com/playlist/xxxx"
+node scripts/fetch-tracks.mjs --source artist --id "https://open.spotify.com/artist/xxxx" --limit 30
+node scripts/fetch-tracks.mjs --source saved-albums
+node scripts/fetch-tracks.mjs --source saved-tracks --name likes --label "Liked Songs"
 ```
 
-`data/2026-08.json` と `data/index.json` が更新される。2D 版・3D 版とも同じ JSON を読む。同梱の `2026-08.json` はサンプルなので、実行すると上書きされる。
+- `--id` は URL、`spotify:playlist:...` 形式の URI、生の ID のどれでもよい。
+- `--limit` は最大 49(7×7)。20 だとぴったり埋まり、それ以外は空きマスが出るか 1 マスの比率が増える。
+- `--name` で出力ファイル名、`--label` で画面の見出しを変えられる。
+- 実行すると `data/<name>.json` が書かれ、`data/index.json` が `data/` の中身から作り直される。並びは月ものが新しい順、それ以外は生成が新しい順。
+- 2D 版・3D 版とも同じ JSON を読む。同梱の `2026-08.json` はサンプルなので、実行すると上書きされる。
+- Spotify 公式のエディトリアル / アルゴリズム系プレイリスト(Today's Top Hits など)は 2024 年 11 月以降、開発モードのアプリからは取れない。自分や他ユーザーが作ったプレイリストは取れる。
 
 ### 4. ローカルで見る
 
@@ -93,8 +116,18 @@ python3 -m http.server 8000
 
 ## データ形式
 
+`data/index.json`:
+
+```json
+{ "entries": [ { "file": "2026-08", "label": "2026年8月", "month": "2026-08" } ] }
+```
+
+`data/<name>.json`(`month` は `top` のときだけ):
+
 ```json
 {
+  "source": "top",
+  "label": "2026年8月",
   "month": "2026-08",
   "time_range": "short_term",
   "generated_at": "2026-09-01T00:30:00.000Z",
@@ -116,7 +149,7 @@ python3 -m http.server 8000
 ## 元サイトとの違い
 
 - 元は再生履歴を GitHub Actions で定期収集して Supabase に貯め、再生回数で月間ランキングを出している。
-- こちらは Spotify の Top Tracks (`time_range=short_term`、直近およそ 4 週間) を月初に 1 回取るだけ。DB 不要だが、再生回数そのものは出ない。
+- こちらは Spotify Web API を直接叩くだけ。月間ものは Top Tracks (`time_range=short_term`、直近およそ 4 週間) を月初に 1 回取る。DB 不要だが、再生回数そのものは出ない。
 - 再生回数ベースにしたくなったら、`user-read-recently-played` で直近 50 曲を数時間おきに取り続ける仕組み(元サイトの save-spotify-logs 方式)に差し替える。
 
 ## 表示上の注意

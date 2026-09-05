@@ -9,9 +9,9 @@ import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import {
   GRID_SIZE,
   assignSizes,
-  formatMonth,
   layout,
   placeholderColor,
+  readIndexEntries,
 } from "./layout.js";
 
 const DATA_DIR = "data";
@@ -413,8 +413,8 @@ canvas.addEventListener("pointerup", (event) => {
 const titleEl = document.getElementById("month-title");
 const prevButton = document.getElementById("prev");
 const nextButton = document.getElementById("next");
-let months = [];
-let current = 0; // months は新しい順なので、prev = 古い月 = index + 1
+let entries = []; // 表示するページの一覧(月やプレイリストなど)
+let current = 0; // entries は新しい順なので、prev = 古いもの = index + 1
 let switching = false;
 
 async function fetchJson(path) {
@@ -424,17 +424,17 @@ async function fetchJson(path) {
 }
 
 async function goTo(index) {
-  if (switching || index < 0 || index >= months.length) return;
+  if (switching || index < 0 || index >= entries.length) return;
   switching = true;
   current = index;
-  const key = months[current];
-  prevButton.disabled = current >= months.length - 1;
+  const entry = entries[current];
+  prevButton.disabled = current >= entries.length - 1;
   nextButton.disabled = current <= 0;
-  titleEl.textContent = formatMonth(key);
+  titleEl.textContent = entry.label;
 
   let data;
   try {
-    data = await fetchJson(`${DATA_DIR}/${key}.json`);
+    data = await fetchJson(`${DATA_DIR}/${entry.file}.json`);
   } catch (error) {
     console.error(error);
     data = { tracks: [] };
@@ -460,9 +460,8 @@ window.addEventListener("keydown", (event) => {
 async function main() {
   animate();
   try {
-    const index = await fetchJson(`${DATA_DIR}/index.json`);
-    months = (index.months || []).slice().sort().reverse();
-    if (months.length === 0) {
+    entries = readIndexEntries(await fetchJson(`${DATA_DIR}/index.json`));
+    if (entries.length === 0) {
       titleEl.textContent = "まだデータがありません";
     } else {
       await goTo(0);

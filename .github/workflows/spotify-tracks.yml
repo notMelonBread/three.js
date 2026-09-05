@@ -35,9 +35,9 @@ jobs:
           MONTH: ${{ github.event.inputs.month }}
         run: |
           if [ -n "$MONTH" ]; then
-            node scripts/fetch-top-tracks.mjs --month "$MONTH"
+            node scripts/fetch-tracks.mjs --month "$MONTH"
           else
-            node scripts/fetch-top-tracks.mjs
+            node scripts/fetch-tracks.mjs
           fi
 
       - name: Commit and push
