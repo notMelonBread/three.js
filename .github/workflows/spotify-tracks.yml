@@ -2,12 +2,33 @@ name: Update Spotify tracks
 
 on:
   schedule:
-    # 毎月 1 日 09:30 JST (00:30 UTC) に先月分を生成
-    - cron: "30 0 1 * *"
+    # 毎週月曜 09:30 JST (00:30 UTC) に「今ポピュラーな曲」を更新(デフォルトブランチでのみ動く)
+    - cron: "30 0 * * 1"
   workflow_dispatch:
     inputs:
+      source:
+        description: "取得元"
+        type: choice
+        default: popular
+        options: [popular, playlist, artist, top, saved-albums, saved-tracks]
+      query:
+        description: "popular の検索条件(空なら year:今年)"
+        required: false
+        default: ""
+      id:
+        description: "playlist / artist の URL か ID"
+        required: false
+        default: ""
+      limit:
+        description: "件数 (最大 49、20 でぴったり)"
+        required: false
+        default: "20"
+      label:
+        description: "画面の見出し(空なら自動)"
+        required: false
+        default: ""
       month:
-        description: "保存する月 (YYYY-MM)。空なら先月"
+        description: "top のときの月 (YYYY-MM、空なら先月)"
         required: false
         default: ""
 
@@ -27,18 +48,24 @@ jobs:
         with:
           node-version: 22
 
-      - name: Fetch top tracks
+      - name: Fetch from Spotify
         env:
           SPOTIFY_CLIENT_ID: ${{ secrets.SPOTIFY_CLIENT_ID }}
           SPOTIFY_CLIENT_SECRET: ${{ secrets.SPOTIFY_CLIENT_SECRET }}
           SPOTIFY_REFRESH_TOKEN: ${{ secrets.SPOTIFY_REFRESH_TOKEN }}
+          SOURCE: ${{ github.event.inputs.source || 'popular' }}
+          QUERY: ${{ github.event.inputs.query }}
+          ID: ${{ github.event.inputs.id }}
+          LIMIT: ${{ github.event.inputs.limit || '20' }}
+          LABEL: ${{ github.event.inputs.label }}
           MONTH: ${{ github.event.inputs.month }}
         run: |
-          if [ -n "$MONTH" ]; then
-            node scripts/fetch-top-tracks.mjs --month "$MONTH"
-          else
-            node scripts/fetch-top-tracks.mjs
-          fi
+          set -- --source "$SOURCE" --limit "$LIMIT"
+          [ -n "$QUERY" ] && set -- "$@" --query "$QUERY"
+          [ -n "$ID" ] && set -- "$@" --id "$ID"
+          [ -n "$LABEL" ] && set -- "$@" --label "$LABEL"
+          [ -n "$MONTH" ] && set -- "$@" --month "$MONTH"
+          node scripts/fetch-tracks.mjs "$@"
 
       - name: Commit and push
         run: |
@@ -49,5 +76,7 @@ jobs:
             echo "変更なし"
             exit 0
           fi
-          git commit -m "chore(spotify-tracks): update monthly data"
+          git commit -m "chore(spotify-tracks): update data ($SOURCE)"
           git push
+        env:
+          SOURCE: ${{ github.event.inputs.source || 'popular' }}

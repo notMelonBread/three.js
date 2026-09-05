@@ -1,7 +1,9 @@
 {
-  "month": "2026-08",
+  "source": "popular",
+  "label": "Popular",
   "demo": true,
-  "time_range": "short_term",
+  "query": "year:2026",
+  "market": "JP",
   "generated_at": "2026-09-05T08:17:59.814Z",
   "tracks": [
     {

@@ -1,5 +1,9 @@
 {
-  "months": [
-    "2026-08"
+  "entries": [
+    {
+      "file": "popular",
+      "label": "Popular",
+      "month": null
+    }
   ]
 }
