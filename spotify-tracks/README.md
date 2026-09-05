@@ -60,8 +60,21 @@ three.js は既存の練習ファイルと同じく importmap で CDN (`three@0.
 
 | 取得元 | 必要なもの |
 |---|---|
-| `popular` / `playlist` / `artist` | Spotify アプリの Client ID と Client Secret だけ(手順 1 のみ) |
-| `top` / `saved-albums` / `saved-tracks` | 上に加えて、自分でログインして取る refresh token(手順 2 も) |
+| `popular` / `artist` | Spotify アプリの Client ID と Client Secret だけ(手順 1 のみ) |
+| `top` / `saved-albums` / `saved-tracks` / `playlist` | 上に加えて、自分でログインして取る refresh token(手順 2 も) |
+
+### 2026 年の Spotify API 制限(開発モードのアプリ)
+
+2026 年 2〜3 月の変更で、開発モードのアプリにはかなり制限がかかっている。このツールに関係するもの:
+
+- 検索 (`GET /search`) の `limit` は最大 10(以前は 50)。`popular` は 10 件ずつページングして候補を集める。
+- プレイリストの中身は **ログインした本人のプレイリストだけ** 読める。他人のプレイリストはメタデータのみ、Spotify 公式のプレイリスト(Top 50 など)は 404。エンドポイントも `/tracks` から `/items` に変わった。
+- 新譜 (`/browse/new-releases`)、アーティストの人気曲、他ユーザーのプロフィールとプレイリスト一覧などは廃止。
+- アプリのオーナーは Spotify Premium である必要がある。1 開発者につきアプリ 1 つ、利用ユーザーは 5 人まで。
+- Client Credentials(ログインなしのトークン)はカタログ系から段階的に外されている。`popular` が通らなくなったら、refresh token を設定してユーザートークンで叩くようにする(スクリプトは refresh token があればそちらを優先する)。
+
+Extended Quota Mode(組織向け、MAU 25 万以上)のアプリはこれらの影響を受けないが、個人では申請できない。
+
 
 ### 最短ルート(今ポピュラーな曲を GitHub Actions から取る)
 
@@ -70,9 +83,9 @@ three.js は既存の練習ファイルと同じく importmap で CDN (`three@0.
 3. Actions タブ → "Update Spotify tracks" → "Run workflow" で、ブランチを選んでそのまま実行する(source は `popular` が既定)。
 4. 成功すると `data/popular.json` がコミットされ、Netlify が自動で再デプロイする。以後は毎週月曜に自動更新(デフォルトブランチの場合)。
 
-`popular` は Spotify の検索 API で今年の曲を最大 200 件集め、各曲の popularity(0-100)で並べ替えたもの。
-Spotify 公式の「Top 50」などのチャートプレイリストは 2024 年 11 月以降、開発モードのアプリからは取れないための代替。
-`--query` で検索条件を変えられる(例: `"genre:j-pop year:2026"`、`"year:2020-2026"`)。`--market` は既定 `JP`。
+`popular` は Spotify の検索 API で今年の曲を候補として集め(10 件ずつ、既定 100 件)、各曲の popularity(0-100)で並べ替えたもの。
+Spotify 公式の「Top 50」などのチャートプレイリストは開発モードのアプリからは取れないための代替。
+`--query` で検索条件を変えられる(例: `"genre:j-pop year:2026"`、`"year:2020-2026"`)。`--market` は既定 `JP`、`--pool` で候補数を変えられる(最大 200)。
 
 ### 1. Spotify のアプリを作る
 
@@ -89,7 +102,7 @@ node scripts/get-refresh-token.mjs
 ```
 
 表示された URL をブラウザで開いてログインすると、ターミナルに `SPOTIFY_REFRESH_TOKEN=...` が出るので `.env` に追記する。
-要求するスコープは `user-top-read`(Top Tracks)、`user-library-read`(保存したアルバム・曲)、`playlist-read-private`(非公開プレイリスト)。スコープを変えたら取り直す。
+要求するスコープは `user-top-read`(Top Tracks)、`user-library-read`(保存したアルバム・曲)、`playlist-read-private` と `playlist-read-collaborative`(自分のプレイリスト)。スコープを変えたら取り直す。
 
 ### 3. データを作る
 
@@ -115,7 +128,7 @@ node scripts/fetch-tracks.mjs --source saved-tracks --name likes --label "Liked 
 - 実行すると `data/<name>.json` が書かれ、`data/index.json` が `data/` の中身から作り直される。並びは月ものが新しい順、それ以外は生成が新しい順。
 - 2D 版・3D 版とも同じ JSON を読む。同梱の `popular.json` はサンプルなので、実行すると上書きされる。
 - ページが 1 つだけのときは見出しと ← → を出さない。2 つ以上あると切り替え UI が出る。
-- Spotify 公式のエディトリアル / アルゴリズム系プレイリスト(Today's Top Hits など)は 2024 年 11 月以降、開発モードのアプリからは取れない。自分や他ユーザーが作ったプレイリストは取れる。
+- `playlist` で中身が取れるのは自分が作った(または共同編集している)プレイリストだけ。他人のプレイリストや Spotify 公式のプレイリストは取れない。
 
 ### 4. ローカルで見る
 

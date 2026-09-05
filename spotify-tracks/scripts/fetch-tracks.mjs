@@ -13,14 +13,14 @@
 //   --name KEY   出力ファイル名 data/KEY.json(省略時は自動)
 //   --label TEXT 画面に出す見出し(省略時はプレイリスト名など)
 //   --time-range short_term|medium_term|long_term  (top のみ)
-//   --query TEXT --market CC                       (popular のみ。既定は year:<今年> と JP)
+//   --query TEXT --market CC --pool N              (popular のみ。既定は year:<今年>、JP、候補 100 件)
 //
 // --id には URL (https://open.spotify.com/playlist/xxxx?si=...)、URI (spotify:playlist:xxxx)、
 // 生の ID のどれを渡してもよい。
 //
 // 必要な認証情報:
-//   popular / playlist / artist … SPOTIFY_CLIENT_ID + SPOTIFY_CLIENT_SECRET だけでよい(ログイン不要)
-//   top / saved-*       … 上に加えて SPOTIFY_REFRESH_TOKEN(get-refresh-token.mjs で取得)
+//   popular / artist            … SPOTIFY_CLIENT_ID + SPOTIFY_CLIENT_SECRET だけでよい(ログイン不要)
+//   top / saved-* / playlist    … 上に加えて SPOTIFY_REFRESH_TOKEN(get-refresh-token.mjs で取得)
 
 import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import { parseArgs } from "node:util";
@@ -38,6 +38,7 @@ const { values: args } = parseArgs({
     source: { type: "string", default: "popular" },
     query: { type: "string" },
     market: { type: "string", default: "JP" },
+    pool: { type: "string", default: "100" },
     id: { type: "string" },
     month: { type: "string" },
     name: { type: "string" },
@@ -128,9 +129,31 @@ async function api(path, params = {}) {
   const response = await fetch(url, { headers: { Authorization: `Bearer ${accessToken}` } });
   const json = await response.json().catch(() => ({}));
   if (!response.ok) {
-    throw new Error(`${path} failed: ${response.status} ${JSON.stringify(json)}`);
+    const hint = explainApiError(path, response.status, json);
+    throw new Error(`${path} failed: ${response.status} ${JSON.stringify(json)}${hint ? `\n→ ${hint}` : ""}`);
   }
   return json;
+}
+
+// 2026 年の開発モード制限で出やすいエラーに補足を付ける
+function explainApiError(path, status, json) {
+  const message = json?.error?.message || "";
+  if (status === 400 && /invalid limit/i.test(message)) {
+    return "limit が上限を超えています(検索は最大 10)。";
+  }
+  if (status === 403 && path.includes("/playlists/")) {
+    return "開発モードのアプリは自分のプレイリストしか読めません。他人のプレイリストや旧 /tracks エンドポイントは 403 になります。";
+  }
+  if (status === 404 && path.includes("/playlists/")) {
+    return "Spotify 公式(編集部/アルゴリズム)のプレイリストは開発モードのアプリから見えません。";
+  }
+  if (status === 401) {
+    return "トークンが無効です。Client ID / Secret / Refresh Token を確認してください。";
+  }
+  if (status === 403 && /premium/i.test(message)) {
+    return "開発モードのアプリはオーナーが Spotify Premium である必要があります。";
+  }
+  return "";
 }
 
 // ページングしながら最大 limit 件集める
@@ -152,13 +175,26 @@ async function collect(path, params, mapItem) {
 const sources = {
   // 今ポピュラーな曲。Spotify 公式のチャート系プレイリストは開発モードのアプリから取れないので、
   // 検索で候補を集めて Spotify の popularity(0-100)で並べ替える。
+  // 2026 年 2 月の API 変更で検索の limit は最大 10 になったので、offset でページングして集める。
   async popular() {
     const query = args.query || `year:${new Date().getUTCFullYear()}`;
     const market = args.market;
+    const pageSize = 10;
+    const poolSize = Math.max(limit, Math.min(200, Number(args.pool) || 100));
     const seen = new Set();
     const pool = [];
-    for (let offset = 0; offset < 200; offset += 50) {
-      const json = await api("/search", { q: query, type: "track", market, limit: 50, offset });
+    for (let offset = 0; offset < poolSize; offset += pageSize) {
+      let json;
+      try {
+        json = await api("/search", { q: query, type: "track", market, limit: pageSize, offset });
+      } catch (error) {
+        // 途中のページで弾かれたら、そこまでで打ち切る
+        if (pool.length >= limit) {
+          console.warn(`offset=${offset} で中断: ${error.message}`);
+          break;
+        }
+        throw error;
+      }
       const page = json.tracks?.items || [];
       for (const track of page) {
         if (!track?.id) continue;
@@ -168,7 +204,7 @@ const sources = {
         seen.add(key);
         pool.push({ ...trackToItem(track), popularity: track.popularity ?? 0 });
       }
-      if (!json.tracks?.next || page.length === 0) break;
+      if (!json.tracks?.next || page.length < pageSize) break;
     }
     pool.sort((a, b) => b.popularity - a.popularity);
     return { name: "popular", label: "Popular", meta: { query, market }, items: pool.slice(0, limit) };
@@ -188,19 +224,31 @@ const sources = {
     };
   },
 
-  // プレイリストの曲を並び順のまま
+  // プレイリストの曲を並び順のまま。
+  // 2026 年 3 月以降、開発モードのアプリが中身を読めるのは「ログインした本人のプレイリスト」だけ
+  // (他人のは metadata のみ、Spotify 公式のは 404)。エンドポイントも /tracks から /items に変わった。
   async playlist() {
     const id = parseSpotifyId(args.id, "playlist");
-    const info = await api(`/playlists/${id}`, { fields: "name,external_urls" });
+    const info = await api(`/playlists/${id}`, { fields: "name,external_urls,owner(display_name)" });
     const items = await collect(
-      `/playlists/${id}/tracks`,
-      { fields: "next,items(track(id,name,artists(name),album(name,images),external_urls))" },
-      (row) => (row.track && row.track.id ? trackToItem(row.track) : null), // ローカルファイル等は除外
+      `/playlists/${id}/items`,
+      { fields: "next,items(item(id,name,artists(name),album(name,images),external_urls))" },
+      (row) => {
+        const track = row.item || row.track; // 旧形式が返っても拾う
+        return track && track.id ? trackToItem(track) : null; // ローカルファイル等は除外
+      },
     );
+    if (items.length === 0) {
+      throw new Error(
+        `プレイリスト "${info.name}" の中身が取れませんでした。開発モードのアプリでは自分のプレイリストしか読めません` +
+          `(SPOTIFY_REFRESH_TOKEN を設定し、自分が作ったプレイリストを指定してください)。`,
+      );
+    }
     return { name: `playlist-${id}`, label: info.name, meta: { playlist_url: info.external_urls?.spotify }, items };
   },
 
-  // アーティストのアルバム / シングルをリリース順(新しい順)で
+  // アーティストのアルバム / シングルをリリース順(新しい順)で。
+  // 開発モードのアプリではカタログ系の制限で失敗することがある(Extended Quota Mode が必要)。
   async artist() {
     const id = parseSpotifyId(args.id, "artist");
     const info = await api(`/artists/${id}`);
@@ -271,12 +319,12 @@ async function main() {
     process.exit(1);
   }
 
-  const needsUser = ["top", "saved-albums", "saved-tracks"].includes(args.source);
+  const needsUser = ["top", "saved-albums", "saved-tracks", "playlist"].includes(args.source);
   if (SPOTIFY_REFRESH_TOKEN) {
     accessToken = await getAccessToken(SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET, SPOTIFY_REFRESH_TOKEN);
   } else if (needsUser) {
     console.error(`--source ${args.source} は自分のアカウントのデータなので SPOTIFY_REFRESH_TOKEN が必要です。`);
-    console.error("node scripts/get-refresh-token.mjs で取得するか、--source playlist / artist を使ってください。");
+    console.error("node scripts/get-refresh-token.mjs で取得するか、--source popular を使ってください。");
     process.exit(1);
   } else {
     accessToken = await getClientCredentialsToken(SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET);
