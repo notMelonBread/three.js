@@ -67,7 +67,7 @@ three.js は既存の練習ファイルと同じく importmap で CDN (`three@0.
 
 2026 年 2〜3 月の変更で、開発モードのアプリにはかなり制限がかかっている。このツールに関係するもの:
 
-- 検索 (`GET /search`) の `limit` は最大 10(以前は 50)。`popular` は 10 件ずつページングして候補を集める。
+- 検索 (`GET /search`) の `limit` は最大 10(以前は 50)。実際には 1 回あたり 5 件程度しか返らず、`popularity` フィールドも 0 になる。`popular` は複数クエリと offset で候補を集める。
 - プレイリストの中身は **ログインした本人のプレイリストだけ** 読める。他人のプレイリストはメタデータのみ、Spotify 公式のプレイリスト(Top 50 など)は 404。エンドポイントも `/tracks` から `/items` に変わった。
 - 新譜 (`/browse/new-releases`)、アーティストの人気曲、他ユーザーのプロフィールとプレイリスト一覧などは廃止。
 - アプリのオーナーは Spotify Premium である必要がある。1 開発者につきアプリ 1 つ、利用ユーザーは 5 人まで。
@@ -83,9 +83,9 @@ Extended Quota Mode(組織向け、MAU 25 万以上)のアプリはこれらの�
 3. Actions タブ → "Update Spotify tracks" → "Run workflow" で、ブランチを選んでそのまま実行する(source は `popular` が既定)。
 4. 成功すると `data/popular.json` がコミットされ、Netlify が自動で再デプロイする。以後は毎週月曜に自動更新(デフォルトブランチの場合)。
 
-`popular` は Spotify の検索 API で今年の曲を候補として集め(10 件ずつ、既定 100 件)、各曲の popularity(0-100)で並べ替えたもの。
-Spotify 公式の「Top 50」などのチャートプレイリストは開発モードのアプリからは取れないための代替。
-`--query` で検索条件を変えられる(例: `"genre:j-pop year:2026"`、`"year:2020-2026"`)。`--market` は既定 `JP`、`--pool` で候補数を変えられる(最大 200)。
+`popular` は Spotify の検索 API で今年の曲を候補として集めたもの。Spotify 公式の「Top 50」などのチャートプレイリストは開発モードのアプリからは取れないための代替。
+開発モードでは検索が 1 回あたり数件しか返らず、`popularity` も返らない(常に 0)ので、offset を進めつつ複数のクエリ(既定: `year:今年`、`year:今年 genre:j-pop`、`genre:pop`、`genre:hip-hop`、`year:去年`)で候補を積み上げ、順位は検索結果の並び順(Spotify 側の関連度順)をそのまま使う。
+`--query` は複数回指定でき、与えると既定のクエリ群の代わりになる(例: `--query "genre:j-pop year:2026" --query "genre:anime year:2026"`)。`--market` は既定 `JP`、`--pool` で候補数を変えられる(既定 40、最大 200)。
 
 ### 1. Spotify のアプリを作る
 
@@ -109,7 +109,7 @@ node scripts/get-refresh-token.mjs
 ```sh
 # 今ポピュラーな曲(ログイン不要)
 node scripts/fetch-tracks.mjs
-node scripts/fetch-tracks.mjs --query "genre:j-pop year:2026"
+node scripts/fetch-tracks.mjs --query "genre:j-pop year:2026" --query "genre:anime year:2026"
 
 # 聴取履歴ベース(先月の Top Tracks / 月を指定。refresh token が必要)
 node scripts/fetch-tracks.mjs --source top
