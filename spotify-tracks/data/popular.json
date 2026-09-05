@@ -2,9 +2,15 @@
   "source": "popular",
   "label": "Popular",
   "month": null,
-  "query": "year:2026",
+  "queries": [
+    "year:2026",
+    "year:2026 genre:j-pop",
+    "year:2026 genre:pop",
+    "year:2026 genre:hip-hop",
+    "year:2025"
+  ],
   "market": "JP",
-  "generated_at": "2026-09-05T13:27:37.069Z",
+  "generated_at": "2026-09-05T13:31:26.488Z",
   "tracks": [
     {
       "rank": 1,
@@ -60,6 +66,171 @@
       "spotify_url": "https://open.spotify.com/track/1F1hibBCtNeObRMmEMLHNh",
       "popularity": 0,
       "size": "medium"
+    },
+    {
+      "rank": 6,
+      "id": "7L1UsUbSqowTKwrgT0v8AS",
+      "name": "Yes! 東京",
+      "artist": "EBiDAN (恵比寿学園男子部), chotokkyu, M!LK, 原因は自分にある。, SUPER★DRAGON, Sakurashimeji, ONE N' ONLY, BUDDiiS, ICEx, Lienel",
+      "album": "Yes! 東京",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e02902e640490a6decd6dcebef8",
+      "spotify_url": "https://open.spotify.com/track/7L1UsUbSqowTKwrgT0v8AS",
+      "popularity": 0,
+      "size": "medium"
+    },
+    {
+      "rank": 7,
+      "id": "74ThDjhS3BXmghci7Qbhv9",
+      "name": "You!Joy!Parade!",
+      "artist": "M!LK",
+      "album": "You!Joy!Parade!",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e02f4a2b71319bb7ddd678a9fac",
+      "spotify_url": "https://open.spotify.com/track/74ThDjhS3BXmghci7Qbhv9",
+      "popularity": 0,
+      "size": "medium"
+    },
+    {
+      "rank": 8,
+      "id": "3NPdo1QXqBKIoQAX2xSCRJ",
+      "name": "アイドルパワー",
+      "artist": "M!LK",
+      "album": "アイドルパワー",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e02cfca8c7af4bd36ae78a5b50f",
+      "spotify_url": "https://open.spotify.com/track/3NPdo1QXqBKIoQAX2xSCRJ",
+      "popularity": 0,
+      "size": "medium"
+    },
+    {
+      "rank": 9,
+      "id": "6ggjkwPk8ghOR5Pu5rTRH6",
+      "name": "3XL",
+      "artist": "Number_i",
+      "album": "3XL",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e02633ad0881110110829018a69",
+      "spotify_url": "https://open.spotify.com/track/6ggjkwPk8ghOR5Pu5rTRH6",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 10,
+      "id": "5Ij88F5dK7yib1RoNA8wGV",
+      "name": "烏 - Raven",
+      "artist": "Kenshi Yonezu",
+      "album": "烏 - Raven",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e026587e9ae2e13c8bd69c0bf7e",
+      "spotify_url": "https://open.spotify.com/track/5Ij88F5dK7yib1RoNA8wGV",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 11,
+      "id": "479lHLFFoTDvl4s65jNs5v",
+      "name": "BRUCE WAYNE - feat. Flo Milli, ATL Jacob",
+      "artist": "BE:FIRST, Flo Milli, ATL Jacob",
+      "album": "BRUCE WAYNE (feat. Flo Milli, ATL Jacob)",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e02faa301cfb622e206a6a8eb6f",
+      "spotify_url": "https://open.spotify.com/track/479lHLFFoTDvl4s65jNs5v",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 12,
+      "id": "01Wc6RiaghdtkpJXV9WmAj",
+      "name": "見知らぬ糸",
+      "artist": "SPITZ",
+      "album": "見知らぬ糸",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e029f6f318c2d70e3dec67321cc",
+      "spotify_url": "https://open.spotify.com/track/01Wc6RiaghdtkpJXV9WmAj",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 13,
+      "id": "4Qa2LME2vWWPXMLnFCGgxU",
+      "name": "夜鷹 - Yodaka",
+      "artist": "Kenshi Yonezu",
+      "album": "夜鷹 - Yodaka",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e0262249e32fd6ee1ce0b34640b",
+      "spotify_url": "https://open.spotify.com/track/4Qa2LME2vWWPXMLnFCGgxU",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 14,
+      "id": "6hnk0Fesq9JOhWpck8HJsj",
+      "name": "Blue Jeans",
+      "artist": "HANA",
+      "album": "HANA",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e02c175a1d89c39c1cd297cb669",
+      "spotify_url": "https://open.spotify.com/track/6hnk0Fesq9JOhWpck8HJsj",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 15,
+      "id": "2cIqVZFyBH8h5dnrzBvtre",
+      "name": "Five",
+      "artist": "ARASHI",
+      "album": "Five",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e02d4223a5dd64fe336dd9951e2",
+      "spotify_url": "https://open.spotify.com/track/2cIqVZFyBH8h5dnrzBvtre",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 16,
+      "id": "1DkRsJu6pgBkyt016HlPdZ",
+      "name": "恋、はじめました。",
+      "artist": "=LOVE",
+      "album": "恋、はじめました。",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e020d6f969b277e5f515eeb2209",
+      "spotify_url": "https://open.spotify.com/track/1DkRsJu6pgBkyt016HlPdZ",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 17,
+      "id": "4xw02DYvl9ktqLrz4IRd2L",
+      "name": "罪と罰と雨とキス (佐野勇斗&吉田仁人)",
+      "artist": "M!LK",
+      "album": "罪と罰と雨とキス (佐野勇斗&吉田仁人)",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e02d091776827375116a8df783e",
+      "spotify_url": "https://open.spotify.com/track/4xw02DYvl9ktqLrz4IRd2L",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 18,
+      "id": "0jIdJN8ZjQNVLmikkg0mnF",
+      "name": "WHATCHA DOIN",
+      "artist": "JO1",
+      "album": "WHATCHA DOIN",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e02a84b978e94c75756dca0a18e",
+      "spotify_url": "https://open.spotify.com/track/0jIdJN8ZjQNVLmikkg0mnF",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 19,
+      "id": "3920QegiL2PHmaYYBVwexC",
+      "name": "ROSE",
+      "artist": "HANA",
+      "album": "HANA",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e02c175a1d89c39c1cd297cb669",
+      "spotify_url": "https://open.spotify.com/track/3920QegiL2PHmaYYBVwexC",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 20,
+      "id": "54kwD19pq6ea4yGiiX84QB",
+      "name": "GO GHOST",
+      "artist": "King Gnu",
+      "album": "GO GHOST",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e021c4531b72e6d1e25580573ff",
+      "spotify_url": "https://open.spotify.com/track/54kwD19pq6ea4yGiiX84QB",
+      "popularity": 0,
+      "size": "small"
     }
   ]
 }
