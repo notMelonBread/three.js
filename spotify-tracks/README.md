@@ -44,7 +44,8 @@ spotify-tracks/
 
 同じ 7x7 の配置を three.js で 3D 空間に置いたもの。1 曲 = 1 枚の CD ジュエルケース。
 
-- `BoxGeometry` を 3 枚重ねてケースにしている: 透明プラスチックの外側 (`MeshPhysicalMaterial`、clearcoat + 半透明)、中の黒いトレイ、前面にだけジャケットを貼った紙 (`BoxGeometry` に 6 面分のマテリアル配列を渡し、前面だけ `map` を差す)。
+- 箱を 3 つ重ねてケースにしている: ガラスの外側 (`RoundedBoxGeometry` + `MeshPhysicalMaterial` の `transmission` で屈折させ、clearcoat で表面の反射を足す)、中の黒いトレイ、前面にだけジャケットを貼った紙 (`BoxGeometry` に 6 面分のマテリアル配列を渡し、前面だけ `map` を差す)。
+- ガラスの見た目は `main.js` の `shellMaterial` で調整する。`roughness` を上げると曇りガラス、`thickness` を上げると屈折の歪みが強くなる(ジャケットもぼやける)、`attenuationColor` でガラスの色味。
 - ジャケットは `TextureLoader` で Spotify の CDN から直接読む (`crossOrigin = "anonymous"`)。読めなかったときはランクと曲名を描いた `CanvasTexture` に落ちる。
 - 映り込みは `RoomEnvironment` + `PMREMGenerator` の環境マップ。
 - カーソルの位置をグリッドの面 (z=0) に投影し、そこを頂点にしたガウス関数 `exp(-r²/R²)` で周囲のケースを持ち上げる。傾きはその斜面(勾配)に沿わせるので、面がカーソルの下で盛り上がっているように見える。

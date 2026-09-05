@@ -6,6 +6,7 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
+import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
 import {
   GRID_SIZE,
   assignSizes,
@@ -79,16 +80,21 @@ scene.add(rim);
 
 // ---------- マテリアル(共有) ----------
 
+// ガラス。transmission(屈折)で中のジャケットをガラス越しに見せる。
+// opacity での半透明と違い、厚み(thickness)と屈折率(ior)で光が曲がり、縁に環境が映り込む。
 const shellMaterial = new THREE.MeshPhysicalMaterial({
   color: 0xffffff,
-  roughness: 0.06,
+  transmission: 1, // 1 = 完全に透過(ガラス)
+  thickness: 0.2, // 屈折の計算に使う疑似的な厚み。大きいほど歪む(ジャケットもぼやける)
+  ior: 1.5, // ガラスの屈折率
+  roughness: 0.03, // 小さいほど澄んだガラス。0.2 くらいで曇りガラス
   metalness: 0,
-  transparent: true,
-  opacity: 0.16,
   clearcoat: 1,
-  clearcoatRoughness: 0.08,
-  envMapIntensity: 1.4,
-  depthWrite: false,
+  clearcoatRoughness: 0.03,
+  envMapIntensity: 1.6,
+  specularIntensity: 1,
+  attenuationColor: new THREE.Color(0xdde8ff), // 厚みを通る光がわずかに青みがかる
+  attenuationDistance: 3,
 });
 const trayMaterial = new THREE.MeshStandardMaterial({ color: 0x141416, roughness: 0.55 });
 const paperBackMaterial = new THREE.MeshStandardMaterial({ color: 0x0e0e10, roughness: 0.9 });
@@ -164,9 +170,11 @@ function createCase(track, span) {
   tray.position.z = -CASE_DEPTH * 0.05;
   group.add(tray);
 
-  // 外側の透明ケース
-  const shell = new THREE.Mesh(new THREE.BoxGeometry(size, size, CASE_DEPTH), shellMaterial);
-  shell.renderOrder = 1;
+  // 外側のガラスケース。角を丸めるとエッジにハイライトが乗ってガラスらしくなる
+  const shell = new THREE.Mesh(
+    new RoundedBoxGeometry(size, size, CASE_DEPTH, 3, Math.min(0.035, size * 0.06)),
+    shellMaterial,
+  );
   group.add(shell);
 
   group.userData = {
