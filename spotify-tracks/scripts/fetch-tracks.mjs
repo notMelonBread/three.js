@@ -15,19 +15,21 @@
 //
 // --id には URL (https://open.spotify.com/playlist/xxxx?si=...)、URI (spotify:playlist:xxxx)、
 // 生の ID のどれを渡してもよい。
+//
+// 必要な認証情報:
+//   playlist / artist   … SPOTIFY_CLIENT_ID + SPOTIFY_CLIENT_SECRET だけでよい(ログイン不要)
+//   top / saved-*       … 上に加えて SPOTIFY_REFRESH_TOKEN(get-refresh-token.mjs で取得)
 
 import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import { parseArgs } from "node:util";
 import { resolve } from "node:path";
-import { getAccessToken, loadDotenv, requireEnv } from "./spotify-auth.mjs";
+import { getAccessToken, getClientCredentialsToken, loadDotenv, requireEnv } from "./spotify-auth.mjs";
 import { formatMonth } from "../layout.js";
 
 loadDotenv();
-const { SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET, SPOTIFY_REFRESH_TOKEN } = requireEnv(
-  "SPOTIFY_CLIENT_ID",
-  "SPOTIFY_CLIENT_SECRET",
-  "SPOTIFY_REFRESH_TOKEN",
-);
+const { SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET } = requireEnv("SPOTIFY_CLIENT_ID", "SPOTIFY_CLIENT_SECRET");
+// refresh token は「自分のデータ」(top / saved-*) にだけ必要。playlist / artist は無くても取れる。
+const SPOTIFY_REFRESH_TOKEN = process.env.SPOTIFY_REFRESH_TOKEN || "";
 
 const { values: args } = parseArgs({
   options: {
@@ -241,7 +243,16 @@ async function main() {
     process.exit(1);
   }
 
-  accessToken = await getAccessToken(SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET, SPOTIFY_REFRESH_TOKEN);
+  const needsUser = ["top", "saved-albums", "saved-tracks"].includes(args.source);
+  if (SPOTIFY_REFRESH_TOKEN) {
+    accessToken = await getAccessToken(SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET, SPOTIFY_REFRESH_TOKEN);
+  } else if (needsUser) {
+    console.error(`--source ${args.source} は自分のアカウントのデータなので SPOTIFY_REFRESH_TOKEN が必要です。`);
+    console.error("node scripts/get-refresh-token.mjs で取得するか、--source playlist / artist を使ってください。");
+    process.exit(1);
+  } else {
+    accessToken = await getClientCredentialsToken(SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET);
+  }
   const result = await fetchSource();
 
   if (result.items.length === 0) {

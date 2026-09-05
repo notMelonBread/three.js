@@ -55,13 +55,27 @@ three.js は既存の練習ファイルと同じく importmap で CDN (`three@0.
 
 ## セットアップ
 
+必要なものは取得元によって違う。
+
+| 取得元 | 必要なもの |
+|---|---|
+| `playlist` / `artist` | Spotify アプリの Client ID と Client Secret だけ(手順 1 のみ) |
+| `top` / `saved-albums` / `saved-tracks` | 上に加えて、自分でログインして取る refresh token(手順 2 も) |
+
+### 最短ルート(プレイリストを GitHub Actions から取る)
+
+1. 手順 1 で Spotify アプリを作る(Redirect URI の登録は不要)。
+2. GitHub のリポジトリ → Settings → Secrets and variables → Actions に `SPOTIFY_CLIENT_ID` と `SPOTIFY_CLIENT_SECRET` を登録する。
+3. Actions タブ → "Update Spotify tracks" → "Run workflow" で、ブランチを選び、source に `playlist`、id にプレイリストの URL を入れて実行する。
+4. 成功すると `data/` にコミットされ、Netlify が自動で再デプロイする。
+
 ### 1. Spotify のアプリを作る
 
 1. https://developer.spotify.com/dashboard でアプリを作成。
-2. Redirect URI に `http://127.0.0.1:8888/callback` を追加(`localhost` は今は使えない)。
-3. Client ID と Client Secret を控える。
+2. Client ID と Client Secret を控える。
+3. refresh token も取るなら、Redirect URI に `http://127.0.0.1:8888/callback` を追加しておく(`localhost` は今は使えない)。
 
-### 2. refresh token を取る(初回だけ)
+### 2. refresh token を取る(top / saved-* を使うときだけ、初回のみ)
 
 ```sh
 cd spotify-tracks
@@ -105,14 +119,14 @@ python3 -m http.server 8000
 
 ### 5. 毎月自動更新する(GitHub Actions)
 
-リポジトリの Settings → Secrets and variables → Actions に次の 3 つを登録する。
+リポジトリの Settings → Secrets and variables → Actions に登録する。
 
-- `SPOTIFY_CLIENT_ID`
-- `SPOTIFY_CLIENT_SECRET`
-- `SPOTIFY_REFRESH_TOKEN`
+- `SPOTIFY_CLIENT_ID`、`SPOTIFY_CLIENT_SECRET`(必須)
+- `SPOTIFY_REFRESH_TOKEN`(top / saved-* を使うときだけ)
 
-毎月 1 日 09:30 JST に先月分を生成して `data/` にコミットする。Actions タブから手動実行(月指定も可)もできる。
-公開は GitHub Pages や Netlify で `spotify-tracks/` を配信すればよい。
+毎月 1 日 09:30 JST に先月の Top Tracks を生成して `data/` にコミットする(スケジュール実行はデフォルトブランチでのみ動く。refresh token が無いと失敗する)。
+Actions タブの "Run workflow" からは取得元・URL・件数を指定して任意のブランチで手動実行できる。
+公開は GitHub Pages や Netlify で `spotify-tracks/` を配信すればよい(リポジトリ直下の `netlify.toml` で設定済み)。
 
 ## データ形式
 

@@ -54,6 +54,13 @@ export function exchangeCode(clientId, clientSecret, code, redirectUri) {
   });
 }
 
+// ユーザーのログインなしで取れるトークン(公開プレイリスト、アーティスト情報など)。
+// Top Tracks や保存したアルバムなど「自分の」データには使えない。
+export async function getClientCredentialsToken(clientId, clientSecret) {
+  const json = await postToken(clientId, clientSecret, { grant_type: "client_credentials" });
+  return json.access_token;
+}
+
 export async function getAccessToken(clientId, clientSecret, refreshToken) {
   const json = await postToken(clientId, clientSecret, {
     grant_type: "refresh_token",
