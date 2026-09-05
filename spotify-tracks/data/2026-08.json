@@ -1,0 +1,208 @@
+{
+  "month": "2026-08",
+  "demo": true,
+  "time_range": "short_term",
+  "generated_at": "2026-09-05T08:17:59.814Z",
+  "tracks": [
+    {
+      "rank": 1,
+      "id": "demo-1",
+      "name": "Plastic Love",
+      "artist": "竹内まりや",
+      "album": "",
+      "image_url": "",
+      "spotify_url": "https://open.spotify.com/",
+      "size": "large"
+    },
+    {
+      "rank": 2,
+      "id": "demo-2",
+      "name": "夜に駆ける",
+      "artist": "YOASOBI",
+      "album": "",
+      "image_url": "",
+      "spotify_url": "https://open.spotify.com/",
+      "size": "medium"
+    },
+    {
+      "rank": 3,
+      "id": "demo-3",
+      "name": "怪獣の花唄",
+      "artist": "Vaundy",
+      "album": "",
+      "image_url": "",
+      "spotify_url": "https://open.spotify.com/",
+      "size": "medium"
+    },
+    {
+      "rank": 4,
+      "id": "demo-4",
+      "name": "Subtitle",
+      "artist": "Official髭男dism",
+      "album": "",
+      "image_url": "",
+      "spotify_url": "https://open.spotify.com/",
+      "size": "medium"
+    },
+    {
+      "rank": 5,
+      "id": "demo-5",
+      "name": "ドライフラワー",
+      "artist": "優里",
+      "album": "",
+      "image_url": "",
+      "spotify_url": "https://open.spotify.com/",
+      "size": "medium"
+    },
+    {
+      "rank": 6,
+      "id": "demo-6",
+      "name": "新時代",
+      "artist": "Ado",
+      "album": "",
+      "image_url": "",
+      "spotify_url": "https://open.spotify.com/",
+      "size": "medium"
+    },
+    {
+      "rank": 7,
+      "id": "demo-7",
+      "name": "晩餐歌",
+      "artist": "tuki.",
+      "album": "",
+      "image_url": "",
+      "spotify_url": "https://open.spotify.com/",
+      "size": "medium"
+    },
+    {
+      "rank": 8,
+      "id": "demo-8",
+      "name": "Bling-Bang-Bang-Born",
+      "artist": "Creepy Nuts",
+      "album": "",
+      "image_url": "",
+      "spotify_url": "https://open.spotify.com/",
+      "size": "medium"
+    },
+    {
+      "rank": 9,
+      "id": "demo-9",
+      "name": "アイドル",
+      "artist": "YOASOBI",
+      "album": "",
+      "image_url": "",
+      "spotify_url": "https://open.spotify.com/",
+      "size": "small"
+    },
+    {
+      "rank": 10,
+      "id": "demo-10",
+      "name": "ライラック",
+      "artist": "Mrs. GREEN APPLE",
+      "album": "",
+      "image_url": "",
+      "spotify_url": "https://open.spotify.com/",
+      "size": "small"
+    },
+    {
+      "rank": 11,
+      "id": "demo-11",
+      "name": "First Love",
+      "artist": "宇多田ヒカル",
+      "album": "",
+      "image_url": "",
+      "spotify_url": "https://open.spotify.com/",
+      "size": "small"
+    },
+    {
+      "rank": 12,
+      "id": "demo-12",
+      "name": "Lemon",
+      "artist": "米津玄師",
+      "album": "",
+      "image_url": "",
+      "spotify_url": "https://open.spotify.com/",
+      "size": "small"
+    },
+    {
+      "rank": 13,
+      "id": "demo-13",
+      "name": "白日",
+      "artist": "King Gnu",
+      "album": "",
+      "image_url": "",
+      "spotify_url": "https://open.spotify.com/",
+      "size": "small"
+    },
+    {
+      "rank": 14,
+      "id": "demo-14",
+      "name": "Pretender",
+      "artist": "Official髭男dism",
+      "album": "",
+      "image_url": "",
+      "spotify_url": "https://open.spotify.com/",
+      "size": "small"
+    },
+    {
+      "rank": 15,
+      "id": "demo-15",
+      "name": "マリーゴールド",
+      "artist": "あいみょん",
+      "album": "",
+      "image_url": "",
+      "spotify_url": "https://open.spotify.com/",
+      "size": "small"
+    },
+    {
+      "rank": 16,
+      "id": "demo-16",
+      "name": "丸の内サディスティック",
+      "artist": "椎名林檎",
+      "album": "",
+      "image_url": "",
+      "spotify_url": "https://open.spotify.com/",
+      "size": "small"
+    },
+    {
+      "rank": 17,
+      "id": "demo-17",
+      "name": "Stay With Me",
+      "artist": "松原みき",
+      "album": "",
+      "image_url": "",
+      "spotify_url": "https://open.spotify.com/",
+      "size": "small"
+    },
+    {
+      "rank": 18,
+      "id": "demo-18",
+      "name": "勿忘",
+      "artist": "Awesome City Club",
+      "album": "",
+      "image_url": "",
+      "spotify_url": "https://open.spotify.com/",
+      "size": "small"
+    },
+    {
+      "rank": 19,
+      "id": "demo-19",
+      "name": "ケセラセラ",
+      "artist": "Mrs. GREEN APPLE",
+      "album": "",
+      "image_url": "",
+      "spotify_url": "https://open.spotify.com/",
+      "size": "small"
+    },
+    {
+      "rank": 20,
+      "id": "demo-20",
+      "name": "花",
+      "artist": "藤井風",
+      "album": "",
+      "image_url": "",
+      "spotify_url": "https://open.spotify.com/",
+      "size": "small"
+    }
+  ]
+}
