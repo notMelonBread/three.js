@@ -5,7 +5,6 @@
 
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
 import {
   GRID_SIZE,
@@ -18,7 +17,7 @@ import {
 const DATA_DIR = "data";
 const CELL = 1; // 1 マスの大きさ(ワールド単位)
 const GAP = 0.12; // ケース同士の隙間
-const CASE_DEPTH = 0.1;
+const CASE_DEPTH = 0.16; // ガラスの厚み。厚いほど縁の屈折とジャケットとの隙間が見える
 const FLY_DISTANCE = -9; // 出入りするときの奥行き
 const LIFT_HEIGHT = 1.0; // カーソル直下のケースが持ち上がる高さ
 const LIFT_RADIUS = 1.6; // 盛り上がりの広がり(マス単位)
@@ -43,10 +42,38 @@ const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x0b0b0c);
 scene.fog = new THREE.Fog(0x0b0b0c, 16, 30);
 
-// 透明プラスチックの映り込み用に部屋っぽい環境マップを作る
-const pmrem = new THREE.PMREMGenerator(renderer);
-scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
-pmrem.dispose();
+// ガラスの映り込み用の環境マップ。
+// RoomEnvironment は正面から見たときに映るもの(カメラの背後)が暗く、ガラスに見えなかった。
+// 代わりに、カメラの背後に撮影スタジオのような大きなライトパネルを置いた空間を作り、
+// それを PMREM に焼く。正面向きのガラス面にはカメラ背後のものが映るので、
+// 各ケースに柔らかい白い窓のような反射が乗り、傾けると滑って動く。
+function createStudioEnvironment() {
+  const studio = new THREE.Scene();
+  studio.background = new THREE.Color(0x0a0a0c);
+  const addPanel = (width, height, color, intensity, position) => {
+    const material = new THREE.MeshBasicMaterial({ color, side: THREE.DoubleSide });
+    material.color.multiplyScalar(intensity); // 1 を超える値で HDR の光源にする
+    const panel = new THREE.Mesh(new THREE.PlaneGeometry(width, height), material);
+    panel.position.copy(position);
+    panel.lookAt(0, 0, 0);
+    studio.add(panel);
+  };
+  // 主光源: カメラの真後ろ、やや上に大きなソフトボックス。
+  // 正面向きの面の反射方向は +z なので、+z のすぐ上に置くと各面の上側に白いグラデーションが乗り、
+  // 上の段ほど強く映る(実物のガラス棚と同じ)。
+  addPanel(14, 6, 0xffffff, 2.5, new THREE.Vector3(0, 4.5, 9));
+  // 右に細長い冷たい光: エッジのハイライト用
+  addPanel(1.2, 8, 0xd6e4ff, 6, new THREE.Vector3(7, 0, 5));
+  // 左下から弱い帯: 下辺と左辺の縁取り
+  addPanel(9, 0.8, 0xffffff, 2, new THREE.Vector3(-3, -6, 5));
+  // 背後にごく弱い面: 真っ黒にならないように
+  addPanel(12, 12, 0x30343c, 1, new THREE.Vector3(0, 0, -10));
+  const pmrem = new THREE.PMREMGenerator(renderer);
+  const texture = pmrem.fromScene(studio, 0.02).texture;
+  pmrem.dispose();
+  return texture;
+}
+scene.environment = createStudioEnvironment();
 
 const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 100);
 camera.position.set(0, 0.8, 12);
@@ -91,25 +118,27 @@ scene.add(rim);
 const shellMaterial = new THREE.MeshPhysicalMaterial({
   color: 0xffffff,
   transmission: 1, // 1 = 完全に透過(ガラス)
-  thickness: 0.2, // 屈折の計算に使う疑似的な厚み。大きいほど歪む(ジャケットもぼやける)
+  thickness: CASE_DEPTH, // 屈折の計算に使う疑似的な厚み。大きいほど歪む(ジャケットもぼやける)
   ior: 1.5, // ガラスの屈折率
-  roughness: 0.03, // 小さいほど澄んだガラス。0.2 くらいで曇りガラス
+  roughness: 0.02, // 屈折像のぼけ。小さいほど澄んだガラス(ジャケットがはっきり見える)。0.2 で曇りガラス
   metalness: 0,
-  clearcoat: 1,
-  clearcoatRoughness: 0.03,
-  envMapIntensity: 1.6,
+  clearcoat: 1, // 表面のもう一層の反射。ライトパネルの映り込みはここに乗る
+  clearcoatRoughness: 0.18, // 映り込みの輪郭のぼけ具合(ソフトボックスの縁を柔らかく)
+  envMapIntensity: 1.1,
   specularIntensity: 1,
-  attenuationColor: new THREE.Color(0xdde8ff), // 厚みを通る光がわずかに青みがかる
-  attenuationDistance: 3,
+  attenuationColor: new THREE.Color(0xd8e6ff), // 厚みを通る光がわずかに青みがかる
+  attenuationDistance: 1.5,
+  iridescence: 0.2, // 縁にうっすら虹色(薄膜干渉)。ガラスらしさの補助
+  iridescenceIOR: 1.3,
 });
 
 function applyQuality(next) {
   quality = next;
   if (quality === "low") {
-    // 屈折をやめて、以前の「半透明の膜」に戻す(シェーダーが変わるので needsUpdate)
+    // 屈折(重い)だけをやめる。クリアコートの映り込みは残るのでガラスには見える
     shellMaterial.transmission = 0;
     shellMaterial.transparent = true;
-    shellMaterial.opacity = 0.18;
+    shellMaterial.opacity = 0.2;
     shellMaterial.depthWrite = false;
     renderer.setPixelRatio(1);
   } else {
@@ -181,7 +210,7 @@ function createCase(track, span) {
     new THREE.BoxGeometry(paperSize, paperSize, 0.012),
     [paperBackMaterial, paperBackMaterial, paperBackMaterial, paperBackMaterial, frontMaterial, paperBackMaterial],
   );
-  paper.position.z = CASE_DEPTH * 0.28;
+  paper.position.z = 0.006; // ケース中央。前面ガラスとの間に隙間ができ、傾けると屈折でずれて見える
   group.add(paper);
   loadJacketTexture(track, (texture) => {
     frontMaterial.map = texture;
@@ -195,12 +224,12 @@ function createCase(track, span) {
     new THREE.BoxGeometry(paperSize, paperSize, CASE_DEPTH * 0.5),
     trayMaterial,
   );
-  tray.position.z = -CASE_DEPTH * 0.05;
+  tray.position.z = -CASE_DEPTH * 0.25; // ジャケットの後ろ
   group.add(tray);
 
   // 外側のガラスケース。角を丸めるとエッジにハイライトが乗ってガラスらしくなる
   const shell = new THREE.Mesh(
-    new RoundedBoxGeometry(size, size, CASE_DEPTH, 3, Math.min(0.035, size * 0.06)),
+    new RoundedBoxGeometry(size, size, CASE_DEPTH, 4, Math.min(0.05, size * 0.07)),
     shellMaterial,
   );
   group.add(shell);
@@ -424,6 +453,7 @@ let renderCount = 0; // 動作確認用(?debug=1 で window.__renders から読�
 if (new URLSearchParams(location.search).has("debug")) {
   Object.defineProperty(window, "__renders", { get: () => renderCount });
   window.__probe = probe;
+  window.__applyQuality = applyQuality;
 }
 
 // ---------- ホバー / クリック ----------
