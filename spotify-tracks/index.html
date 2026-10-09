@@ -12,53 +12,28 @@
       }
     }
   </script>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" />
   <link rel="stylesheet" href="chrome.css" />
   <style>
     #stage { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
   </style>
 </head>
 <body>
-  <div class="bg-grid" aria-hidden="true"></div>
-  <div class="bg-dots" aria-hidden="true"></div>
-  <div class="side side--left" aria-hidden="true">TRACKS TRACKS TRACKS TRACKS TRACKS</div>
-  <div class="side side--right" aria-hidden="true">TRACKS TRACKS TRACKS TRACKS TRACKS</div>
-
-  <a class="btn fab" href="grid.html" title="動作が重いときはこちら">2D</a>
+  <div class="top"><a href="grid.html" title="動作が重いときはこちら">2D 版 →</a></div>
 
   <div class="deck">
-    <section class="panel panel--left">
-      <h1 class="logo">TRACKS<small>NOW POPULAR</small></h1>
-      <div class="win">
-        <div class="win__bar">info</div>
-        <div class="win__body">
-          今ポピュラーな曲のジャケットを、ガラスのケースに入れて貼り集めたコラージュ。カーソルに近いケースが浮き上がり、クリックで Spotify が開きます。ドラッグで少しだけ回せます。
-          <p style="margin: 10px 0 0"><a class="btn" href="grid.html">2D 版で見る</a></p>
-          <p class="attrib">楽曲データとアートワークは <a href="https://open.spotify.com/" target="_blank" rel="noopener">Spotify</a> から取得しています。動作が重いときは 2D 版へ。</p>
-        </div>
-      </div>
-    </section>
-
     <div class="frame">
-      <div class="frame__bar"><span>tracks.exe</span><span class="frame__btns"><span></span><span></span><span></span></span></div>
-      <div class="frame__addr"><span>←</span><span>→</span><span class="url">https://tracks/popular/3d</span></div>
       <div class="screen" id="screen">
         <canvas id="stage"></canvas>
-        <p class="screen__attrib">楽曲データとアートワークは <a href="https://open.spotify.com/" target="_blank" rel="noopener">Spotify</a> から取得しています。</p>
         <p class="screen__caption" id="caption"></p>
       </div>
     </div>
-
-    <section class="panel panel--right">
-      <div class="win">
-        <div class="win__bar">menu</div>
-        <ol class="menu" id="menu-list"></ol>
-      </div>
-    </section>
   </div>
 
-  <div id="loading" aria-live="polite">LOADING...</div>
+  <p class="attribution">
+    楽曲データとアートワークは <a href="https://open.spotify.com/" target="_blank" rel="noopener">Spotify</a> から取得しています。
+  </p>
+
+  <div id="loading" aria-live="polite">読み込み中...</div>
 
   <script type="module" src="main.js"></script>
 </body>

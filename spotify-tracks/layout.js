@@ -151,6 +151,8 @@ export function readIndexEntries(index) {
 // 戻り値: [{ track, x, y, size, layer }]  x/y は中心座標(原点中心)、layer は 0 始まり
 // width/height の単位は任意(3D 版はワールド単位、2D 版はピクセル)。random にシード付き乱数を渡せる。
 
+const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+
 function rectOverlapArea(ax, ay, asize, bx, by, bsize) {
   const w = Math.min(ax + asize / 2, bx + bsize / 2) - Math.max(ax - asize / 2, bx - bsize / 2);
   const h = Math.min(ay + asize / 2, by + bsize / 2) - Math.max(ay - asize / 2, by - bsize / 2);
@@ -213,9 +215,9 @@ export function collageLayout(
 // ---------- 隙間なく埋めるコラージュ ----------
 //
 // collageLayout と同じ「無作為に貼る・重なる・傾けない」に加えて、長方形を必ず埋める。
-//   1. タイルは枠の外へはみ出してもよい(はみ出し分は表示側で切る)
+//   1. タイルはすべて枠の内側に収める(はみ出して切る、ではない)
 //   2. 貼り終わったあと、細かい格子で「どこも覆われていないマス」を探し、
-//      その隙間を覆う大きさのタイルを一番下の層に足す。足りなければ下位の曲を繰り返し使う
+//      その隙間を覆う大きさのタイルを枠内に収まる位置で一番下の層に足す。足りなければ下位の曲を繰り返し使う
 //   3. 上に乗ったタイルにほぼ隠れてしまった曲は、最前面に引き上げる
 //
 // 戻り値: [{ track, x, y, size, layer, filler }]  filler は隙間埋めで足したもの(重複の可能性あり)
@@ -225,8 +227,10 @@ export function collageFill(
   {
     width = 10,
     height = 7,
-    density = 1.5,
-    overflow = 0.35, // タイルの大きさに対して、枠の外にはみ出してよい割合
+    density = 1.7,
+    overflow = 0, // タイルの大きさに対して、枠の外にはみ出してよい割合(既定 0 = すべて枠内)
+    uniform = true, // true: すべて同じ大きさ。false: ランク上位ほど大きい
+    maxFillerRatio = 0.42, // (uniform=false のとき)隙間埋めタイルの最大サイズ(短辺に対する割合)
     candidates = 40,
     maxOverlap = 0.12,
     minSizeRatio = 0.14, // 隙間埋めタイルの最小サイズ(短辺に対する割合)
@@ -238,15 +242,19 @@ export function collageFill(
   if (n === 0) return [];
   const short = Math.min(width, height);
 
-  // --- 1. 無作為に貼る(collageLayout と同じ考え方、ただし枠の外にはみ出せる) ---
+  // --- 1. 無作為に貼る(collageLayout と同じ考え方) ---
+  // 大きさ: uniform なら全部同じ、そうでなければランク上位ほど大きく(帯の中で少しばらつかせる)
   const items = sorted.map((track, i) => {
+    if (uniform) return { track, size: 1 };
     const p = n === 1 ? 0 : i / (n - 1);
     const base = p < 0.08 ? 2.6 : p < 0.3 ? 1.9 : p < 0.6 ? 1.4 : 1.05;
     return { track, size: base * (0.85 + random() * 0.3) };
   });
+  // 面積の合計がキャンバスの density 倍になるようにスケール(1 を超える分だけ重なる)
   const totalArea = items.reduce((sum, it) => sum + it.size * it.size, 0);
   const scale = Math.sqrt((density * width * height) / totalArea);
   for (const it of items) it.size = Math.min(it.size * scale, short * 0.7);
+  const uniformSize = items[0].size;
 
   const placed = [];
   for (const it of items.slice().sort((a, b) => b.size - a.size)) {
@@ -266,28 +274,52 @@ export function collageFill(
   }
 
   // --- 2. 隙間を探して埋める ---
-  const cell = short / 48;
-  const cols = Math.ceil(width / cell);
-  const rows = Math.ceil(height / cell);
-  const cellCenter = (c, r) => ({ x: -width / 2 + (c + 0.5) * cell, y: -height / 2 + (r + 0.5) * cell });
+  // 格子は枠をちょうど割り切るように作る(端のマスが枠の外にはみ出すと永遠に未被覆になる)
+  const cols = Math.ceil(width / (short / 48));
+  const rows = Math.ceil(height / (short / 48));
+  const cw = width / cols;
+  const ch = height / rows;
+  const cell = Math.max(cw, ch);
+  const cellCenter = (c, r) => ({ x: -width / 2 + (c + 0.5) * cw, y: -height / 2 + (r + 0.5) * ch });
   const covers = (tile, px, py) =>
     Math.abs(px - tile.x) <= tile.size / 2 && Math.abs(py - tile.y) <= tile.size / 2;
   // マス全体(四隅)が入っていて初めて「覆われている」とみなす。中心だけだと細い隙間が残る
-  const coversCell = (tile, px, py) =>
-    Math.abs(px - tile.x) + cell / 2 <= tile.size / 2 && Math.abs(py - tile.y) + cell / 2 <= tile.size / 2;
+  // 枠の縁に接するタイルで浮動小数の誤差が出ないよう、わずかに余裕を持たせる
+  const eps = short * 1e-6;
 
+  // マスの矩形がタイルの和集合で完全に覆われているかを厳密に判定する。
+  // マスに重なるタイルをマスで切り抜き、その辺の座標で小矩形に分割して、
+  // どの小矩形もどれかのタイルに入っていれば被覆。点のサンプリングと違って細い隙間を見逃さない。
+  const cellCovered = (x0, x1, y0, y1) => {
+    const clipped = [];
+    for (const tile of placed) {
+      const tx0 = Math.max(x0, tile.x - tile.size / 2);
+      const tx1 = Math.min(x1, tile.x + tile.size / 2);
+      const ty0 = Math.max(y0, tile.y - tile.size / 2);
+      const ty1 = Math.min(y1, tile.y + tile.size / 2);
+      if (tx1 - tx0 > eps && ty1 - ty0 > eps) clipped.push([tx0, tx1, ty0, ty1]);
+    }
+    if (clipped.length === 0) return false;
+    const xs = [...new Set([x0, x1, ...clipped.flatMap((r) => [r[0], r[1]])])].sort((a, b) => a - b);
+    const ys = [...new Set([y0, y1, ...clipped.flatMap((r) => [r[2], r[3]])])].sort((a, b) => a - b);
+    for (let i = 0; i < xs.length - 1; i += 1) {
+      const mx = (xs[i] + xs[i + 1]) / 2;
+      if (xs[i + 1] - xs[i] <= eps) continue;
+      for (let j = 0; j < ys.length - 1; j += 1) {
+        if (ys[j + 1] - ys[j] <= eps) continue;
+        const my = (ys[j] + ys[j + 1]) / 2;
+        if (!clipped.some((r) => mx >= r[0] && mx <= r[1] && my >= r[2] && my <= r[3])) return false;
+      }
+    }
+    return true;
+  };
   const coverage = () => {
     const grid = Array.from({ length: rows }, () => Array(cols).fill(false));
-    for (const tile of placed) {
-      const c0 = Math.max(0, Math.floor((tile.x - tile.size / 2 + width / 2) / cell));
-      const c1 = Math.min(cols - 1, Math.floor((tile.x + tile.size / 2 + width / 2) / cell));
-      const r0 = Math.max(0, Math.floor((tile.y - tile.size / 2 + height / 2) / cell));
-      const r1 = Math.min(rows - 1, Math.floor((tile.y + tile.size / 2 + height / 2) / cell));
-      for (let r = r0; r <= r1; r += 1) {
-        for (let c = c0; c <= c1; c += 1) {
-          const { x, y } = cellCenter(c, r);
-          if (coversCell(tile, x, y)) grid[r][c] = true;
-        }
+    for (let r = 0; r < rows; r += 1) {
+      const y0 = -height / 2 + r * ch;
+      for (let c = 0; c < cols; c += 1) {
+        const x0 = -width / 2 + c * cw;
+        grid[r][c] = cellCovered(x0, x0 + cw, y0, y0 + ch);
       }
     }
     return grid;
@@ -301,8 +333,23 @@ export function collageFill(
     return track;
   };
 
-  for (let guard = 0; guard < 200; guard += 1) {
-    const grid = coverage();
+  // 被覆グリッドは最初に全体を計算し、以後は足したタイルの範囲だけ更新する
+  const grid = coverage();
+  const refresh = (tile) => {
+    const c0 = Math.max(0, Math.floor((tile.x - tile.size / 2 + width / 2) / cw));
+    const c1 = Math.min(cols - 1, Math.floor((tile.x + tile.size / 2 + width / 2) / cw));
+    const r0 = Math.max(0, Math.floor((tile.y - tile.size / 2 + height / 2) / ch));
+    const r1 = Math.min(rows - 1, Math.floor((tile.y + tile.size / 2 + height / 2) / ch));
+    for (let r = r0; r <= r1; r += 1) {
+      const y0 = -height / 2 + r * ch;
+      for (let c = c0; c <= c1; c += 1) {
+        const x0 = -width / 2 + c * cw;
+        grid[r][c] = cellCovered(x0, x0 + cw, y0, y0 + ch);
+      }
+    }
+  };
+
+  for (let guard = 0; guard < 400; guard += 1) {
     // 未被覆のマスをひとつ選び、隣接する未被覆マスをまとめて外接矩形をとる
     let start = null;
     outer: for (let r = 0; r < rows; r += 1) {
@@ -329,12 +376,23 @@ export function collageFill(
         stack.push({ r: nr, c: nc });
       }
     }
-    const boxW = (maxC - minC + 1) * cell;
-    const boxH = (maxR - minR + 1) * cell;
-    const size = Math.max(short * minSizeRatio, boxW, boxH) * 1.15 + cell;
-    const cx = -width / 2 + ((minC + maxC + 1) / 2) * cell;
-    const cy = -height / 2 + ((minR + maxR + 1) / 2) * cell;
-    placed.push({ track: nextFillerTrack(), size: Math.min(size, short), x: cx, y: cy, layer: 0, filler: true });
+    const boxW = (maxC - minC + 1) * cw;
+    const boxH = (maxR - minR + 1) * ch;
+    const size = uniform
+      ? uniformSize
+      : clamp(Math.max(boxW, boxH) * 1.15 + cell, short * minSizeRatio, short * maxFillerRatio);
+    // 隙間が 1 枚で覆える大きさなら隙間の中心に。大きすぎるなら、最初に見つけた未被覆マスを
+    // 必ず含む位置(そのマスを左下の角にする)に置いて、少しずつ埋めていく。
+    // 枠からはみ出す分は内側にずらす(ずらしても最初のマスは含んだまま)
+    const fits = size >= boxW && size >= boxH;
+    const sc = cellCenter(start.c, start.r);
+    const wantX = fits ? -width / 2 + ((minC + maxC + 1) / 2) * cw : sc.x - cw / 2 + size / 2;
+    const wantY = fits ? -height / 2 + ((minR + maxR + 1) / 2) * ch : sc.y - ch / 2 + size / 2;
+    const cx = clamp(wantX, -width / 2 + size / 2, width / 2 - size / 2);
+    const cy = clamp(wantY, -height / 2 + size / 2, height / 2 - size / 2);
+    const filler = { track: nextFillerTrack(), size, x: cx, y: cy, layer: 0, filler: true };
+    placed.push(filler);
+    refresh(filler);
   }
 
   // --- 3. 層: 隙間埋めは一番下、それ以外は無作為な順に積む ---
