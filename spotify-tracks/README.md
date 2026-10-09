@@ -34,13 +34,16 @@ spotify-tracks/
 
 ## 見た目とレイアウト
 
-スマホの縦横比(幅 : 高さ = 9 : 19.5)の縦長カラムを画面中央に置き、PC でもスマホと同じ形で見せる。スマホではカラムを画面いっぱいに広げる。外側は `chrome.css` / `chrome.js` で 2D 版・3D 版共通(右上に他方へのリンク、Spotify のクレジット、カラム下端にキャプション)。
+スマホの縦横比(幅 : 高さ = 9 : 19.5)の縦長カラムを画面中央に置き、PC でもスマホと同じ形で見せる。スマホではカラムを画面いっぱいに広げる。外側は `chrome.css` / `chrome.js` で 2D 版・3D 版共通(右上に他方へのリンク、Spotify のクレジット、カラム左上にジャンル名、下端にキャプション、右端にページ送りの丸)。
+
+**ジャンルごとに 1 ページ。** `data/index.json` の順(J-POP → K-POP …)に縦に並び、スクロール(2D 版はスナップスクロール、3D 版はホイール・縦スワイプ・矢印キー・右の丸)で 1 ページずつ送る。
 
 コラージュの配置は 2D 版と 3D 版で同じ `collageFill()`(`layout.js`)を使う。単位が違うだけ(2D はピクセル、3D はワールド座標)。
 
 - **すべてのタイルは同じ大きさ。** 面積の合計がカラムの `density`(既定 1.7)倍になる大きさにするので、必ず重なる。
-- 無作為に置く。候補位置を複数試して重なりの少ない場所を選ぶ。傾けない。**すべてのタイルは枠の内側に収まる**(はみ出して切る、ではない)。
-- **長方形は必ず埋まる。** 貼り終わったあと細かい格子で未被覆のマスを探し、そのマスを含む位置に同じ大きさのタイルを一番下の層に足す(足りない分は下位の曲を繰り返す)。被覆判定はマスの矩形がタイルの和集合で完全に覆われているかを厳密に計算するので、細い隙間も残らない。
+- 置く位置は候補を複数試し、「まだ覆われていない面積」を一番多く覆うものから選ぶ(候補の半分は未被覆のマスを含む位置から作る)。傾けない。**すべてのタイルは枠の内側に収まる**。
+- 配置後に全タイルを同じ比率(`grow`、既定 4%)で拡大し、接しているだけの細い隙間を閉じる。
+- **長方形は必ず埋まる。** 残った穴は細かい格子で探し、そのマスを含む位置に同じ大きさのタイルを一番下の層に足す(40 曲で平均 6 枚前後。下位の曲を繰り返す)。被覆判定はマスの矩形がタイルの和集合で完全に覆われているかを厳密に計算する。
 - 重なったタイルは相手の 1 つ上の層に乗る(2D は z-index、3D は z 座標)。上に乗られてほとんど隠れた曲は最前面に引き上げる。
 - カーソル位置に中心が一番近いタイルが一番上に来て浮き上がる。タッチでは 1 回目のタップで浮き、浮いているものをもう一度タップすると Spotify を開く。
 - 2D 版はシード付き乱数で、リサイズしても同じ配置を再現する。
@@ -53,6 +56,7 @@ three.js で、厚みのある板にジャケットを貼って貼り集めた�
 - 板は `BoxGeometry` に 6 面分のマテリアル配列を渡し、前面だけ `map` を差す。照明は使わず `MeshBasicMaterial` で画像の色をそのまま出す。
 - ジャケットは `TextureLoader` で Spotify の CDN から直接読む (`crossOrigin = "anonymous"`)。読めなかったときはランクと曲名を描いた `CanvasTexture` に落ちる。
 - カメラは枠の長方形にぴったり合わせる(z=0 の面で高さ 8 がちょうど画面に収まる距離)。回すと枠の外が見えるので回転・ズームは無し。奥行きは浮き上がりと遠近で出す。
+- ジャンルのページは y 方向に `PAGE_PITCH` ずつずらして全部シーンに置き、カメラの y をページに合わせてなめらかに動かす。
 - `Raycaster` と z=0 平面との交点でカーソル位置を求め、中心が一番近い板を最前面の層より手前に浮かせる。周囲はごくわずかに持ち上がる。
 - 何も動いていないフレームは `renderer.render` を呼ばない。
 - 以前のガラス表現(`MeshPhysicalMaterial` の transmission)と画質の自動切り替えは廃止した。
@@ -88,6 +92,8 @@ Extended Quota Mode(組織向け、MAU 25 万以上)のアプリはこれらの�
 3. Actions タブ → "Update Spotify tracks" → "Run workflow" で、ブランチを選んでそのまま実行する(source は `popular` が既定)。
 4. 成功すると `data/popular.json` がコミットされ、Netlify が自動で再デプロイする。以後は毎週月曜に自動更新(デフォルトブランチの場合)。
 
+`--genre` は `jpop`, `kpop`, `pop`, `hiphop`, `rock`, `anime` から選ぶ(表は `fetch-tracks.mjs` の `GENRES`。クエリ・見出し・ファイル名 `popular-<genre>.json` が決まる)。Actions の "Run workflow" では `genres` 欄にカンマ区切りで並べた順にページができる(既定 `jpop,kpop`)。
+
 `popular` は Spotify の検索 API で今年の曲を候補として集めたもの。Spotify 公式の「Top 50」などのチャートプレイリストは開発モードのアプリからは取れないための代替。
 開発モードでは検索が 1 回あたり数件しか返らず、`popularity` も返らない(常に 0)ので、offset を進めつつ複数のクエリ(既定: `year:今年`、`year:今年 genre:j-pop`、`genre:pop`、`genre:hip-hop`、`year:去年`)で候補を積み上げ、順位は検索結果の並び順(Spotify 側の関連度順)をそのまま使う。
 `--query` は複数回指定でき、与えると既定のクエリ群の代わりになる(例: `--query "genre:j-pop year:2026" --query "genre:anime year:2026"`)。`--market` は既定 `JP`、`--pool` で候補数を変えられる(既定 40、最大 200)。
@@ -112,9 +118,12 @@ node scripts/get-refresh-token.mjs
 ### 3. データを作る
 
 ```sh
-# 今ポピュラーな曲(ログイン不要)
+# ジャンル別(ログイン不要)。--order がページの並び順になる
+node scripts/fetch-tracks.mjs --genre jpop --order 1
+node scripts/fetch-tracks.mjs --genre kpop --order 2
+# 総合、または検索条件を直接指定
 node scripts/fetch-tracks.mjs
-node scripts/fetch-tracks.mjs --query "genre:j-pop year:2026" --query "genre:anime year:2026"
+node scripts/fetch-tracks.mjs --query "genre:j-pop year:2026" --query "genre:anime year:2026" --name jpop-anime --label "J-POP / ANIME" --order 3
 
 # 聴取履歴ベース(先月の Top Tracks / 月を指定。refresh token が必要)
 node scripts/fetch-tracks.mjs --source top
@@ -130,9 +139,9 @@ node scripts/fetch-tracks.mjs --source saved-tracks --name likes --label "Liked 
 - `--id` は URL、`spotify:playlist:...` 形式の URI、生の ID のどれでもよい。
 - `--limit` は既定 40、最大 49。3D 版は何件でもよい。2D 版(7×7)は 20 でぴったり埋まり、それ以外は空きマスが出るか 1 マスの比率が増える。
 - `--name` で出力ファイル名、`--label` で画面の見出しを変えられる。
-- 実行すると `data/<name>.json` が書かれ、`data/index.json` が `data/` の中身から作り直される。並びは月ものが新しい順、それ以外は生成が新しい順。
-- 2D 版・3D 版とも同じ JSON を読む。同梱の `popular.json` はサンプルなので、実行すると上書きされる。
-- ページが 1 つだけのときは見出しと ← → を出さない。2 つ以上あると切り替え UI が出る。
+- 実行すると `data/<name>.json` が書かれ、`data/index.json` が `data/` の中身から作り直される。並びは `--order` 指定のあるものがその順、次に月ものが新しい順、それ以外は生成が新しい順。
+- 2D 版・3D 版とも同じ JSON を読む。同梱の `popular-jpop.json` / `popular-kpop.json` はサンプル(色板)なので、実行すると上書きされる。
+- ページが 1 つだけのときは右端のページ送りを出さない。
 - `playlist` で中身が取れるのは自分が作った(または共同編集している)プレイリストだけ。他人のプレイリストや Spotify 公式のプレイリストは取れない。
 
 ### 4. ローカルで見る
@@ -152,7 +161,7 @@ python3 -m http.server 8000
 - `SPOTIFY_CLIENT_ID`、`SPOTIFY_CLIENT_SECRET`(必須)
 - `SPOTIFY_REFRESH_TOKEN`(top / saved-* を使うときだけ)
 
-毎週月曜 09:30 JST に `popular` を更新して `data/` にコミットする(スケジュール実行はデフォルトブランチでのみ動く)。
+毎週月曜 09:30 JST に `jpop,kpop` の 2 ページを更新して `data/` にコミットする(スケジュール実行はデフォルトブランチでのみ動く)。
 Actions タブの "Run workflow" からは取得元・URL・件数を指定して任意のブランチで手動実行できる。
 公開は GitHub Pages や Netlify で `spotify-tracks/` を配信すればよい(リポジトリ直下の `netlify.toml` で設定済み)。
 
@@ -161,7 +170,7 @@ Actions タブの "Run workflow" からは取得元・URL・件数を指定し�
 `data/index.json`:
 
 ```json
-{ "entries": [ { "file": "popular", "label": "Popular", "month": null } ] }
+{ "entries": [ { "file": "popular-jpop", "label": "J-POP", "month": null, "order": 1 }, { "file": "popular-kpop", "label": "K-POP", "month": null, "order": 2 } ] }
 ```
 
 `data/<name>.json`(`month` は `top` のときだけ、`popularity` は `popular` のときだけ):
@@ -169,8 +178,10 @@ Actions タブの "Run workflow" からは取得元・URL・件数を指定し�
 ```json
 {
   "source": "popular",
-  "label": "Popular",
-  "query": "year:2026",
+  "label": "J-POP",
+  "order": 1,
+  "genre": "jpop",
+  "queries": ["genre:j-pop year:2026", "genre:j-pop year:2025", "genre:japanese year:2026"],
   "market": "JP",
   "generated_at": "2026-09-01T00:30:00.000Z",
   "tracks": [

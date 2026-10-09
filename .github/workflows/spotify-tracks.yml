@@ -11,8 +11,12 @@ on:
         type: choice
         default: popular
         options: [popular, playlist, artist, top, saved-albums, saved-tracks]
+      genres:
+        description: "popular のジャンル一覧(カンマ区切り、この順にページが並ぶ。空なら総合 1 ページ)"
+        required: false
+        default: "jpop,kpop"
       query:
-        description: "popular の検索条件(空なら year:今年)"
+        description: "popular の検索条件(genres が空のときだけ使う)"
         required: false
         default: ""
       id:
@@ -54,18 +58,28 @@ jobs:
           SPOTIFY_CLIENT_SECRET: ${{ secrets.SPOTIFY_CLIENT_SECRET }}
           SPOTIFY_REFRESH_TOKEN: ${{ secrets.SPOTIFY_REFRESH_TOKEN }}
           SOURCE: ${{ github.event.inputs.source || 'popular' }}
+          GENRES: ${{ github.event.inputs.genres || 'jpop,kpop' }}
           QUERY: ${{ github.event.inputs.query }}
           ID: ${{ github.event.inputs.id }}
           LIMIT: ${{ github.event.inputs.limit || '40' }}
           LABEL: ${{ github.event.inputs.label }}
           MONTH: ${{ github.event.inputs.month }}
         run: |
-          set -- --source "$SOURCE" --limit "$LIMIT"
-          [ -n "$QUERY" ] && set -- "$@" --query "$QUERY"
-          [ -n "$ID" ] && set -- "$@" --id "$ID"
-          [ -n "$LABEL" ] && set -- "$@" --label "$LABEL"
-          [ -n "$MONTH" ] && set -- "$@" --month "$MONTH"
-          node scripts/fetch-tracks.mjs "$@"
+          if [ "$SOURCE" = "popular" ] && [ -n "$GENRES" ]; then
+            # ジャンルごとに 1 ページ。並び順は GENRES の順
+            i=1
+            for g in $(echo "$GENRES" | tr ',' ' '); do
+              node scripts/fetch-tracks.mjs --source popular --genre "$g" --order "$i" --limit "$LIMIT"
+              i=$((i + 1))
+            done
+          else
+            set -- --source "$SOURCE" --limit "$LIMIT"
+            [ -n "$QUERY" ] && set -- "$@" --query "$QUERY"
+            [ -n "$ID" ] && set -- "$@" --id "$ID"
+            [ -n "$LABEL" ] && set -- "$@" --label "$LABEL"
+            [ -n "$MONTH" ] && set -- "$@" --month "$MONTH"
+            node scripts/fetch-tracks.mjs "$@"
+          fi
 
       - name: Commit and push
         run: |

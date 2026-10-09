@@ -28,18 +28,90 @@ body {
   overflow: hidden;
 }
 
-/* 中央の縦長カラム */
+/* ジャンルごとのページを縦に並べ、1 画面ずつスナップして送る */
 .deck {
   height: 100%;
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  scrollbar-width: none;
+}
+
+.deck::-webkit-scrollbar {
+  display: none;
+}
+
+/* 3D 版はページ送りを three.js 側でやるので、deck は 1 画面固定 */
+.deck--single {
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
 }
 
+.page {
+  height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
+/* 中央の縦長カラム */
 .frame {
   height: calc(100dvh - 5.4rem); /* 上下にリンクとクレジットの余白 */
   width: min(100vw, calc((100dvh - 5.4rem) * var(--phone-aspect)));
   aspect-ratio: var(--phone-aspect);
+}
+
+/* ジャンルの見出し(カラム左上) */
+.screen__label {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2000;
+  margin: 0;
+  padding: 0.35em 0.8em;
+  background: rgba(11, 11, 12, 0.78);
+  color: var(--fg);
+  font-size: 0.85rem;
+  letter-spacing: 0.15em;
+  pointer-events: none;
+}
+
+/* ページ送りのヒント(複数ページのときだけ) */
+.pager {
+  position: fixed;
+  right: 1.4rem;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pager[hidden] {
+  display: none;
+}
+
+.pager button {
+  appearance: none;
+  width: 0.6rem;
+  height: 0.6rem;
+  padding: 0;
+  border: 1px solid var(--muted);
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+}
+
+.pager button.is-current {
+  background: var(--fg);
+  border-color: var(--fg);
 }
 
 .screen {
@@ -142,6 +214,14 @@ body {
     right: 0.8rem;
     padding: 0.2em 0.5em;
     background: rgba(11, 11, 12, 0.6);
+  }
+
+  .pager {
+    right: 0.6rem;
+  }
+
+  .screen__label {
+    top: 2.6rem; /* クレジット帯の下 */
   }
 
   /* キャプションと重ならないよう、スマホでは左上に置く */

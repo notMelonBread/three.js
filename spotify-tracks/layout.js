@@ -133,6 +133,7 @@ export function readIndexEntries(index) {
       file: e.file,
       label: e.label || (e.month ? formatMonth(e.month) : e.file),
       month: e.month || null,
+      order: Number.isFinite(e.order) ? e.order : null,
     }));
   }
   return (index?.months || [])
@@ -230,6 +231,7 @@ export function collageFill(
     density = 1.7,
     overflow = 0, // タイルの大きさに対して、枠の外にはみ出してよい割合(既定 0 = すべて枠内)
     uniform = true, // true: すべて同じ大きさ。false: ランク上位ほど大きい
+    grow = 0.04, // 配置後に全タイルを同じ比率で拡大して、接しているだけの細い隙間を閉じる
     maxFillerRatio = 0.42, // (uniform=false のとき)隙間埋めタイルの最大サイズ(短辺に対する割合)
     candidates = 40,
     maxOverlap = 0.12,
@@ -240,9 +242,9 @@ export function collageFill(
   const sorted = tracks.slice().sort((a, b) => a.rank - b.rank);
   const n = sorted.length;
   if (n === 0) return [];
-  const short = Math.min(width, height);
 
-  // --- 1. 無作為に貼る(collageLayout と同じ考え方) ---
+  // --- 1. 無作為に貼る ---
+  const short = Math.min(width, height);
   // 大きさ: uniform なら全部同じ、そうでなければランク上位ほど大きく(帯の中で少しばらつかせる)
   const items = sorted.map((track, i) => {
     if (uniform) return { track, size: 1 };
@@ -254,33 +256,90 @@ export function collageFill(
   const totalArea = items.reduce((sum, it) => sum + it.size * it.size, 0);
   const scale = Math.sqrt((density * width * height) / totalArea);
   for (const it of items) it.size = Math.min(it.size * scale, short * 0.7);
-  const uniformSize = items[0].size;
+  const uniformSize = items[0].size * (1 + grow);
 
-  const placed = [];
-  for (const it of items.slice().sort((a, b) => b.size - a.size)) {
-    const halfX = Math.max(0, width / 2 - it.size * (0.5 - overflow));
-    const halfY = Math.max(0, height / 2 - it.size * (0.5 - overflow));
-    let best = null;
-    for (let k = 0; k < candidates; k += 1) {
-      const x = (random() * 2 - 1) * halfX;
-      const y = (random() * 2 - 1) * halfY;
-      let overlap = 0;
-      for (const p of placed) overlap += rectOverlapArea(x, y, it.size, p.x, p.y, p.size);
-      const score = overlap / (it.size * it.size);
-      if (!best || score < best.score) best = { x, y, score };
-      if (score <= maxOverlap) break;
-    }
-    placed.push({ ...it, x: best.x, y: best.y, layer: 0, filler: false });
-  }
-
-  // --- 2. 隙間を探して埋める ---
-  // 格子は枠をちょうど割り切るように作る(端のマスが枠の外にはみ出すと永遠に未被覆になる)
+  // 置く位置は、候補をいくつか試して「まだ覆われていない面積」を一番多く覆うものから選ぶ
+  // (重なりを避ける基準だと穴が多く残り、埋めるために同じ曲を繰り返すことになる)。
+  // 上位 3 候補から無作為に選んで、並びが整然としすぎないようにする。
   const cols = Math.ceil(width / (short / 48));
   const rows = Math.ceil(height / (short / 48));
   const cw = width / cols;
   const ch = height / rows;
   const cell = Math.max(cw, ch);
   const cellCenter = (c, r) => ({ x: -width / 2 + (c + 0.5) * cw, y: -height / 2 + (r + 0.5) * ch });
+  const centerCovered = Array.from({ length: rows }, () => Array(cols).fill(false));
+  const cellRange = (x, y, size) => ({
+    c0: Math.max(0, Math.floor((x - size / 2 + width / 2) / cw)),
+    c1: Math.min(cols - 1, Math.floor((x + size / 2 + width / 2) / cw)),
+    r0: Math.max(0, Math.floor((y - size / 2 + height / 2) / ch)),
+    r1: Math.min(rows - 1, Math.floor((y + size / 2 + height / 2) / ch)),
+  });
+  const inside = (x, y, size, px, py) => Math.abs(px - x) <= size / 2 && Math.abs(py - y) <= size / 2;
+  const newlyCovered = (x, y, size) => {
+    const { c0, c1, r0, r1 } = cellRange(x, y, size);
+    let count = 0;
+    for (let r = r0; r <= r1; r += 1) {
+      for (let c = c0; c <= c1; c += 1) {
+        if (centerCovered[r][c]) continue;
+        const p = cellCenter(c, r);
+        if (inside(x, y, size, p.x, p.y)) count += 1;
+      }
+    }
+    return count;
+  };
+  const markCovered = (x, y, size) => {
+    const { c0, c1, r0, r1 } = cellRange(x, y, size);
+    for (let r = r0; r <= r1; r += 1) {
+      for (let c = c0; c <= c1; c += 1) {
+        const p = cellCenter(c, r);
+        if (inside(x, y, size, p.x, p.y)) centerCovered[r][c] = true;
+      }
+    }
+  };
+
+  // まだ覆われていないマスを 1 つ無作為に選ぶ(候補位置の種にする)
+  const randomUncoveredCell = () => {
+    const open = [];
+    for (let r = 0; r < rows; r += 1) for (let c = 0; c < cols; c += 1) if (!centerCovered[r][c]) open.push({ r, c });
+    return open.length ? open[Math.floor(random() * open.length)] : null;
+  };
+
+  const placed = [];
+  for (const it of items) {
+    const halfX = Math.max(0, width / 2 - it.size * (0.5 - overflow));
+    const halfY = Math.max(0, height / 2 - it.size * (0.5 - overflow));
+    const options = [];
+    for (let k = 0; k < candidates; k += 1) {
+      let x = (random() * 2 - 1) * halfX;
+      let y = (random() * 2 - 1) * halfY;
+      // 候補の半分は「未被覆のマスを含む位置」にする。後半のタイルが残った穴を狙えるように
+      if (k % 2 === 1) {
+        const open = randomUncoveredCell();
+        if (open) {
+          const p = cellCenter(open.c, open.r);
+          x = clamp(p.x + (random() * 2 - 1) * (it.size / 2 - cw), -halfX, halfX);
+          y = clamp(p.y + (random() * 2 - 1) * (it.size / 2 - ch), -halfY, halfY);
+        }
+      }
+      options.push({ x, y, score: newlyCovered(x, y, it.size) });
+    }
+    options.sort((a, b) => b.score - a.score);
+    const pick = options[Math.floor(random() * Math.min(3, options.length))];
+    placed.push({ ...it, x: pick.x, y: pick.y, layer: 0, filler: false });
+    markCovered(pick.x, pick.y, it.size);
+  }
+
+  // --- 1.5 細い隙間を閉じる: 全タイルを同じ比率で少し拡大(枠からはみ出す分は内側にずらす) ---
+  if (grow > 0) {
+    for (const p of placed) {
+      p.size = Math.min(p.size * (1 + grow), short);
+      p.x = clamp(p.x, -width / 2 + p.size / 2, width / 2 - p.size / 2);
+      p.y = clamp(p.y, -height / 2 + p.size / 2, height / 2 - p.size / 2);
+    }
+  }
+
+  // --- 2. 隙間を探して埋める ---
+  // 格子は 1. で作ったものを使う(枠をちょうど割り切るので、端のマスが枠の外にはみ出さない)
   const covers = (tile, px, py) =>
     Math.abs(px - tile.x) <= tile.size / 2 && Math.abs(py - tile.y) <= tile.size / 2;
   // マス全体(四隅)が入っていて初めて「覆われている」とみなす。中心だけだと細い隙間が残る
