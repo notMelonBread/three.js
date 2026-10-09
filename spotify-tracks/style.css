@@ -18,11 +18,11 @@
 .tile.is-focus {
   z-index: 1000 !important;
   transform: scale(1.08);
-  box-shadow: 0 0 0 2px var(--magenta), 0 18px 40px rgba(0, 0, 0, 0.55);
+  box-shadow: 0 0 0 2px var(--fg), 0 18px 40px rgba(0, 0, 0, 0.7);
 }
 
 .tile:focus-visible {
-  box-shadow: 0 0 0 3px var(--cyan);
+  box-shadow: 0 0 0 3px var(--fg);
 }
 
 @media (prefers-reduced-motion: reduce) {

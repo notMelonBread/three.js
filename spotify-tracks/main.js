@@ -1,155 +1,43 @@
-// 3D 版(デフォルト): 7x7 の配置をそのまま 3D 空間に置き、各曲を CD のジュエルケースにする。
-//   - 透明プラスチックの箱(MeshPhysicalMaterial)の中に、ジャケットを貼った紙とトレイ
-//   - カーソルの真下を頂点にして周囲のケースがなだらかに持ち上がる、クリックで Spotify を開く
-//   - 月の切り替えはケースが奥に飛んでいって入れ替わる
+// 3D 版: スマホ縦横比の画面に、同じ大きさのジャケット板を隙間なく貼ったコラージュ。
+//   - 配置は layout.js の collageFill()(2D 版と共用)。すべて枠内、長方形を必ず埋める
+//   - 重なった板は 1 つ上の層に積む(z 座標)
+//   - カーソルに一番近い板が最前面の層よりさらに手前に浮く。周囲はわずかに持ち上がる
+//   - クリック(タッチは 2 回目のタップ)で Spotify を開く
+//   - 何も動いていないフレームは描画しない
 
 import * as THREE from "three";
-import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
 import { collageFill, placeholderColor, readIndexEntries } from "./layout.js";
-import { hideLoading, renderMenu, setCaption } from "./chrome.js";
+import { hideLoading, setCaption } from "./chrome.js";
 
 const DATA_DIR = "data";
 const VIEW_HEIGHT = 8; // 画面(canvas)の高さに相当するワールド単位。幅は canvas の縦横比から決める
-const COLLAGE_MARGIN = 1.36; // 少し回しても縁が見えないように、画面より大きめにコラージュを作る
-const CASE_DEPTH = 0.12; // ガラスの厚み
-const LAYER_GAP = CASE_DEPTH + 0.03; // 重なったケースを積む間隔
+const TILE_DEPTH = 0.08; // 板の厚み
+const LAYER_GAP = TILE_DEPTH + 0.02; // 重なった板を積む間隔
 const FLY_DISTANCE = -9; // 出入りするときの奥行き
-const FOCUS_LIFT = 0.9; // カーソルに一番近いケースが、最前面の層からさらに浮く高さ
-const FOCUS_REACH = 0.6; // ケースの縁からこの距離までなら「近い」とみなす
-const NEIGHBOR_LIFT = 0.12; // 周囲のケースがわずかに持ち上がる高さ
-const NEIGHBOR_RADIUS = 1.8; // その広がり
+const FOCUS_LIFT = 0.9; // カーソルに一番近い板が、最前面の層からさらに浮く高さ
+const FOCUS_REACH = 0.3; // 板の縁からこの距離までなら「近い」とみなす
+const NEIGHBOR_LIFT = 0.1; // 周囲の板がわずかに持ち上がる高さ
+const NEIGHBOR_RADIUS = 1.6; // その広がり
 
-// ---------- レンダラー / シーン ----------
-
-// 画質: "high" はガラスの屈折あり、"low" は半透明のみ(屈折はシーンをもう 1 回描くので重い)。
-// ?quality=low / ?quality=high で固定。指定が無ければ起動直後のフレームレートで自動判定する。
-const QUALITY_PARAM = new URLSearchParams(location.search).get("quality");
-let quality = QUALITY_PARAM === "low" || QUALITY_PARAM === "high" ? QUALITY_PARAM : "high";
-const autoQuality = !QUALITY_PARAM;
+// ---------- レンダラー / シーン / カメラ ----------
 
 const canvas = document.querySelector("#stage");
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: "high-performance" });
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, quality === "low" ? 1 : 1.5));
-renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.1;
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0xe4ff57); // タイルで埋まる前提。万一見えても黒くならない
-
-// ガラスの映り込み用の環境マップ。
-// RoomEnvironment は正面から見たときに映るもの(カメラの背後)が暗く、ガラスに見えなかった。
-// 代わりに、カメラの背後に撮影スタジオのような大きなライトパネルを置いた空間を作り、
-// それを PMREM に焼く。正面向きのガラス面にはカメラ背後のものが映るので、
-// 各ケースに柔らかい白い窓のような反射が乗り、傾けると滑って動く。
-function createStudioEnvironment() {
-  const studio = new THREE.Scene();
-  studio.background = new THREE.Color(0x0a0a0c);
-  const addPanel = (width, height, color, intensity, position) => {
-    const material = new THREE.MeshBasicMaterial({ color, side: THREE.DoubleSide });
-    material.color.multiplyScalar(intensity); // 1 を超える値で HDR の光源にする
-    const panel = new THREE.Mesh(new THREE.PlaneGeometry(width, height), material);
-    panel.position.copy(position);
-    panel.lookAt(0, 0, 0);
-    studio.add(panel);
-  };
-  // 主光源: カメラの真後ろ、やや上に大きなソフトボックス。
-  // 正面向きの面の反射方向は +z なので、+z のすぐ上に置くと各面の上側に白いグラデーションが乗り、
-  // 上の段ほど強く映る(実物のガラス棚と同じ)。
-  addPanel(14, 6, 0xffffff, 2.5, new THREE.Vector3(0, 4.5, 9));
-  // 右に細長い冷たい光: エッジのハイライト用
-  addPanel(1.2, 8, 0xd6e4ff, 6, new THREE.Vector3(7, 0, 5));
-  // 左下から弱い帯: 下辺と左辺の縁取り
-  addPanel(9, 0.8, 0xffffff, 2, new THREE.Vector3(-3, -6, 5));
-  // 背後にごく弱い面: 真っ黒にならないように
-  addPanel(12, 12, 0x30343c, 1, new THREE.Vector3(0, 0, -10));
-  const pmrem = new THREE.PMREMGenerator(renderer);
-  const texture = pmrem.fromScene(studio, 0.02).texture;
-  pmrem.dispose();
-  return texture;
-}
-scene.environment = createStudioEnvironment();
+scene.background = new THREE.Color(0x0b0b0c); // 板で埋まる前提
 
 const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 100);
-camera.position.set(0, 0, 12);
-
-// グリッド全体(7x7)が画面に収まるカメラ距離。縦長画面では幅に合わせる。
-// 画面(canvas)に映る範囲は z=0 で VIEW_HEIGHT × (VIEW_HEIGHT × aspect)。コラージュはその少し外まで作る
-function collageDimsFor(aspect) {
-  return { width: VIEW_HEIGHT * aspect * COLLAGE_MARGIN, height: VIEW_HEIGHT * COLLAGE_MARGIN };
-}
 
 // z=0 の面で高さ VIEW_HEIGHT がちょうど画面に収まるカメラ距離(余白なし)
 function fitDistance() {
   return VIEW_HEIGHT / 2 / Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
 }
-let autoFit = true; // ユーザーが操作するまでは画面サイズに追従
 
-const controls = new OrbitControls(camera, canvas);
-controls.enableDamping = true;
-controls.dampingFactor = 0.08;
-controls.enablePan = false;
-controls.enableZoom = false; // 引くと縁が見えるので固定
-controls.minPolarAngle = Math.PI / 2 - 0.12;
-controls.maxPolarAngle = Math.PI / 2 + 0.12;
-controls.minAzimuthAngle = -0.12;
-controls.maxAzimuthAngle = 0.12;
-controls.addEventListener("start", () => {
-  autoFit = false;
-});
-
-scene.add(new THREE.HemisphereLight(0xffffff, 0x202028, 0.6));
-const key = new THREE.DirectionalLight(0xffffff, 1.6);
-key.position.set(4, 6, 8);
-scene.add(key);
-const rim = new THREE.PointLight(0x8fb8ff, 30, 30);
-rim.position.set(-6, 3, -4);
-scene.add(rim);
-
-// ---------- マテリアル(共有) ----------
-
-// ガラス。transmission(屈折)で中のジャケットをガラス越しに見せる。
-// opacity での半透明と違い、厚み(thickness)と屈折率(ior)で光が曲がり、縁に環境が映り込む。
-const shellMaterial = new THREE.MeshPhysicalMaterial({
-  color: 0xffffff,
-  transmission: 1, // 1 = 完全に透過(ガラス)
-  thickness: CASE_DEPTH, // 屈折の計算に使う疑似的な厚み。大きいほど歪む(ジャケットもぼやける)
-  ior: 1.5, // ガラスの屈折率
-  roughness: 0.02, // 屈折像のぼけ。小さいほど澄んだガラス(ジャケットがはっきり見える)。0.2 で曇りガラス
-  metalness: 0,
-  clearcoat: 1, // 表面のもう一層の反射。ライトパネルの映り込みはここに乗る
-  clearcoatRoughness: 0.18, // 映り込みの輪郭のぼけ具合(ソフトボックスの縁を柔らかく)
-  envMapIntensity: 1.1,
-  specularIntensity: 1,
-  attenuationColor: new THREE.Color(0xd8e6ff), // 厚みを通る光がわずかに青みがかる
-  attenuationDistance: 1.5,
-  iridescence: 0.2, // 縁にうっすら虹色(薄膜干渉)。ガラスらしさの補助
-  iridescenceIOR: 1.3,
-});
-
-function applyQuality(next) {
-  quality = next;
-  if (quality === "low") {
-    // 屈折(重い)だけをやめる。クリアコートの映り込みは残るのでガラスには見える
-    shellMaterial.transmission = 0;
-    shellMaterial.transparent = true;
-    shellMaterial.opacity = 0.2;
-    shellMaterial.depthWrite = false;
-    renderer.setPixelRatio(1);
-  } else {
-    shellMaterial.transmission = 1;
-    shellMaterial.transparent = false;
-    shellMaterial.opacity = 1;
-    shellMaterial.depthWrite = true;
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
-  }
-  shellMaterial.needsUpdate = true;
-  document.documentElement.dataset.quality = quality;
-  requestRender();
-}
-const trayMaterial = new THREE.MeshStandardMaterial({ color: 0x141416, roughness: 0.55 });
-const paperBackMaterial = new THREE.MeshStandardMaterial({ color: 0x0e0e10, roughness: 0.9 });
+// ジャケットは MeshBasicMaterial(照明なし)で、画像の色をそのまま出す
+const sideMaterial = new THREE.MeshBasicMaterial({ color: 0x2a2a30 }); // 板の側面(厚み)。背景と区別がつく程度の濃いグレー
 
 const textureLoader = new THREE.TextureLoader();
 textureLoader.setCrossOrigin("anonymous");
@@ -193,143 +81,91 @@ function loadJacketTexture(track, onReady) {
   );
 }
 
-// ---------- ケースの生成 ----------
+// ---------- 板の生成 ----------
 
-function createCase(track, size) {
-  const group = new THREE.Group();
-
-  // ジャケット(紙)。前面だけテクスチャ、それ以外は黒い紙。
-  // ケースの縁ぎりぎりまで広げる(小さいと、隣接するケースの透明な縁から背景が見えて筋になる)
-  const paperSize = size * 0.985;
-  const frontMaterial = new THREE.MeshStandardMaterial({ color: 0x333333, roughness: 0.6 });
-  const paper = new THREE.Mesh(
-    new THREE.BoxGeometry(paperSize, paperSize, 0.012),
-    [paperBackMaterial, paperBackMaterial, paperBackMaterial, paperBackMaterial, frontMaterial, paperBackMaterial],
+function createTile(track, size) {
+  const frontMaterial = new THREE.MeshBasicMaterial({ color: 0x333333 });
+  const mesh = new THREE.Mesh(
+    new THREE.BoxGeometry(size, size, TILE_DEPTH),
+    [sideMaterial, sideMaterial, sideMaterial, sideMaterial, frontMaterial, sideMaterial],
   );
-  paper.position.z = 0.006; // ケース中央。前面ガラスとの間に隙間ができ、傾けると屈折でずれて見える
-  group.add(paper);
   loadJacketTexture(track, (texture) => {
     frontMaterial.map = texture;
     frontMaterial.color.set(0xffffff);
     frontMaterial.needsUpdate = true;
     requestRender();
   });
-
-  // トレイ(中の黒いプラスチック)
-  const tray = new THREE.Mesh(
-    new THREE.BoxGeometry(paperSize, paperSize, CASE_DEPTH * 0.5),
-    trayMaterial,
-  );
-  tray.position.z = -CASE_DEPTH * 0.25; // ジャケットの後ろ
-  group.add(tray);
-
-  // 外側のガラスケース。角を丸めるとエッジにハイライトが乗ってガラスらしくなる
-  const shell = new THREE.Mesh(
-    new RoundedBoxGeometry(size, size, CASE_DEPTH, 4, Math.min(0.05, size * 0.07)),
-    shellMaterial,
-  );
-  group.add(shell);
-
-  group.userData = {
+  mesh.userData = {
     track,
     size,
-    hitTarget: shell,
     base: new THREE.Vector3(),
     focus: 0, // 0..1 で「最前面に浮いている」度合いをなめらかに追従
     tween: null,
   };
-  return group;
+  return mesh;
 }
 
-function disposeCase(group) {
-  group.traverse((obj) => {
-    if (!obj.isMesh) return;
-    obj.geometry.dispose();
-    const materials = Array.isArray(obj.material) ? obj.material : [obj.material];
-    for (const material of materials) {
-      if (material === shellMaterial || material === trayMaterial || material === paperBackMaterial) continue;
-      material.map?.dispose();
-      material.dispose();
-    }
-  });
+function disposeTile(mesh) {
+  mesh.geometry.dispose();
+  const front = mesh.material[4];
+  front.map?.dispose();
+  front.dispose();
 }
 
-// ---------- 月ごとの入れ替え ----------
+// ---------- 入れ替え ----------
 
-const casesRoot = new THREE.Group();
-scene.add(casesRoot);
-let cases = [];
-let focused = null; // カーソルに一番近いケース
+const tilesRoot = new THREE.Group();
+scene.add(tilesRoot);
+let tiles = [];
+let focused = null; // カーソルに一番近い板
 let topZ = 0; // 一番上の層の z
 
 const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
-const easeInCubic = (t) => t * t * t;
 
-function startTween(group, { from, to, duration, delay = 0, ease = easeOutCubic, onDone }) {
-  group.userData.tween = { from, to, duration, delay, ease, onDone, start: clock.elapsedTime };
+function startTween(mesh, { duration, delay = 0, ease = easeOutCubic }) {
+  mesh.userData.tween = { duration, delay, ease, start: clock.elapsedTime };
 }
 
-function showMonth(data) {
+function showCollage(data) {
+  for (const mesh of tiles) {
+    tilesRoot.remove(mesh);
+    disposeTile(mesh);
+  }
   const aspect = canvas.clientWidth / Math.max(1, canvas.clientHeight);
-  const placements = collageFill(data.tracks || [], collageDimsFor(aspect));
+  const placements = collageFill(data.tracks || [], { width: VIEW_HEIGHT * aspect, height: VIEW_HEIGHT });
   topZ = Math.max(0, ...placements.map((p) => p.layer)) * LAYER_GAP;
-  cases = placements.map(({ track, size, x, y, layer }, i) => {
-    const group = createCase(track, size);
-    group.userData.base.set(x, y, layer * LAYER_GAP);
-    group.position.copy(group.userData.base).setZ(FLY_DISTANCE);
-    group.rotation.set(0, (Math.random() - 0.5) * 1.5, (Math.random() - 0.5) * 0.6);
-    group.scale.setScalar(0.4);
-    casesRoot.add(group);
-    startTween(group, { from: "fly", to: "rest", duration: 0.9, delay: 0.03 * i });
-    return group;
+  tiles = placements.map(({ track, size, x, y, layer }, i) => {
+    const mesh = createTile(track, size);
+    mesh.userData.base.set(x, y, layer * LAYER_GAP);
+    mesh.position.copy(mesh.userData.base).setZ(FLY_DISTANCE);
+    mesh.scale.setScalar(0.4);
+    tilesRoot.add(mesh);
+    startTween(mesh, { duration: 0.8, delay: 0.02 * i });
+    return mesh;
   });
-}
-
-function hideMonth(onDone) {
-  const old = cases;
-  cases = [];
   focused = null;
   setCaption(null);
-  if (old.length === 0) {
-    onDone();
-    return;
-  }
-  let remaining = old.length;
-  old.forEach((group, i) => {
-    startTween(group, {
-      from: "rest",
-      to: "fly",
-      duration: 0.5,
-      delay: 0.02 * i,
-      ease: easeInCubic,
-      onDone: () => {
-        casesRoot.remove(group);
-        disposeCase(group);
-        remaining -= 1;
-        if (remaining === 0) onDone();
-      },
-    });
-  });
+  requestRender();
 }
 
 // ---------- 毎フレームの更新 ----------
 
 const clock = new THREE.Clock();
-const restQuat = new THREE.Quaternion();
 
-// カーソルのワールド座標(グリッドの面 z=0 上)と、その有効度 0..1
+// カーソルのワールド座標(z=0 の面上)と、その有効度 0..1
 const cursor = {
-  point: new THREE.Vector3(0, 0, 0),
-  target: new THREE.Vector3(0, 0, 0),
+  point: new THREE.Vector3(),
+  target: new THREE.Vector3(),
   strength: 0,
   active: false,
 };
-const gridPlane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
+const plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
 
-// 位置と強さをなめらかに追従させる(急に跳ねない)。まだ動いていれば true。
+// 位置と強さをなめらかに追従させる。まだ動いていれば true
 function updateCursor() {
   const targetStrength = cursor.active ? 1 : 0;
-  const moving = cursor.point.distanceToSquared(cursor.target) > 1e-6 || Math.abs(cursor.strength - targetStrength) > 1e-3;
+  const moving =
+    cursor.point.distanceToSquared(cursor.target) > 1e-6 || Math.abs(cursor.strength - targetStrength) > 1e-3;
   if (!moving) {
     cursor.point.copy(cursor.target);
     cursor.strength = targetStrength;
@@ -340,126 +176,65 @@ function updateCursor() {
   return true;
 }
 
-// まだ動いていれば true を返す(止まっていれば描画を省ける)
-function updateCase(group, t) {
-  const data = group.userData;
+// まだ動いていれば true を返す
+function updateTile(mesh, t) {
+  const data = mesh.userData;
   const { base } = data;
 
-  // 出入りのアニメーション
   if (data.tween) {
     const tw = data.tween;
     const p = Math.min(1, Math.max(0, (t - tw.start - tw.delay) / tw.duration));
     const e = tw.ease(p);
-    const toRest = tw.to === "rest";
-    const k = toRest ? e : 1 - e;
-    group.position.set(base.x, base.y, THREE.MathUtils.lerp(FLY_DISTANCE, base.z, k));
-    group.scale.setScalar(THREE.MathUtils.lerp(0.4, 1, k));
-    if (toRest) {
-      group.quaternion.slerp(restQuat, e);
-    } else {
-      group.rotation.y += 0.04;
-    }
-    if (p >= 1) {
-      data.tween = null;
-      tw.onDone?.();
-    }
+    mesh.position.set(base.x, base.y, THREE.MathUtils.lerp(FLY_DISTANCE, base.z, e));
+    mesh.scale.setScalar(THREE.MathUtils.lerp(0.4, 1, e));
+    if (p >= 1) data.tween = null;
     return true;
   }
 
-  // カーソルに一番近いケースは、最前面の層よりさらに手前へ。それ以外は自分の層へ戻る。
-  const focusTarget = group === focused ? 1 : 0;
+  const focusTarget = mesh === focused ? 1 : 0;
   const moving = Math.abs(data.focus - focusTarget) > 1e-3;
   data.focus = moving ? data.focus + (focusTarget - data.focus) * 0.14 : focusTarget;
 
-  // 周囲のケースはカーソルの近さに応じてごくわずかに持ち上がる(傾けない)
   const dx = cursor.point.x - base.x;
   const dy = cursor.point.y - base.y;
   const g = Math.exp(-(dx * dx + dy * dy) / (NEIGHBOR_RADIUS * NEIGHBOR_RADIUS)) * cursor.strength;
 
-  const liftedZ = topZ + FOCUS_LIFT;
-  const z = THREE.MathUtils.lerp(base.z + NEIGHBOR_LIFT * g, liftedZ, data.focus);
-  group.position.set(base.x, base.y, z);
-  group.scale.setScalar(1 + 0.05 * data.focus);
-  group.quaternion.copy(restQuat);
+  const z = THREE.MathUtils.lerp(base.z + NEIGHBOR_LIFT * g, topZ + FOCUS_LIFT, data.focus);
+  mesh.position.set(base.x, base.y, z);
+  mesh.scale.setScalar(1 + 0.04 * data.focus);
   return moving;
 }
 
 function resize() {
   const { clientWidth: w, clientHeight: h } = canvas;
-  if (canvas.width === Math.floor(w * renderer.getPixelRatio()) && canvas.height === Math.floor(h * renderer.getPixelRatio())) return;
+  const ratio = renderer.getPixelRatio();
+  if (canvas.width === Math.floor(w * ratio) && canvas.height === Math.floor(h * ratio)) return;
   renderer.setSize(w, h, false);
   camera.aspect = w / h;
   camera.updateProjectionMatrix();
+  camera.position.set(0, 0, fitDistance());
+  camera.lookAt(0, 0, 0);
   needsRender = true;
-  if (autoFit) {
-    const distance = fitDistance();
-    camera.position.set(0, 0, distance);
-    controls.minDistance = distance;
-    controls.maxDistance = distance;
-  }
 }
 
-// 何かが動いているときだけ描画する(止まっていれば GPU を使わない)
+// 何かが動いているときだけ描画する
 let needsRender = true;
 function requestRender() {
   needsRender = true;
 }
-controls.addEventListener("change", requestRender);
 
-// 自動画質: 実際に描画したフレームの所要時間を測り、遅ければ low に落とす
-const probe = { samples: [], done: !autoQuality, last: 0 };
-function probeFrame(now) {
-  if (probe.done) return;
-  if (probe.last) probe.samples.push(now - probe.last);
-  probe.last = now;
-  // 入場アニメーション中の 60 フレーム、または描画時間の合計 1.5 秒ぶんを見る
-  // (遅い端末ほどフレーム数が稼げないので、時間でも打ち切る)
-  const total = probe.samples.reduce((sum, v) => sum + v, 0);
-  if (probe.samples.length < 60 && (total < 1500 || probe.samples.length < 5)) return;
-  probe.done = true;
-  const sorted = probe.samples.slice(Math.min(10, probe.samples.length - 5)).sort((a, b) => a - b);
-  const median = sorted[Math.floor(sorted.length / 2)];
-  if (median > 1000 / 40) {
-    console.info(`frame ${median.toFixed(1)}ms → quality: low`);
-    applyQuality("low");
-  }
-}
-
-function animate(now) {
+function animate() {
   requestAnimationFrame(animate);
   resize();
   const t = clock.getElapsedTime();
-
   let active = updateCursor();
-  for (const group of casesRoot.children) {
-    if (updateCase(group, t)) active = true;
-  }
-  if (controls.update()) active = true; // ダンピング中も true
-
-  if (!active && !needsRender) {
-    probe.last = 0; // 描いていない間は計測しない
-    return;
-  }
+  for (const mesh of tiles) if (updateTile(mesh, t)) active = true;
+  if (!active && !needsRender) return;
   needsRender = false;
   renderer.render(scene, camera);
-  renderCount += 1;
-  probeFrame(now);
-}
-let renderCount = 0; // 動作確認用(?debug=1 で window.__renders から読める)
-if (new URLSearchParams(location.search).has("debug")) {
-  Object.defineProperty(window, "__renders", { get: () => renderCount });
-  window.__probe = probe;
-  window.__applyQuality = applyQuality;
-  window.__state = () => ({
-    focused: focused?.userData.track.name ?? null,
-    cases: cases.length,
-    tweening: cases.filter((g) => g.userData.tween).length,
-    cursor: cursor.target.toArray().map((v) => +v.toFixed(2)),
-    active: cursor.active,
-  });
 }
 
-// ---------- ホバー / クリック ----------
+// ---------- ポインタ ----------
 
 const raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2();
@@ -467,75 +242,56 @@ let pointerDown = null;
 
 function updatePointer(event) {
   const rect = canvas.getBoundingClientRect();
-  pointer.set(
-    ((event.clientX - rect.left) / rect.width) * 2 - 1,
-    -((event.clientY - rect.top) / rect.height) * 2 + 1,
-  );
+  pointer.set(((event.clientX - rect.left) / rect.width) * 2 - 1, -((event.clientY - rect.top) / rect.height) * 2 + 1);
   raycaster.setFromCamera(pointer, camera);
 }
 
-// レイで当たったケース(クリック用。重なりの一番上が返る)
-function pickCase(event) {
+// レイで当たった板(クリック用。重なりの一番上が返る)
+function pickTile(event) {
   updatePointer(event);
-  const targets = cases.filter((g) => !g.userData.tween).map((g) => g.userData.hitTarget);
-  const hit = raycaster.intersectObjects(targets, false)[0];
-  return hit ? hit.object.parent : null;
+  const hit = raycaster.intersectObjects(tiles.filter((m) => !m.userData.tween), false)[0];
+  return hit ? hit.object : null;
 }
 
-// menu 窓からの指定: その曲のケース(複数あれば一番大きいもの)を浮かせる
-function focusTrack(track) {
-  let best = null;
-  if (track) {
-    for (const group of cases) {
-      if (group.userData.track !== track) continue;
-      if (!best || group.userData.size > best.userData.size) best = group;
-    }
-  }
-  focused = best;
-  cursor.active = false;
-  setCaption(best?.userData.track || null);
-  requestRender();
-}
-
-// カーソル位置に中心が一番近いケース。縁から FOCUS_REACH 以上離れていたら無し
-function nearestCase(point) {
+// カーソル位置に中心が一番近い板。縁から FOCUS_REACH 以上離れていたら無し
+function nearestTile(point) {
   let best = null;
   let bestDistance = Infinity;
-  for (const group of cases) {
-    if (group.userData.tween) continue;
-    const { base, size } = group.userData;
+  for (const mesh of tiles) {
+    if (mesh.userData.tween) continue;
+    const { base, size } = mesh.userData;
     const distance = Math.hypot(point.x - base.x, point.y - base.y);
     if (distance > size / 2 + FOCUS_REACH) continue;
     if (distance < bestDistance) {
       bestDistance = distance;
-      best = group;
+      best = mesh;
     }
   }
   return best;
 }
 
+function setFocused(next) {
+  if (next === focused) return;
+  focused = next;
+  setCaption(focused?.userData.track || null);
+  canvas.style.cursor = focused ? "pointer" : "";
+  requestRender();
+}
+
 canvas.addEventListener("pointermove", (event) => {
-  // カーソルがコラージュの面のどこを指しているか
+  if (event.pointerType === "touch") return;
   updatePointer(event);
-  const hit = raycaster.ray.intersectPlane(gridPlane, cursor.target);
+  const hit = raycaster.ray.intersectPlane(plane, cursor.target);
   cursor.active = hit !== null;
   requestRender();
-
-  const next = hit ? nearestCase(cursor.target) : null;
-  if (next !== focused) {
-    focused = next;
-    setCaption(focused?.userData.track || null);
-    canvas.style.cursor = focused ? "pointer" : "";
-  }
+  setFocused(hit ? nearestTile(cursor.target) : null);
 });
 
 canvas.addEventListener("pointerleave", (event) => {
-  if (event.pointerType === "touch") return; // タッチは指を離すたびに leave が来るので無視(タップで浮かせた状態を保つ)
+  if (event.pointerType === "touch") return; // タッチは指を離すたびに leave が来るので無視
   cursor.active = false;
+  setFocused(null);
   requestRender();
-  focused = null;
-  setCaption(null);
-  canvas.style.cursor = "";
 });
 
 canvas.addEventListener("pointerdown", (event) => {
@@ -547,11 +303,11 @@ canvas.addEventListener("pointerup", (event) => {
   const moved = Math.hypot(event.clientX - pointerDown.x, event.clientY - pointerDown.y);
   const { wasFocused } = pointerDown;
   pointerDown = null;
-  if (moved > 6) return; // ドラッグ(回転)はクリック扱いにしない
+  if (moved > 6) return;
 
   updatePointer(event);
-  const onPlane = raycaster.ray.intersectPlane(gridPlane, cursor.target) !== null;
-  const nearest = onPlane ? nearestCase(cursor.target) : null;
+  const onPlane = raycaster.ray.intersectPlane(plane, cursor.target) !== null;
+  const nearest = onPlane ? nearestTile(cursor.target) : null;
 
   if (event.pointerType === "touch") {
     // タッチにはホバーが無いので、1 回目のタップで浮かせ、浮いているものをもう一度タップしたら開く
@@ -561,14 +317,12 @@ canvas.addEventListener("pointerup", (event) => {
       if (url) window.open(url, "_blank", "noopener");
       return;
     }
-    focused = nearest;
-    setCaption(focused?.userData.track || null);
-    requestRender();
+    setFocused(nearest);
     return;
   }
 
-  // マウス: 浮いているケースがカーソルの下にあればそれ、無ければレイで当たったもの
-  const hit = pickCase(event);
+  // マウス: 浮いている板がカーソルの下にあればそれ、無ければレイで当たったもの
+  const hit = pickTile(event);
   const target = hit === focused ? focused : hit || focused;
   const url = target?.userData.track.spotify_url;
   if (url) window.open(url, "_blank", "noopener");
@@ -583,14 +337,12 @@ async function fetchJson(path) {
 }
 
 async function main() {
-  applyQuality(quality);
   requestAnimationFrame(animate);
   try {
     const entries = readIndexEntries(await fetchJson(`${DATA_DIR}/index.json`));
     if (entries.length === 0) throw new Error("no entries");
     const data = await fetchJson(`${DATA_DIR}/${entries[0].file}.json`); // 一覧の先頭(最新)を表示
-    showMonth(data);
-    renderMenu(data.tracks || [], { onPick: focusTrack });
+    showCollage(data);
   } catch (error) {
     console.error(error);
     setCaption({ rank: "-", name: "データの読み込みに失敗しました", artist: "" });

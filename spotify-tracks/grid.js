@@ -7,7 +7,7 @@
 //   - タッチ: 1 回目のタップで浮かせ、浮いているものをもう一度タップで Spotify を開く
 
 import { collageFill, createRandom, placeholderColor, readIndexEntries } from "./layout.js";
-import { hideLoading, renderMenu, setCaption } from "./chrome.js";
+import { hideLoading, setCaption } from "./chrome.js";
 
 const DATA_DIR = "data";
 const FOCUS_REACH_RATIO = 0.35; // タイルの大きさに対して、縁からどこまでを「近い」とみなすか
@@ -45,20 +45,6 @@ function createCollage(container, tracks) {
       }
     });
     return best;
-  }
-
-  // menu 窓からの指定: その曲のタイル(複数あれば一番大きいもの)を浮かせる
-  function focusTrack(track) {
-    if (!track) {
-      setFocus(null);
-      return;
-    }
-    let best = null;
-    placements.forEach((placement, i) => {
-      if (placement.track !== track) return;
-      if (!best || placement.size > best.placement.size) best = { placement, tile: tiles[i] };
-    });
-    setFocus(best);
   }
 
   function layout() {
@@ -124,7 +110,6 @@ function createCollage(container, tracks) {
   }).observe(container);
 
   layout();
-  return { focusTrack };
 }
 
 async function fetchJson(path) {
@@ -140,8 +125,7 @@ async function main() {
     if (entries.length === 0) throw new Error("no entries");
     const data = await fetchJson(`${DATA_DIR}/${entries[0].file}.json`); // 一覧の先頭(最新)を表示
     const tracks = data.tracks || [];
-    const collage = createCollage(screen, tracks);
-    renderMenu(tracks, { onPick: (track) => collage.focusTrack(track) });
+    createCollage(screen, tracks);
   } catch (error) {
     console.error(error);
     setCaption({ rank: "-", name: "データの読み込みに失敗しました", artist: "" });
