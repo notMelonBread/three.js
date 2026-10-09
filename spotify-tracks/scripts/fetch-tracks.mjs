@@ -9,12 +9,12 @@
 //   node scripts/fetch-tracks.mjs --source saved-tracks            # 自分の「お気に入りの曲」
 //
 // 共通オプション:
-//   --limit N    曲数(最大 49。20 で 7x7 がぴったり埋まる)
+//   --limit N    曲数(既定 40、最大 49。2D 版は 20 で 7x7 がぴったり埋まる)
 //   --name KEY   出力ファイル名 data/KEY.json(省略時は自動)
 //   --label TEXT 画面に出す見出し(省略時はプレイリスト名など)
 //   --time-range short_term|medium_term|long_term  (top のみ)
 //   --query TEXT --market CC --pool N              (popular のみ。--query は複数回指定できる。既定は
-//                                                   year:<今年> と genre 別の数パターン、JP、候補 40 件)
+//                                                   year:<今年> と genre 別の数パターン、JP、候補 60 件)
 //
 // --id には URL (https://open.spotify.com/playlist/xxxx?si=...)、URI (spotify:playlist:xxxx)、
 // 生の ID のどれを渡してもよい。
@@ -39,19 +39,19 @@ const { values: args } = parseArgs({
     source: { type: "string", default: "popular" },
     query: { type: "string", multiple: true },
     market: { type: "string", default: "JP" },
-    pool: { type: "string", default: "40" },
+    pool: { type: "string", default: "60" },
     id: { type: "string" },
     month: { type: "string" },
     name: { type: "string" },
     label: { type: "string" },
     "time-range": { type: "string", default: "short_term" },
-    limit: { type: "string", default: process.env.TRACK_LIMIT || "20" },
+    limit: { type: "string", default: process.env.TRACK_LIMIT || "40" },
     out: { type: "string", default: "data" },
   },
 });
 
-const MAX_ITEMS = 49; // 7x7
-const limit = Math.min(MAX_ITEMS, Math.max(1, Number(args.limit) || 20));
+const MAX_ITEMS = 49; // 2D 版(7x7)に収まる上限
+const limit = Math.min(MAX_ITEMS, Math.max(1, Number(args.limit) || 40));
 const outDir = resolve(process.cwd(), args.out);
 const API = "https://api.spotify.com/v1";
 

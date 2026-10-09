@@ -129,3 +129,70 @@ export function readIndexEntries(index) {
     .reverse()
     .map((month) => ({ file: month, label: formatMonth(month), month }));
 }
+
+// ---------- コラージュ配置(3D 版) ----------
+//
+// マス目ではなく、大きさをランクでばらつかせた正方形を無作為に貼る。
+// 重なりは許すが、候補位置をいくつか試して重なりの少ない場所を選ぶ(傾けない)。
+// 重なったタイルは「相手の上の層」に積む。層の数は実際に重なった分だけ増える。
+//
+// 戻り値: [{ track, x, y, size, layer }]  x/y は中心座標(原点中心)、layer は 0 始まり
+
+function rectOverlapArea(ax, ay, asize, bx, by, bsize) {
+  const w = Math.min(ax + asize / 2, bx + bsize / 2) - Math.max(ax - asize / 2, bx - bsize / 2);
+  const h = Math.min(ay + asize / 2, by + bsize / 2) - Math.max(ay - asize / 2, by - bsize / 2);
+  return w > 0 && h > 0 ? w * h : 0;
+}
+
+export function collageLayout(
+  tracks,
+  { width = 10, height = 7, density = 1.3, candidates = 48, maxOverlap = 0.1 } = {},
+) {
+  const sorted = tracks.slice().sort((a, b) => a.rank - b.rank);
+  const n = sorted.length;
+  if (n === 0) return [];
+
+  // ランク上位ほど大きく。同じ帯の中でも少しばらつかせる
+  const items = sorted.map((track, i) => {
+    const p = n === 1 ? 0 : i / (n - 1);
+    const base = p < 0.08 ? 2.6 : p < 0.3 ? 1.9 : p < 0.6 ? 1.4 : 1.05;
+    return { track, size: base * (0.85 + Math.random() * 0.3) };
+  });
+
+  // 面積の合計がキャンバスの density 倍になるようにスケール(1 を超えると重なりが出る)
+  const totalArea = items.reduce((sum, it) => sum + it.size * it.size, 0);
+  const scale = Math.sqrt((density * width * height) / totalArea);
+  for (const it of items) it.size = Math.min(it.size * scale, Math.min(width, height) * 0.6);
+
+  // 大きい順に、候補位置の中で既存タイルとの重なりが最も少ない場所に置く
+  const placed = [];
+  for (const it of items.slice().sort((a, b) => b.size - a.size)) {
+    const freeW = Math.max(0, width - it.size);
+    const freeH = Math.max(0, height - it.size);
+    let best = null;
+    for (let k = 0; k < candidates; k += 1) {
+      const x = (Math.random() - 0.5) * freeW;
+      const y = (Math.random() - 0.5) * freeH;
+      let overlap = 0;
+      for (const p of placed) overlap += rectOverlapArea(x, y, it.size, p.x, p.y, p.size);
+      const score = overlap / (it.size * it.size);
+      if (!best || score < best.score) best = { x, y, score };
+      if (score <= maxOverlap) break;
+    }
+    placed.push({ ...it, x: best.x, y: best.y, layer: 0 });
+  }
+
+  // 層: 重なり順は無作為(大きいものが常に下にならないように)。
+  // 自分より先に積まれたタイルと重なっていれば、その一番上の層の 1 つ上に乗る。
+  const order = shuffle(placed);
+  const stacked = [];
+  for (const it of order) {
+    let layer = 0;
+    for (const p of stacked) {
+      if (rectOverlapArea(it.x, it.y, it.size, p.x, p.y, p.size) > 0) layer = Math.max(layer, p.layer + 1);
+    }
+    it.layer = layer;
+    stacked.push(it);
+  }
+  return stacked;
+}

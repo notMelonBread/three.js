@@ -6,22 +6,17 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
-import {
-  GRID_SIZE,
-  assignSizes,
-  layout,
-  placeholderColor,
-  readIndexEntries,
-} from "./layout.js";
+import { collageLayout, placeholderColor, readIndexEntries } from "./layout.js";
 
 const DATA_DIR = "data";
-const CELL = 1; // 1 マスの大きさ(ワールド単位)
-const GAP = 0.12; // ケース同士の隙間
-const CASE_DEPTH = 0.16; // ガラスの厚み。厚いほど縁の屈折とジャケットとの隙間が見える
+const COLLAGE_HEIGHT = 7; // コラージュ全体の高さ(ワールド単位)。幅は画面の縦横比から決める
+const CASE_DEPTH = 0.12; // ガラスの厚み
+const LAYER_GAP = CASE_DEPTH + 0.03; // 重なったケースを積む間隔
 const FLY_DISTANCE = -9; // 出入りするときの奥行き
-const LIFT_HEIGHT = 1.0; // カーソル直下のケースが持ち上がる高さ
-const LIFT_RADIUS = 1.6; // 盛り上がりの広がり(マス単位)
-const TILT = 0.28; // 盛り上がりの斜面に沿ってケースが傾く強さ
+const FOCUS_LIFT = 0.9; // カーソルに一番近いケースが、最前面の層からさらに浮く高さ
+const FOCUS_REACH = 0.6; // ケースの縁からこの距離までなら「近い」とみなす
+const NEIGHBOR_LIFT = 0.12; // 周囲のケースがわずかに持ち上がる高さ
+const NEIGHBOR_RADIUS = 1.8; // その広がり
 
 // ---------- レンダラー / シーン ----------
 
@@ -79,9 +74,14 @@ const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 100);
 camera.position.set(0, 0.8, 12);
 
 // グリッド全体(7x7)が画面に収まるカメラ距離。縦長画面では幅に合わせる。
+// 画面の縦横比に応じたコラージュの幅
+function collageWidthFor(aspect) {
+  return THREE.MathUtils.clamp(COLLAGE_HEIGHT * aspect * 0.92, 4.5, 13);
+}
+
 function fitDistance(aspect) {
-  const halfHeight = (GRID_SIZE / 2) * CELL * 1.45; // 余白込み
-  const halfWidth = (GRID_SIZE / 2) * CELL * 1.15;
+  const halfHeight = (COLLAGE_HEIGHT / 2) * 1.22; // 余白込み
+  const halfWidth = (collageWidthFor(aspect) / 2) * 1.1;
   const vFov = THREE.MathUtils.degToRad(camera.fov / 2);
   const byHeight = halfHeight / Math.tan(vFov);
   const byWidth = halfWidth / (Math.tan(vFov) * aspect);
@@ -199,8 +199,7 @@ function loadJacketTexture(track, onReady) {
 
 // ---------- ケースの生成 ----------
 
-function createCase(track, span) {
-  const size = span * CELL - GAP;
+function createCase(track, size) {
   const group = new THREE.Group();
 
   // ジャケット(紙)。前面だけテクスチャ、それ以外は黒い紙。
@@ -236,8 +235,10 @@ function createCase(track, span) {
 
   group.userData = {
     track,
+    size,
     hitTarget: shell,
     base: new THREE.Vector3(),
+    focus: 0, // 0..1 で「最前面に浮いている」度合いをなめらかに追従
     tween: null,
   };
   return group;
@@ -261,13 +262,8 @@ function disposeCase(group) {
 const casesRoot = new THREE.Group();
 scene.add(casesRoot);
 let cases = [];
-let hovered = null;
-
-function gridPosition(col, row, span) {
-  const x = (col - 1 + span / 2 - GRID_SIZE / 2) * CELL;
-  const y = (GRID_SIZE / 2 - (row - 1 + span / 2)) * CELL;
-  return new THREE.Vector3(x, y, 0);
-}
+let focused = null; // カーソルに一番近いケース
+let topZ = 0; // 一番上の層の z
 
 const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
 const easeInCubic = (t) => t * t * t;
@@ -277,16 +273,20 @@ function startTween(group, { from, to, duration, delay = 0, ease = easeOutCubic,
 }
 
 function showMonth(data) {
-  const tracks = assignSizes(data.tracks || []);
-  const placements = layout(tracks);
-  cases = placements.map(({ track, span, col, row }, i) => {
-    const group = createCase(track, span);
-    group.userData.base.copy(gridPosition(col, row, span));
+  const aspect = canvas.clientWidth / Math.max(1, canvas.clientHeight);
+  const placements = collageLayout(data.tracks || [], {
+    width: collageWidthFor(aspect),
+    height: COLLAGE_HEIGHT,
+  });
+  topZ = Math.max(0, ...placements.map((p) => p.layer)) * LAYER_GAP;
+  cases = placements.map(({ track, size, x, y, layer }, i) => {
+    const group = createCase(track, size);
+    group.userData.base.set(x, y, layer * LAYER_GAP);
     group.position.copy(group.userData.base).setZ(FLY_DISTANCE);
     group.rotation.set(0, (Math.random() - 0.5) * 1.5, (Math.random() - 0.5) * 0.6);
     group.scale.setScalar(0.4);
     casesRoot.add(group);
-    startTween(group, { from: "fly", to: "rest", duration: 0.9, delay: 0.05 * i });
+    startTween(group, { from: "fly", to: "rest", duration: 0.9, delay: 0.03 * i });
     return group;
   });
 }
@@ -294,7 +294,7 @@ function showMonth(data) {
 function hideMonth(onDone) {
   const old = cases;
   cases = [];
-  hovered = null;
+  focused = null;
   setCaption(null);
   if (old.length === 0) {
     onDone();
@@ -321,7 +321,6 @@ function hideMonth(onDone) {
 // ---------- 毎フレームの更新 ----------
 
 const clock = new THREE.Clock();
-const tmpEuler = new THREE.Euler();
 const restQuat = new THREE.Quaternion();
 
 // カーソルのワールド座標(グリッドの面 z=0 上)と、その有効度 0..1
@@ -347,6 +346,7 @@ function updateCursor() {
   return true;
 }
 
+// まだ動いていれば true を返す(止まっていれば描画を省ける)
 function updateCase(group, t) {
   const data = group.userData;
   const { base } = data;
@@ -358,7 +358,7 @@ function updateCase(group, t) {
     const e = tw.ease(p);
     const toRest = tw.to === "rest";
     const k = toRest ? e : 1 - e;
-    group.position.set(base.x, base.y, THREE.MathUtils.lerp(FLY_DISTANCE, 0, k));
+    group.position.set(base.x, base.y, THREE.MathUtils.lerp(FLY_DISTANCE, base.z, k));
     group.scale.setScalar(THREE.MathUtils.lerp(0.4, 1, k));
     if (toRest) {
       group.quaternion.slerp(restQuat, e);
@@ -369,22 +369,25 @@ function updateCase(group, t) {
       data.tween = null;
       tw.onDone?.();
     }
-    return;
+    return true;
   }
 
-  // カーソルの真下を頂点にした盛り上がり。
-  // 高さはガウス関数 exp(-r^2 / R^2)、傾きはその斜面(勾配)に沿わせる。
+  // カーソルに一番近いケースは、最前面の層よりさらに手前へ。それ以外は自分の層へ戻る。
+  const focusTarget = group === focused ? 1 : 0;
+  const moving = Math.abs(data.focus - focusTarget) > 1e-3;
+  data.focus = moving ? data.focus + (focusTarget - data.focus) * 0.14 : focusTarget;
+
+  // 周囲のケースはカーソルの近さに応じてごくわずかに持ち上がる(傾けない)
   const dx = cursor.point.x - base.x;
   const dy = cursor.point.y - base.y;
-  const g = Math.exp(-(dx * dx + dy * dy) / (LIFT_RADIUS * LIFT_RADIUS)) * cursor.strength;
+  const g = Math.exp(-(dx * dx + dy * dy) / (NEIGHBOR_RADIUS * NEIGHBOR_RADIUS)) * cursor.strength;
 
-  group.position.set(base.x, base.y, LIFT_HEIGHT * g);
-  group.scale.setScalar(1 + 0.04 * g);
-
-  // 頂点(カーソル)に向かって面が起き上がるように傾ける。
-  // カーソルが右にあれば右端が手前に(rotation.y < 0)、上にあれば上端が手前に(rotation.x > 0)。
-  tmpEuler.set(TILT * dy * g, -TILT * dx * g, 0);
-  group.quaternion.setFromEuler(tmpEuler);
+  const liftedZ = topZ + FOCUS_LIFT;
+  const z = THREE.MathUtils.lerp(base.z + NEIGHBOR_LIFT * g, liftedZ, data.focus);
+  group.position.set(base.x, base.y, z);
+  group.scale.setScalar(1 + 0.05 * data.focus);
+  group.quaternion.copy(restQuat);
+  return moving;
 }
 
 function resize() {
@@ -435,8 +438,7 @@ function animate(now) {
 
   let active = updateCursor();
   for (const group of casesRoot.children) {
-    updateCase(group, t);
-    if (group.userData.tween) active = true;
+    if (updateCase(group, t)) active = true;
   }
   if (controls.update()) active = true; // ダンピング中も true
 
@@ -480,6 +482,7 @@ function updatePointer(event) {
   raycaster.setFromCamera(pointer, camera);
 }
 
+// レイで当たったケース(クリック用。重なりの一番上が返る)
 function pickCase(event) {
   updatePointer(event);
   const targets = cases.filter((g) => !g.userData.tween).map((g) => g.userData.hitTarget);
@@ -487,25 +490,42 @@ function pickCase(event) {
   return hit ? hit.object.parent : null;
 }
 
+// カーソル位置に中心が一番近いケース。縁から FOCUS_REACH 以上離れていたら無し
+function nearestCase(point) {
+  let best = null;
+  let bestDistance = Infinity;
+  for (const group of cases) {
+    if (group.userData.tween) continue;
+    const { base, size } = group.userData;
+    const distance = Math.hypot(point.x - base.x, point.y - base.y);
+    if (distance > size / 2 + FOCUS_REACH) continue;
+    if (distance < bestDistance) {
+      bestDistance = distance;
+      best = group;
+    }
+  }
+  return best;
+}
+
 canvas.addEventListener("pointermove", (event) => {
-  // カーソルがグリッドの面のどこを指しているか(ケースの外でも盛り上がる)
+  // カーソルがコラージュの面のどこを指しているか
   updatePointer(event);
   const hit = raycaster.ray.intersectPlane(gridPlane, cursor.target);
   cursor.active = hit !== null;
   requestRender();
 
-  const next = pickCase(event);
-  if (next !== hovered) {
-    hovered = next;
-    setCaption(hovered?.userData.track || null);
-    canvas.style.cursor = hovered ? "pointer" : "";
+  const next = hit ? nearestCase(cursor.target) : null;
+  if (next !== focused) {
+    focused = next;
+    setCaption(focused?.userData.track || null);
+    canvas.style.cursor = focused ? "pointer" : "";
   }
 });
 
 canvas.addEventListener("pointerleave", () => {
   cursor.active = false;
   requestRender();
-  hovered = null;
+  focused = null;
   setCaption(null);
   canvas.style.cursor = "";
 });
@@ -519,7 +539,9 @@ canvas.addEventListener("pointerup", (event) => {
   const moved = Math.hypot(event.clientX - pointerDown.x, event.clientY - pointerDown.y);
   pointerDown = null;
   if (moved > 6) return; // ドラッグ(回転)はクリック扱いにしない
-  const target = pickCase(event);
+  // 浮いているケースがカーソルの下にあればそれ、無ければレイで当たったもの
+  const hit = pickCase(event);
+  const target = hit === focused ? focused : hit || focused;
   const url = target?.userData.track.spotify_url;
   if (url) window.open(url, "_blank", "noopener");
 });
