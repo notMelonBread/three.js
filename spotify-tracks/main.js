@@ -6,10 +6,12 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
-import { collageLayout, placeholderColor, readIndexEntries } from "./layout.js";
+import { collageFill, placeholderColor, readIndexEntries } from "./layout.js";
+import { hideLoading, renderMenu, setCaption } from "./chrome.js";
 
 const DATA_DIR = "data";
-const COLLAGE_SPAN = 7; // コラージュの長辺の長さ(ワールド単位)。横画面では高さ、縦画面では幅の基準
+const VIEW_HEIGHT = 8; // 画面(canvas)の高さに相当するワールド単位。幅は canvas の縦横比から決める
+const COLLAGE_MARGIN = 1.36; // 少し回しても縁が見えないように、画面より大きめにコラージュを作る
 const CASE_DEPTH = 0.12; // ガラスの厚み
 const LAYER_GAP = CASE_DEPTH + 0.03; // 重なったケースを積む間隔
 const FLY_DISTANCE = -9; // 出入りするときの奥行き
@@ -34,8 +36,7 @@ renderer.toneMappingExposure = 1.1;
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x0b0b0c);
-scene.fog = new THREE.Fog(0x0b0b0c, 16, 30);
+scene.background = new THREE.Color(0xe4ff57); // タイルで埋まる前提。万一見えても黒くならない
 
 // ガラスの映り込み用の環境マップ。
 // RoomEnvironment は正面から見たときに映るもの(カメラの背後)が暗く、ガラスに見えなかった。
@@ -71,26 +72,17 @@ function createStudioEnvironment() {
 scene.environment = createStudioEnvironment();
 
 const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 100);
-camera.position.set(0, 0.8, 12);
+camera.position.set(0, 0, 12);
 
 // グリッド全体(7x7)が画面に収まるカメラ距離。縦長画面では幅に合わせる。
-// 画面の縦横比に合わせたコラージュの大きさ。横画面は横長、縦画面(スマホ)は縦長にする
+// 画面(canvas)に映る範囲は z=0 で VIEW_HEIGHT × (VIEW_HEIGHT × aspect)。コラージュはその少し外まで作る
 function collageDimsFor(aspect) {
-  if (aspect >= 1) {
-    return { width: THREE.MathUtils.clamp(COLLAGE_SPAN * aspect * 0.92, 5, 13), height: COLLAGE_SPAN };
-  }
-  const width = COLLAGE_SPAN * 0.78;
-  return { width, height: THREE.MathUtils.clamp((width / aspect) * 0.92, 5, 12) };
+  return { width: VIEW_HEIGHT * aspect * COLLAGE_MARGIN, height: VIEW_HEIGHT * COLLAGE_MARGIN };
 }
 
-function fitDistance(aspect) {
-  const dims = collageDimsFor(aspect);
-  const halfHeight = (dims.height / 2) * 1.22; // 余白込み
-  const halfWidth = (dims.width / 2) * 1.1;
-  const vFov = THREE.MathUtils.degToRad(camera.fov / 2);
-  const byHeight = halfHeight / Math.tan(vFov);
-  const byWidth = halfWidth / (Math.tan(vFov) * aspect);
-  return Math.max(byHeight, byWidth);
+// z=0 の面で高さ VIEW_HEIGHT がちょうど画面に収まるカメラ距離(余白なし)
+function fitDistance() {
+  return VIEW_HEIGHT / 2 / Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
 }
 let autoFit = true; // ユーザーが操作するまでは画面サイズに追従
 
@@ -98,12 +90,11 @@ const controls = new OrbitControls(camera, canvas);
 controls.enableDamping = true;
 controls.dampingFactor = 0.08;
 controls.enablePan = false;
-controls.minDistance = 6;
-controls.maxDistance = 18;
-controls.minPolarAngle = Math.PI / 2 - 0.55;
-controls.maxPolarAngle = Math.PI / 2 + 0.35;
-controls.minAzimuthAngle = -0.7;
-controls.maxAzimuthAngle = 0.7;
+controls.enableZoom = false; // 引くと縁が見えるので固定
+controls.minPolarAngle = Math.PI / 2 - 0.12;
+controls.maxPolarAngle = Math.PI / 2 + 0.12;
+controls.minAzimuthAngle = -0.12;
+controls.maxAzimuthAngle = 0.12;
 controls.addEventListener("start", () => {
   autoFit = false;
 });
@@ -208,7 +199,8 @@ function createCase(track, size) {
   const group = new THREE.Group();
 
   // ジャケット(紙)。前面だけテクスチャ、それ以外は黒い紙。
-  const paperSize = size * 0.94;
+  // ケースの縁ぎりぎりまで広げる(小さいと、隣接するケースの透明な縁から背景が見えて筋になる)
+  const paperSize = size * 0.985;
   const frontMaterial = new THREE.MeshStandardMaterial({ color: 0x333333, roughness: 0.6 });
   const paper = new THREE.Mesh(
     new THREE.BoxGeometry(paperSize, paperSize, 0.012),
@@ -279,7 +271,7 @@ function startTween(group, { from, to, duration, delay = 0, ease = easeOutCubic,
 
 function showMonth(data) {
   const aspect = canvas.clientWidth / Math.max(1, canvas.clientHeight);
-  const placements = collageLayout(data.tracks || [], collageDimsFor(aspect));
+  const placements = collageFill(data.tracks || [], collageDimsFor(aspect));
   topZ = Math.max(0, ...placements.map((p) => p.layer)) * LAYER_GAP;
   cases = placements.map(({ track, size, x, y, layer }, i) => {
     const group = createCase(track, size);
@@ -400,10 +392,10 @@ function resize() {
   camera.updateProjectionMatrix();
   needsRender = true;
   if (autoFit) {
-    const distance = fitDistance(camera.aspect);
-    camera.position.set(0, 0.6, distance);
-    controls.minDistance = Math.min(controls.minDistance, distance * 0.6);
-    controls.maxDistance = Math.max(controls.maxDistance, distance * 1.5);
+    const distance = fitDistance();
+    camera.position.set(0, 0, distance);
+    controls.minDistance = distance;
+    controls.maxDistance = distance;
   }
 }
 
@@ -471,16 +463,7 @@ if (new URLSearchParams(location.search).has("debug")) {
 
 const raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2();
-const caption = document.getElementById("caption");
 let pointerDown = null;
-
-function setCaption(track) {
-  caption.replaceChildren();
-  if (!track) return;
-  const name = document.createElement("strong");
-  name.textContent = `#${track.rank} ${track.name}`;
-  caption.append(name, ` / ${track.artist}`);
-}
 
 function updatePointer(event) {
   const rect = canvas.getBoundingClientRect();
@@ -497,6 +480,21 @@ function pickCase(event) {
   const targets = cases.filter((g) => !g.userData.tween).map((g) => g.userData.hitTarget);
   const hit = raycaster.intersectObjects(targets, false)[0];
   return hit ? hit.object.parent : null;
+}
+
+// menu 窓からの指定: その曲のケース(複数あれば一番大きいもの)を浮かせる
+function focusTrack(track) {
+  let best = null;
+  if (track) {
+    for (const group of cases) {
+      if (group.userData.track !== track) continue;
+      if (!best || group.userData.size > best.userData.size) best = group;
+    }
+  }
+  focused = best;
+  cursor.active = false;
+  setCaption(best?.userData.track || null);
+  requestRender();
 }
 
 // カーソル位置に中心が一番近いケース。縁から FOCUS_REACH 以上離れていたら無し
@@ -576,15 +574,7 @@ canvas.addEventListener("pointerup", (event) => {
   if (url) window.open(url, "_blank", "noopener");
 });
 
-// ---------- 月のナビゲーション ----------
-
-const navEl = document.querySelector(".nav");
-const titleEl = document.getElementById("month-title");
-const prevButton = document.getElementById("prev");
-const nextButton = document.getElementById("next");
-let entries = []; // 表示するページの一覧(月やプレイリストなど)
-let current = 0; // entries は新しい順なので、prev = 古いもの = index + 1
-let switching = false;
+// ---------- データの読み込み ----------
 
 async function fetchJson(path) {
   const response = await fetch(path);
@@ -592,58 +582,20 @@ async function fetchJson(path) {
   return response.json();
 }
 
-async function goTo(index) {
-  if (switching || index < 0 || index >= entries.length) return;
-  switching = true;
-  current = index;
-  const entry = entries[current];
-  prevButton.disabled = current >= entries.length - 1;
-  nextButton.disabled = current <= 0;
-  titleEl.textContent = entry.label;
-  // ページが 1 つだけなら見出しも矢印も要らない
-  navEl.hidden = entries.length <= 1;
-
-  let data;
-  try {
-    data = await fetchJson(`${DATA_DIR}/${entry.file}.json`);
-  } catch (error) {
-    console.error(error);
-    data = { tracks: [] };
-  }
-  if (data.demo) {
-    const small = document.createElement("small");
-    small.textContent = "サンプル";
-    titleEl.append(small);
-  }
-  hideMonth(() => {
-    showMonth(data);
-    switching = false;
-    requestRender();
-  });
-}
-
-prevButton.addEventListener("click", () => goTo(current + 1));
-nextButton.addEventListener("click", () => goTo(current - 1));
-window.addEventListener("keydown", (event) => {
-  if (event.key === "ArrowLeft") goTo(current + 1);
-  if (event.key === "ArrowRight") goTo(current - 1);
-});
-
 async function main() {
   applyQuality(quality);
   requestAnimationFrame(animate);
   try {
-    entries = readIndexEntries(await fetchJson(`${DATA_DIR}/index.json`));
-    if (entries.length === 0) {
-      titleEl.textContent = "まだデータがありません";
-    } else {
-      await goTo(0);
-    }
+    const entries = readIndexEntries(await fetchJson(`${DATA_DIR}/index.json`));
+    if (entries.length === 0) throw new Error("no entries");
+    const data = await fetchJson(`${DATA_DIR}/${entries[0].file}.json`); // 一覧の先頭(最新)を表示
+    showMonth(data);
+    renderMenu(data.tracks || [], { onPick: focusTrack });
   } catch (error) {
     console.error(error);
-    titleEl.textContent = "読み込みに失敗しました";
+    setCaption({ rank: "-", name: "データの読み込みに失敗しました", artist: "" });
   } finally {
-    document.getElementById("loading").classList.add("is-hidden");
+    hideLoading();
   }
 }
 

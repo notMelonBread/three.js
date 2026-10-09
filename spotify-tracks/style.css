@@ -1,109 +1,12 @@
-/* 2D 版: three.js を使わないコラージュ。配置は layout.js の collageLayout() を共用 */
-
-:root {
-  --bg: #0b0b0c;
-  --fg: #f2f2f2;
-  --muted: #8a8a90;
-  --tile-radius: 4px;
-  font-size: clamp(12px, 2.5vw, 20px);
-}
-
-* {
-  box-sizing: border-box;
-}
-
-html {
-  scroll-snap-type: y mandatory;
-  scroll-behavior: smooth;
-}
-
-body {
-  margin: 0;
-  background: var(--bg);
-  color: var(--fg);
-  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-  -webkit-font-smoothing: antialiased;
-}
-
-.topbar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 5;
-  display: flex;
-  justify-content: flex-end;
-  padding: 1rem 1.4rem;
-  font-size: 0.85rem;
-  color: var(--muted);
-  pointer-events: none;
-}
-
-.topbar a {
-  pointer-events: auto;
-  color: inherit;
-  text-decoration: none;
-  border-bottom: 1px solid currentColor;
-}
-
-.topbar a:hover {
-  color: var(--fg);
-}
-
-/* ページ(月やプレイリストごと)は 1 画面ずつスナップ */
-.page {
-  height: 100dvh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.6rem;
-  padding: 3.2rem 1rem 4.2rem;
-  scroll-snap-align: start;
-  opacity: 0;
-  transition: opacity 1.2s ease;
-}
-
-.page.is-visible {
-  opacity: 1;
-}
-
-.page__title {
-  margin: 0;
-  font-size: 1rem;
-  font-weight: 400;
-  letter-spacing: 0.1em;
-}
-
-.page__title small {
-  color: var(--muted);
-  margin-left: 0.6em;
-}
-
-/* コラージュの領域。画面の形(横長・縦長)に合わせて広がる */
-.collage {
-  position: relative;
-  flex: 1 1 auto;
-  width: 100%;
-  max-width: 1200px;
-  min-height: 0;
-  touch-action: manipulation;
-}
-
-.collage--empty {
-  display: grid;
-  place-items: center;
-  color: var(--muted);
-}
+/* 2D 版のタイル。外側の見た目は chrome.css */
 
 .tile {
   position: absolute;
   display: block;
-  border-radius: var(--tile-radius);
   background-color: #222;
   background-size: cover;
   background-position: center;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.06);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35), 0 3px 8px rgba(0, 0, 0, 0.35);
   color: inherit;
   text-decoration: none;
   outline: none;
@@ -114,69 +17,14 @@ body {
 /* カーソル位置に中心が一番近いタイルが、一番上に来て浮き上がる */
 .tile.is-focus {
   z-index: 1000 !important;
-  transform: scale(1.07);
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.25);
+  transform: scale(1.08);
+  box-shadow: 0 0 0 2px var(--magenta), 0 18px 40px rgba(0, 0, 0, 0.55);
 }
 
 .tile:focus-visible {
-  box-shadow: 0 0 0 2px var(--fg);
-}
-
-.caption {
-  position: fixed;
-  left: 1rem;
-  right: 1rem;
-  bottom: 2.2rem;
-  margin: 0;
-  min-height: 1.6em;
-  font-size: 0.8rem;
-  color: var(--muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  text-align: center;
-  pointer-events: none;
-}
-
-.caption strong {
-  color: var(--fg);
-  font-weight: 400;
-}
-
-.attribution {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0.4rem;
-  margin: 0;
-  text-align: center;
-  font-size: 0.65rem;
-  color: var(--muted);
-  pointer-events: none;
-}
-
-.attribution a {
-  pointer-events: auto;
-  color: inherit;
-}
-
-#loading {
-  position: fixed;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  background: var(--bg);
-  color: var(--muted);
-  z-index: 10;
-  transition: opacity 0.5s ease;
-}
-
-#loading.is-hidden {
-  opacity: 0;
-  pointer-events: none;
+  box-shadow: 0 0 0 3px var(--cyan);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html { scroll-behavior: auto; }
-  .page, .tile { transition: none; }
+  .tile { transition: none; }
 }
