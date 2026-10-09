@@ -66,12 +66,19 @@ jobs:
           MONTH: ${{ github.event.inputs.month }}
         run: |
           if [ "$SOURCE" = "popular" ] && [ -n "$GENRES" ]; then
-            # ジャンルごとに 1 ページ。並び順は GENRES の順
+            # ジャンルごとに 1 ページ。並び順は GENRES の順。
+            # 1 つのジャンルが 0 件でも他のジャンルは書き出す(失敗したジャンルは最後にまとめて報告)
             i=1
+            failed=""
             for g in $(echo "$GENRES" | tr ',' ' '); do
-              node scripts/fetch-tracks.mjs --source popular --genre "$g" --order "$i" --limit "$LIMIT"
+              if ! node scripts/fetch-tracks.mjs --source popular --genre "$g" --order "$i" --limit "$LIMIT"; then
+                failed="$failed $g"
+              fi
               i=$((i + 1))
             done
+            if [ -n "$failed" ]; then
+              echo "::warning::取得できなかったジャンル:$failed"
+            fi
           else
             set -- --source "$SOURCE" --limit "$LIMIT"
             [ -n "$QUERY" ] && set -- "$@" --query "$QUERY"
