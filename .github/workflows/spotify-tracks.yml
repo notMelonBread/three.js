@@ -20,9 +20,9 @@ on:
         required: false
         default: ""
       limit:
-        description: "件数 (最大 49、20 でぴったり)"
+        description: "件数 (既定 40、最大 49)"
         required: false
-        default: "20"
+        default: "40"
       label:
         description: "画面の見出し(空なら自動)"
         required: false
@@ -56,7 +56,7 @@ jobs:
           SOURCE: ${{ github.event.inputs.source || 'popular' }}
           QUERY: ${{ github.event.inputs.query }}
           ID: ${{ github.event.inputs.id }}
-          LIMIT: ${{ github.event.inputs.limit || '20' }}
+          LIMIT: ${{ github.event.inputs.limit || '40' }}
           LABEL: ${{ github.event.inputs.label }}
           MONTH: ${{ github.event.inputs.month }}
         run: |
