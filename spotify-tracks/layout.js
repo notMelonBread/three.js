@@ -7,10 +7,22 @@ export const GRID_SIZE = 7;
 export const SPAN = { large: 3, medium: 2, small: 1 };
 const MAX_LAYOUT_RETRIES = 200;
 
-export function shuffle(array) {
+// シード付きの乱数生成器(mulberry32)。同じシードなら同じ並びを再現できる。
+export function createRandom(seed = Math.floor(Math.random() * 2 ** 32)) {
+  let a = seed >>> 0;
+  return () => {
+    a = (a + 0x6d2b79f5) >>> 0;
+    let t = a;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+export function shuffle(array, random = Math.random) {
   const copy = array.slice();
   for (let i = copy.length - 1; i > 0; i -= 1) {
-    const j = Math.floor(Math.random() * (i + 1));
+    const j = Math.floor(random() * (i + 1));
     [copy[i], copy[j]] = [copy[j], copy[i]];
   }
   return copy;
@@ -137,6 +149,7 @@ export function readIndexEntries(index) {
 // 重なったタイルは「相手の上の層」に積む。層の数は実際に重なった分だけ増える。
 //
 // 戻り値: [{ track, x, y, size, layer }]  x/y は中心座標(原点中心)、layer は 0 始まり
+// width/height の単位は任意(3D 版はワールド単位、2D 版はピクセル)。random にシード付き乱数を渡せる。
 
 function rectOverlapArea(ax, ay, asize, bx, by, bsize) {
   const w = Math.min(ax + asize / 2, bx + bsize / 2) - Math.max(ax - asize / 2, bx - bsize / 2);
@@ -146,7 +159,7 @@ function rectOverlapArea(ax, ay, asize, bx, by, bsize) {
 
 export function collageLayout(
   tracks,
-  { width = 10, height = 7, density = 1.3, candidates = 48, maxOverlap = 0.1 } = {},
+  { width = 10, height = 7, density = 1.3, candidates = 48, maxOverlap = 0.1, random = Math.random } = {},
 ) {
   const sorted = tracks.slice().sort((a, b) => a.rank - b.rank);
   const n = sorted.length;
@@ -156,7 +169,7 @@ export function collageLayout(
   const items = sorted.map((track, i) => {
     const p = n === 1 ? 0 : i / (n - 1);
     const base = p < 0.08 ? 2.6 : p < 0.3 ? 1.9 : p < 0.6 ? 1.4 : 1.05;
-    return { track, size: base * (0.85 + Math.random() * 0.3) };
+    return { track, size: base * (0.85 + random() * 0.3) };
   });
 
   // 面積の合計がキャンバスの density 倍になるようにスケール(1 を超えると重なりが出る)
@@ -171,8 +184,8 @@ export function collageLayout(
     const freeH = Math.max(0, height - it.size);
     let best = null;
     for (let k = 0; k < candidates; k += 1) {
-      const x = (Math.random() - 0.5) * freeW;
-      const y = (Math.random() - 0.5) * freeH;
+      const x = (random() - 0.5) * freeW;
+      const y = (random() - 0.5) * freeH;
       let overlap = 0;
       for (const p of placed) overlap += rectOverlapArea(x, y, it.size, p.x, p.y, p.size);
       const score = overlap / (it.size * it.size);
@@ -184,7 +197,7 @@ export function collageLayout(
 
   // 層: 重なり順は無作為(大きいものが常に下にならないように)。
   // 自分より先に積まれたタイルと重なっていれば、その一番上の層の 1 つ上に乗る。
-  const order = shuffle(placed);
+  const order = shuffle(placed, random);
   const stacked = [];
   for (const it of order) {
     let layer = 0;

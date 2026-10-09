@@ -9,7 +9,7 @@ import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.j
 import { collageLayout, placeholderColor, readIndexEntries } from "./layout.js";
 
 const DATA_DIR = "data";
-const COLLAGE_HEIGHT = 7; // コラージュ全体の高さ(ワールド単位)。幅は画面の縦横比から決める
+const COLLAGE_SPAN = 7; // コラージュの長辺の長さ(ワールド単位)。横画面では高さ、縦画面では幅の基準
 const CASE_DEPTH = 0.12; // ガラスの厚み
 const LAYER_GAP = CASE_DEPTH + 0.03; // 重なったケースを積む間隔
 const FLY_DISTANCE = -9; // 出入りするときの奥行き
@@ -74,14 +74,19 @@ const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 100);
 camera.position.set(0, 0.8, 12);
 
 // グリッド全体(7x7)が画面に収まるカメラ距離。縦長画面では幅に合わせる。
-// 画面の縦横比に応じたコラージュの幅
-function collageWidthFor(aspect) {
-  return THREE.MathUtils.clamp(COLLAGE_HEIGHT * aspect * 0.92, 4.5, 13);
+// 画面の縦横比に合わせたコラージュの大きさ。横画面は横長、縦画面(スマホ)は縦長にする
+function collageDimsFor(aspect) {
+  if (aspect >= 1) {
+    return { width: THREE.MathUtils.clamp(COLLAGE_SPAN * aspect * 0.92, 5, 13), height: COLLAGE_SPAN };
+  }
+  const width = COLLAGE_SPAN * 0.78;
+  return { width, height: THREE.MathUtils.clamp((width / aspect) * 0.92, 5, 12) };
 }
 
 function fitDistance(aspect) {
-  const halfHeight = (COLLAGE_HEIGHT / 2) * 1.22; // 余白込み
-  const halfWidth = (collageWidthFor(aspect) / 2) * 1.1;
+  const dims = collageDimsFor(aspect);
+  const halfHeight = (dims.height / 2) * 1.22; // 余白込み
+  const halfWidth = (dims.width / 2) * 1.1;
   const vFov = THREE.MathUtils.degToRad(camera.fov / 2);
   const byHeight = halfHeight / Math.tan(vFov);
   const byWidth = halfWidth / (Math.tan(vFov) * aspect);
@@ -274,10 +279,7 @@ function startTween(group, { from, to, duration, delay = 0, ease = easeOutCubic,
 
 function showMonth(data) {
   const aspect = canvas.clientWidth / Math.max(1, canvas.clientHeight);
-  const placements = collageLayout(data.tracks || [], {
-    width: collageWidthFor(aspect),
-    height: COLLAGE_HEIGHT,
-  });
+  const placements = collageLayout(data.tracks || [], collageDimsFor(aspect));
   topZ = Math.max(0, ...placements.map((p) => p.layer)) * LAYER_GAP;
   cases = placements.map(({ track, size, x, y, layer }, i) => {
     const group = createCase(track, size);
@@ -456,6 +458,13 @@ if (new URLSearchParams(location.search).has("debug")) {
   Object.defineProperty(window, "__renders", { get: () => renderCount });
   window.__probe = probe;
   window.__applyQuality = applyQuality;
+  window.__state = () => ({
+    focused: focused?.userData.track.name ?? null,
+    cases: cases.length,
+    tweening: cases.filter((g) => g.userData.tween).length,
+    cursor: cursor.target.toArray().map((v) => +v.toFixed(2)),
+    active: cursor.active,
+  });
 }
 
 // ---------- ホバー / クリック ----------
@@ -522,7 +531,8 @@ canvas.addEventListener("pointermove", (event) => {
   }
 });
 
-canvas.addEventListener("pointerleave", () => {
+canvas.addEventListener("pointerleave", (event) => {
+  if (event.pointerType === "touch") return; // タッチは指を離すたびに leave が来るので無視(タップで浮かせた状態を保つ)
   cursor.active = false;
   requestRender();
   focused = null;
@@ -531,15 +541,35 @@ canvas.addEventListener("pointerleave", () => {
 });
 
 canvas.addEventListener("pointerdown", (event) => {
-  pointerDown = { x: event.clientX, y: event.clientY };
+  pointerDown = { x: event.clientX, y: event.clientY, wasFocused: focused };
 });
 
 canvas.addEventListener("pointerup", (event) => {
   if (!pointerDown) return;
   const moved = Math.hypot(event.clientX - pointerDown.x, event.clientY - pointerDown.y);
+  const { wasFocused } = pointerDown;
   pointerDown = null;
   if (moved > 6) return; // ドラッグ(回転)はクリック扱いにしない
-  // 浮いているケースがカーソルの下にあればそれ、無ければレイで当たったもの
+
+  updatePointer(event);
+  const onPlane = raycaster.ray.intersectPlane(gridPlane, cursor.target) !== null;
+  const nearest = onPlane ? nearestCase(cursor.target) : null;
+
+  if (event.pointerType === "touch") {
+    // タッチにはホバーが無いので、1 回目のタップで浮かせ、浮いているものをもう一度タップしたら開く
+    cursor.active = onPlane;
+    if (nearest && nearest === wasFocused) {
+      const url = nearest.userData.track.spotify_url;
+      if (url) window.open(url, "_blank", "noopener");
+      return;
+    }
+    focused = nearest;
+    setCaption(focused?.userData.track || null);
+    requestRender();
+    return;
+  }
+
+  // マウス: 浮いているケースがカーソルの下にあればそれ、無ければレイで当たったもの
   const hit = pickCase(event);
   const target = hit === focused ? focused : hit || focused;
   const url = target?.userData.track.spotify_url;
