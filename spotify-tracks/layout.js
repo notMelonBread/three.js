@@ -228,7 +228,7 @@ export function collageFill(
   {
     width = 10,
     height = 7,
-    density = 1.7,
+    density = 1.9,
     overflow = 0, // タイルの大きさに対して、枠の外にはみ出してよい割合(既定 0 = すべて枠内)
     uniform = true, // true: すべて同じ大きさ。false: ランク上位ほど大きい
     grow = 0.04, // 配置後に全タイルを同じ比率で拡大して、接しているだけの細い隙間を閉じる
