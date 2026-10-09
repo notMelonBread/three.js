@@ -1,9 +1,16 @@
 {
   "entries": [
     {
-      "file": "popular",
-      "label": "Popular",
-      "month": null
+      "file": "popular-jpop",
+      "label": "J-POP",
+      "month": null,
+      "order": 1
+    },
+    {
+      "file": "popular-kpop",
+      "label": "K-POP",
+      "month": null,
+      "order": 2
     }
   ]
 }

@@ -7,7 +7,7 @@
 
 import * as THREE from "three";
 import { collageFill, placeholderColor, readIndexEntries } from "./layout.js";
-import { hideLoading, setCaption } from "./chrome.js";
+import { createPager, hideLoading, setCaption } from "./chrome.js";
 
 const DATA_DIR = "data";
 const VIEW_HEIGHT = 8; // 画面(canvas)の高さに相当するワールド単位。幅は canvas の縦横比から決める
@@ -18,6 +18,7 @@ const FOCUS_LIFT = 0.9; // カーソルに一番近い板が、最前面の層�
 const FOCUS_REACH = 0.3; // 板の縁からこの距離までなら「近い」とみなす
 const NEIGHBOR_LIFT = 0.1; // 周囲の板がわずかに持ち上がる高さ
 const NEIGHBOR_RADIUS = 1.6; // その広がり
+const PAGE_PITCH = VIEW_HEIGHT * 1.08; // ジャンルごとのページを縦に並べる間隔(少し隙間を空ける)
 
 // ---------- レンダラー / シーン / カメラ ----------
 
@@ -126,26 +127,54 @@ function startTween(mesh, { duration, delay = 0, ease = easeOutCubic }) {
   mesh.userData.tween = { duration, delay, ease, start: clock.elapsedTime };
 }
 
-function showCollage(data) {
-  for (const mesh of tiles) {
-    tilesRoot.remove(mesh);
-    disposeTile(mesh);
-  }
+// ジャンルごとのページ。i 番目のページは y = -i * PAGE_PITCH を中心に置く
+const pages = [];
+let current = 0;
+const labelEl = document.getElementById("label");
+
+function addPage(entry, data, index) {
   const aspect = canvas.clientWidth / Math.max(1, canvas.clientHeight);
+  const offsetY = -index * PAGE_PITCH;
   const placements = collageFill(data.tracks || [], { width: VIEW_HEIGHT * aspect, height: VIEW_HEIGHT });
-  topZ = Math.max(0, ...placements.map((p) => p.layer)) * LAYER_GAP;
-  tiles = placements.map(({ track, size, x, y, layer }, i) => {
+  const pageTopZ = Math.max(0, ...placements.map((p) => p.layer)) * LAYER_GAP;
+  topZ = Math.max(topZ, pageTopZ);
+  const pageTiles = placements.map(({ track, size, x, y, layer }, i) => {
     const mesh = createTile(track, size);
-    mesh.userData.base.set(x, y, layer * LAYER_GAP);
+    mesh.userData.base.set(x, y + offsetY, layer * LAYER_GAP);
+    mesh.userData.page = index;
     mesh.position.copy(mesh.userData.base).setZ(FLY_DISTANCE);
     mesh.scale.setScalar(0.4);
     tilesRoot.add(mesh);
-    startTween(mesh, { duration: 0.8, delay: 0.02 * i });
+    startTween(mesh, { duration: 0.8, delay: 0.02 * i + 0.1 * index });
+    tiles.push(mesh);
     return mesh;
   });
-  focused = null;
-  setCaption(null);
+  pages.push({ entry, data, offsetY, tiles: pageTiles });
   requestRender();
+}
+
+// カメラの y をページに合わせる(なめらかに追従)
+const cameraY = { value: 0, target: 0 };
+let pager = null;
+
+function goToPage(index) {
+  if (pages.length === 0) return;
+  current = Math.max(0, Math.min(pages.length - 1, index));
+  cameraY.target = pages[current].offsetY;
+  const { entry, data } = pages[current];
+  labelEl.textContent = entry.label + (data.demo ? "(サンプル)" : "");
+  pager?.setCurrent(current);
+  setFocused(null);
+  requestRender();
+}
+
+// まだ動いていれば true
+function updateCamera() {
+  const moving = Math.abs(cameraY.value - cameraY.target) > 1e-3;
+  cameraY.value = moving ? cameraY.value + (cameraY.target - cameraY.value) * 0.12 : cameraY.target;
+  camera.position.y = cameraY.value;
+  camera.lookAt(0, cameraY.value, 0);
+  return moving;
 }
 
 // ---------- 毎フレームの更新 ----------
@@ -212,8 +241,8 @@ function resize() {
   renderer.setSize(w, h, false);
   camera.aspect = w / h;
   camera.updateProjectionMatrix();
-  camera.position.set(0, 0, fitDistance());
-  camera.lookAt(0, 0, 0);
+  camera.position.set(0, cameraY.value, fitDistance());
+  camera.lookAt(0, cameraY.value, 0);
   needsRender = true;
 }
 
@@ -228,6 +257,7 @@ function animate() {
   resize();
   const t = clock.getElapsedTime();
   let active = updateCursor();
+  if (updateCamera()) active = true;
   for (const mesh of tiles) if (updateTile(mesh, t)) active = true;
   if (!active && !needsRender) return;
   needsRender = false;
@@ -294,16 +324,41 @@ canvas.addEventListener("pointerleave", (event) => {
   requestRender();
 });
 
+// ページ送り: ホイール(連続入力は 1 回にまとめる)、縦スワイプ、矢印キー
+let wheelLock = 0;
+canvas.addEventListener(
+  "wheel",
+  (event) => {
+    event.preventDefault();
+    if (pages.length <= 1 || Math.abs(event.deltaY) < 8) return;
+    const now = performance.now();
+    if (now < wheelLock) return;
+    wheelLock = now + 700;
+    goToPage(current + (event.deltaY > 0 ? 1 : -1));
+  },
+  { passive: false },
+);
+window.addEventListener("keydown", (event) => {
+  if (event.key === "ArrowDown" || event.key === "PageDown") goToPage(current + 1);
+  if (event.key === "ArrowUp" || event.key === "PageUp") goToPage(current - 1);
+});
+
 canvas.addEventListener("pointerdown", (event) => {
   pointerDown = { x: event.clientX, y: event.clientY, wasFocused: focused };
 });
 
 canvas.addEventListener("pointerup", (event) => {
   if (!pointerDown) return;
-  const moved = Math.hypot(event.clientX - pointerDown.x, event.clientY - pointerDown.y);
+  const dx = event.clientX - pointerDown.x;
+  const dy = event.clientY - pointerDown.y;
+  const moved = Math.hypot(dx, dy);
   const { wasFocused } = pointerDown;
   pointerDown = null;
-  if (moved > 6) return;
+  if (moved > 6) {
+    // 縦スワイプでページ送り(上に動かしたら次へ)
+    if (Math.abs(dy) > 40 && Math.abs(dy) > Math.abs(dx)) goToPage(current + (dy < 0 ? 1 : -1));
+    return;
+  }
 
   updatePointer(event);
   const onPlane = raycaster.ray.intersectPlane(plane, cursor.target) !== null;
@@ -341,8 +396,11 @@ async function main() {
   try {
     const entries = readIndexEntries(await fetchJson(`${DATA_DIR}/index.json`));
     if (entries.length === 0) throw new Error("no entries");
-    const data = await fetchJson(`${DATA_DIR}/${entries[0].file}.json`); // 一覧の先頭(最新)を表示
-    showCollage(data);
+    const datas = await Promise.all(entries.map((entry) => fetchJson(`${DATA_DIR}/${entry.file}.json`)));
+    resize();
+    entries.forEach((entry, i) => addPage(entry, datas[i], i));
+    pager = createPager(entries.map((e) => e.label), goToPage);
+    goToPage(0);
   } catch (error) {
     console.error(error);
     setCaption({ rank: "-", name: "データの読み込みに失敗しました", artist: "" });

@@ -1,0 +1,211 @@
+{
+  "source": "popular",
+  "label": "K-POP",
+  "month": null,
+  "order": 2,
+  "demo": true,
+  "genre": "kpop",
+  "generated_at": "2026-09-05T08:17:59.814Z",
+  "tracks": [
+    {
+      "rank": 1,
+      "id": "demo-k1",
+      "name": "Super Shy",
+      "artist": "NewJeans",
+      "album": "",
+      "image_url": "",
+      "spotify_url": "https://open.spotify.com/",
+      "size": "small"
+    },
+    {
+      "rank": 2,
+      "id": "demo-k2",
+      "name": "Magnetic",
+      "artist": "ILLIT",
+      "album": "",
+      "image_url": "",
+      "spotify_url": "https://open.spotify.com/",
+      "size": "small"
+    },
+    {
+      "rank": 3,
+      "id": "demo-k3",
+      "name": "Supernova",
+      "artist": "aespa",
+      "album": "",
+      "image_url": "",
+      "spotify_url": "https://open.spotify.com/",
+      "size": "small"
+    },
+    {
+      "rank": 4,
+      "id": "demo-k4",
+      "name": "How Sweet",
+      "artist": "NewJeans",
+      "album": "",
+      "image_url": "",
+      "spotify_url": "https://open.spotify.com/",
+      "size": "small"
+    },
+    {
+      "rank": 5,
+      "id": "demo-k5",
+      "name": "Love wins all",
+      "artist": "IU",
+      "album": "",
+      "image_url": "",
+      "spotify_url": "https://open.spotify.com/",
+      "size": "small"
+    },
+    {
+      "rank": 6,
+      "id": "demo-k6",
+      "name": "SPOT!",
+      "artist": "ZICO, JENNIE",
+      "album": "",
+      "image_url": "",
+      "spotify_url": "https://open.spotify.com/",
+      "size": "small"
+    },
+    {
+      "rank": 7,
+      "id": "demo-k7",
+      "name": "Smart",
+      "artist": "LE SSERAFIM",
+      "album": "",
+      "image_url": "",
+      "spotify_url": "https://open.spotify.com/",
+      "size": "small"
+    },
+    {
+      "rank": 8,
+      "id": "demo-k8",
+      "name": "Fate",
+      "artist": "(G)I-DLE",
+      "album": "",
+      "image_url": "",
+      "spotify_url": "https://open.spotify.com/",
+      "size": "small"
+    },
+    {
+      "rank": 9,
+      "id": "demo-k9",
+      "name": "Seven",
+      "artist": "Jung Kook",
+      "album": "",
+      "image_url": "",
+      "spotify_url": "https://open.spotify.com/",
+      "size": "small"
+    },
+    {
+      "rank": 10,
+      "id": "demo-k10",
+      "name": "Ditto",
+      "artist": "NewJeans",
+      "album": "",
+      "image_url": "",
+      "spotify_url": "https://open.spotify.com/",
+      "size": "small"
+    },
+    {
+      "rank": 11,
+      "id": "demo-k11",
+      "name": "Dynamite",
+      "artist": "BTS",
+      "album": "",
+      "image_url": "",
+      "spotify_url": "https://open.spotify.com/",
+      "size": "small"
+    },
+    {
+      "rank": 12,
+      "id": "demo-k12",
+      "name": "Cupid",
+      "artist": "FIFTY FIFTY",
+      "album": "",
+      "image_url": "",
+      "spotify_url": "https://open.spotify.com/",
+      "size": "small"
+    },
+    {
+      "rank": 13,
+      "id": "demo-k13",
+      "name": "I AM",
+      "artist": "IVE",
+      "album": "",
+      "image_url": "",
+      "spotify_url": "https://open.spotify.com/",
+      "size": "small"
+    },
+    {
+      "rank": 14,
+      "id": "demo-k14",
+      "name": "Queencard",
+      "artist": "(G)I-DLE",
+      "album": "",
+      "image_url": "",
+      "spotify_url": "https://open.spotify.com/",
+      "size": "small"
+    },
+    {
+      "rank": 15,
+      "id": "demo-k15",
+      "name": "LALALALA",
+      "artist": "Stray Kids",
+      "album": "",
+      "image_url": "",
+      "spotify_url": "https://open.spotify.com/",
+      "size": "small"
+    },
+    {
+      "rank": 16,
+      "id": "demo-k16",
+      "name": "Drama",
+      "artist": "aespa",
+      "album": "",
+      "image_url": "",
+      "spotify_url": "https://open.spotify.com/",
+      "size": "small"
+    },
+    {
+      "rank": 17,
+      "id": "demo-k17",
+      "name": "Perfect Night",
+      "artist": "LE SSERAFIM",
+      "album": "",
+      "image_url": "",
+      "spotify_url": "https://open.spotify.com/",
+      "size": "small"
+    },
+    {
+      "rank": 18,
+      "id": "demo-k18",
+      "name": "Baddie",
+      "artist": "IVE",
+      "album": "",
+      "image_url": "",
+      "spotify_url": "https://open.spotify.com/",
+      "size": "small"
+    },
+    {
+      "rank": 19,
+      "id": "demo-k19",
+      "name": "Bouncy",
+      "artist": "ATEEZ",
+      "album": "",
+      "image_url": "",
+      "spotify_url": "https://open.spotify.com/",
+      "size": "small"
+    },
+    {
+      "rank": 20,
+      "id": "demo-k20",
+      "name": "Lucky Girl Syndrome",
+      "artist": "ILLIT",
+      "album": "",
+      "image_url": "",
+      "spotify_url": "https://open.spotify.com/",
+      "size": "small"
+    }
+  ]
+}

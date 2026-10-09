@@ -7,12 +7,12 @@
 //   - タッチ: 1 回目のタップで浮かせ、浮いているものをもう一度タップで Spotify を開く
 
 import { collageFill, createRandom, placeholderColor, readIndexEntries } from "./layout.js";
-import { hideLoading, setCaption } from "./chrome.js";
+import { createPager, hideLoading, setCaption } from "./chrome.js";
 
 const DATA_DIR = "data";
 const FOCUS_REACH_RATIO = 0.35; // タイルの大きさに対して、縁からどこまでを「近い」とみなすか
 
-function createCollage(container, tracks) {
+function createCollage(container, tracks, caption) {
   const seed = Math.floor(Math.random() * 2 ** 32); // リサイズしても同じ配置を再現するために固定
   let placements = [];
   let tiles = [];
@@ -24,7 +24,7 @@ function createCollage(container, tracks) {
     focused?.tile.classList.remove("is-focus");
     focused = next;
     focused?.tile.classList.add("is-focus");
-    setCaption(focused?.placement.track || null);
+    setCaption(focused?.placement.track || null, caption);
     container.style.cursor = focused ? "pointer" : "";
   }
 
@@ -118,17 +118,66 @@ async function fetchJson(path) {
   return response.json();
 }
 
+// ジャンルごとに 1 ページ(縦長カラム)。見えたときに JSON を読んでコラージュを作る
+function createPage(entry) {
+  const page = document.createElement("section");
+  page.className = "page";
+  page.dataset.file = entry.file;
+  page.innerHTML = `
+    <div class="frame">
+      <div class="screen">
+        <p class="screen__label"></p>
+        <p class="screen__caption"></p>
+      </div>
+    </div>
+  `;
+  page.querySelector(".screen__label").textContent = entry.label;
+  return page;
+}
+
+async function loadPage(page) {
+  if (page.dataset.loaded) return;
+  page.dataset.loaded = "true";
+  const screen = page.querySelector(".screen");
+  const caption = page.querySelector(".screen__caption");
+  try {
+    const data = await fetchJson(`${DATA_DIR}/${page.dataset.file}.json`);
+    if (data.demo) page.querySelector(".screen__label").textContent += "(サンプル)";
+    createCollage(screen, data.tracks || [], caption);
+  } catch (error) {
+    console.error(error);
+    setCaption({ rank: "-", name: "読み込みに失敗しました", artist: "" }, caption);
+  }
+}
+
 async function main() {
-  const screen = document.getElementById("screen");
+  const deck = document.getElementById("deck");
   try {
     const entries = readIndexEntries(await fetchJson(`${DATA_DIR}/index.json`));
     if (entries.length === 0) throw new Error("no entries");
-    const data = await fetchJson(`${DATA_DIR}/${entries[0].file}.json`); // 一覧の先頭(最新)を表示
-    const tracks = data.tracks || [];
-    createCollage(screen, tracks);
+
+    const pages = entries.map(createPage);
+    deck.append(...pages);
+    const pager = createPager(
+      entries.map((e) => e.label),
+      (i) => pages[i].scrollIntoView({ behavior: "smooth" }),
+    );
+
+    // 見えたページから順に読み込む。ページ送りの丸も追従
+    const observer = new IntersectionObserver(
+      (items) => {
+        for (const item of items) {
+          if (!item.isIntersecting) continue;
+          loadPage(item.target);
+          if (item.intersectionRatio > 0.5) pager.setCurrent(pages.indexOf(item.target));
+        }
+      },
+      { root: deck, threshold: [0.01, 0.6] },
+    );
+    for (const page of pages) observer.observe(page);
   } catch (error) {
     console.error(error);
-    setCaption({ rank: "-", name: "データの読み込みに失敗しました", artist: "" });
+    deck.innerHTML = '<section class="page"><p>データの読み込みに失敗しました。</p></section>';
   } finally {
     hideLoading();
   }

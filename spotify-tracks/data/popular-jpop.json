@@ -1,9 +1,10 @@
 {
   "source": "popular",
-  "label": "Popular",
+  "label": "J-POP",
+  "month": null,
+  "order": 1,
   "demo": true,
-  "query": "year:2026",
-  "market": "JP",
+  "genre": "jpop",
   "generated_at": "2026-09-05T08:17:59.814Z",
   "tracks": [
     {

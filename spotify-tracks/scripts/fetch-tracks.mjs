@@ -1,6 +1,8 @@
 // Spotify から曲(またはアルバム)の一覧を取得して data/<name>.json と data/index.json を書き出す。
 //
 //   node scripts/fetch-tracks.mjs                                  # 今ポピュラーな曲(ログイン不要)
+//   node scripts/fetch-tracks.mjs --genre jpop --order 1           # ジャンル別(J-POP)。ページの並び順も指定
+//   node scripts/fetch-tracks.mjs --genre kpop --order 2
 //   node scripts/fetch-tracks.mjs --query "genre:j-pop year:2026" --query "genre:anime year:2026"
 //   node scripts/fetch-tracks.mjs --source top --month 2026-08     # 自分の Top Tracks(聴取履歴ベース)
 //   node scripts/fetch-tracks.mjs --source playlist --id <URL|ID>  # プレイリストの曲順
@@ -15,6 +17,8 @@
 //   --time-range short_term|medium_term|long_term  (top のみ)
 //   --query TEXT --market CC --pool N              (popular のみ。--query は複数回指定できる。既定は
 //                                                   year:<今年> と genre 別の数パターン、JP、候補 60 件)
+//   --genre KEY  (popular のみ)GENRES の表からクエリ・見出し・ファイル名を決める。KEY は jpop, kpop, pop, hiphop, rock, anime
+//   --order N    画面でのページの並び順(小さい順)。index.json に反映される
 //
 // --id には URL (https://open.spotify.com/playlist/xxxx?si=...)、URI (spotify:playlist:xxxx)、
 // 生の ID のどれを渡してもよい。
@@ -38,6 +42,8 @@ const { values: args } = parseArgs({
   options: {
     source: { type: "string", default: "popular" },
     query: { type: "string", multiple: true },
+    genre: { type: "string" },
+    order: { type: "string" },
     market: { type: "string", default: "JP" },
     pool: { type: "string", default: "60" },
     id: { type: "string" },
@@ -173,6 +179,16 @@ async function collect(path, params, mapItem) {
   return items.slice(0, limit);
 }
 
+// --genre で使う表。検索クエリは複数用意して、足りなければ次に進む
+const GENRES = {
+  jpop: { label: "J-POP", queries: (y) => [`genre:j-pop year:${y}`, `genre:j-pop year:${y - 1}`, `genre:japanese year:${y}`] },
+  kpop: { label: "K-POP", queries: (y) => [`genre:k-pop year:${y}`, `genre:k-pop year:${y - 1}`, `genre:korean year:${y}`] },
+  pop: { label: "POP", queries: (y) => [`genre:pop year:${y}`, `genre:pop year:${y - 1}`] },
+  hiphop: { label: "HIP HOP", queries: (y) => [`genre:hip-hop year:${y}`, `genre:rap year:${y}`, `genre:hip-hop year:${y - 1}`] },
+  rock: { label: "ROCK", queries: (y) => [`genre:rock year:${y}`, `genre:j-rock year:${y}`, `genre:rock year:${y - 1}`] },
+  anime: { label: "ANIME", queries: (y) => [`genre:anime year:${y}`, `genre:anime year:${y - 1}`] },
+};
+
 const sources = {
   // 今ポピュラーな曲。Spotify 公式のチャート系プレイリストは開発モードのアプリから取れないので、
   // 検索で候補を集める。2026 年の開発モード制限で、検索は 1 回あたり数件しか返らず、
@@ -182,9 +198,13 @@ const sources = {
   //   - 順位は popularity があればそれ、無ければ検索結果の並び(Spotify 側の関連度順)
   async popular() {
     const year = new Date().getUTCFullYear();
+    const genre = args.genre ? GENRES[args.genre] : null;
+    if (args.genre && !genre) throw new Error(`--genre は ${Object.keys(GENRES).join(" | ")} のどれかです: ${args.genre}`);
     const queries = args.query?.length
       ? args.query
-      : [`year:${year}`, `year:${year} genre:j-pop`, `year:${year} genre:pop`, `year:${year} genre:hip-hop`, `year:${year - 1}`];
+      : genre
+        ? genre.queries(year)
+        : [`year:${year}`, `year:${year} genre:j-pop`, `year:${year} genre:pop`, `year:${year} genre:hip-hop`, `year:${year - 1}`];
     const market = args.market;
     const pageSize = 10; // 2026 年 2 月以降の上限
     const poolSize = Math.max(limit, Math.min(200, Number(args.pool) || 40));
@@ -224,7 +244,12 @@ const sources = {
     }
     // popularity が取れていれば降順、全部 0 なら検索順のまま(sort は安定)
     pool.sort((a, b) => b.popularity - a.popularity);
-    return { name: "popular", label: "Popular", meta: { queries, market }, items: pool.slice(0, limit) };
+    return {
+      name: genre ? `popular-${args.genre}` : "popular",
+      label: genre ? genre.label : "Popular",
+      meta: { genre: args.genre || null, queries, market },
+      items: pool.slice(0, limit),
+    };
   },
 
   // 聴取履歴から Spotify が出す Top Tracks(short_term ≒ 直近 4 週間)
@@ -309,20 +334,24 @@ async function writeIndex() {
         file: key,
         label: data.label || (data.month ? formatMonth(data.month) : key),
         month: data.month || null,
+        order: Number.isFinite(data.order) ? data.order : null,
         generated_at: data.generated_at || "",
       });
     } catch (error) {
       console.warn(`${file} を読み飛ばしました: ${error.message}`);
     }
   }
-  // 月ものを新しい順に先、それ以外は生成日時の新しい順
+  // --order 指定があるものはその順(小さい順)に先、次に月ものを新しい順、それ以外は生成日時の新しい順
   entries.sort((a, b) => {
+    if (a.order != null && b.order != null) return a.order - b.order;
+    if (a.order != null) return -1;
+    if (b.order != null) return 1;
     if (a.month && b.month) return b.month.localeCompare(a.month);
     if (a.month) return -1;
     if (b.month) return 1;
     return b.generated_at.localeCompare(a.generated_at);
   });
-  const slim = entries.map(({ file, label, month }) => ({ file, label, month }));
+  const slim = entries.map(({ file, label, month, order }) => ({ file, label, month, order }));
   await writeFile(resolve(outDir, "index.json"), `${JSON.stringify({ entries: slim }, null, 2)}\n`);
   return slim;
 }
@@ -364,6 +393,7 @@ async function main() {
     source: args.source,
     label: args.label || result.label,
     month: result.month || null,
+    order: args.order != null && args.order !== "" ? Number(args.order) : null,
     ...result.meta,
     generated_at: new Date().toISOString(),
     tracks,
