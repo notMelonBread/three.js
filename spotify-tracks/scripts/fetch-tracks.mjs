@@ -181,12 +181,31 @@ async function collect(path, params, mapItem) {
 
 // --genre で使う表。検索クエリは複数用意して、足りなければ次に進む
 const GENRES = {
-  jpop: { label: "J-POP", queries: (y) => [`genre:j-pop year:${y}`, `genre:j-pop year:${y - 1}`, `genre:japanese year:${y}`] },
-  kpop: { label: "K-POP", queries: (y) => [`genre:k-pop year:${y}`, `genre:k-pop year:${y - 1}`, `genre:korean year:${y}`] },
-  pop: { label: "POP", queries: (y) => [`genre:pop year:${y}`, `genre:pop year:${y - 1}`] },
-  hiphop: { label: "HIP HOP", queries: (y) => [`genre:hip-hop year:${y}`, `genre:rap year:${y}`, `genre:hip-hop year:${y - 1}`] },
-  rock: { label: "ROCK", queries: (y) => [`genre:rock year:${y}`, `genre:j-rock year:${y}`, `genre:rock year:${y - 1}`] },
-  anime: { label: "ANIME", queries: (y) => [`genre:anime year:${y}`, `genre:anime year:${y - 1}`] },
+  // genre: の絞り込みは市場やジャンル名によって 0 件になることがあるので、
+  // キーワード検索(genre: なし)も後ろに並べておく
+  jpop: {
+    label: "J-POP",
+    queries: (y) => [`genre:j-pop year:${y}`, `genre:j-pop year:${y - 1}`, `j-pop year:${y}`, `jpop year:${y}`],
+  },
+  kpop: {
+    label: "K-POP",
+    queries: (y) => [
+      `genre:k-pop year:${y}`,
+      `genre:k-pop year:${y - 1}`,
+      `k-pop year:${y}`,
+      `kpop year:${y}`,
+      `korean pop year:${y}`,
+      `k-pop year:${y - 1}`,
+      `kpop`,
+    ],
+  },
+  pop: { label: "POP", queries: (y) => [`genre:pop year:${y}`, `genre:pop year:${y - 1}`, `pop year:${y}`] },
+  hiphop: {
+    label: "HIP HOP",
+    queries: (y) => [`genre:hip-hop year:${y}`, `genre:rap year:${y}`, `hip hop year:${y}`, `rap year:${y}`],
+  },
+  rock: { label: "ROCK", queries: (y) => [`genre:rock year:${y}`, `genre:j-rock year:${y}`, `rock year:${y}`] },
+  anime: { label: "ANIME", queries: (y) => [`genre:anime year:${y}`, `anime year:${y}`, `アニメ 主題歌 ${y}`, `anime`] },
 };
 
 const sources = {
