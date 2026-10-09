@@ -10,7 +10,7 @@
     "year:2025"
   ],
   "market": "JP",
-  "generated_at": "2026-10-05T06:03:51.254Z",
+  "generated_at": "2026-10-09T07:11:11.811Z",
   "tracks": [
     {
       "rank": 1,
@@ -25,17 +25,6 @@
     },
     {
       "rank": 2,
-      "id": "1zsPhef2vOQaRSj1H7yvXq",
-      "name": "Missing",
-      "artist": "BE:FIRST",
-      "album": "Missing",
-      "image_url": "https://i.scdn.co/image/ab67616d00001e022cd4bda9ecd034c7bacf2838",
-      "spotify_url": "https://open.spotify.com/track/1zsPhef2vOQaRSj1H7yvXq",
-      "popularity": 0,
-      "size": "medium"
-    },
-    {
-      "rank": 3,
       "id": "3Z8NMM7IRu4YKDHBo6vmX3",
       "name": "Brand New",
       "artist": "Mrs. GREEN APPLE",
@@ -43,10 +32,10 @@
       "image_url": "https://i.scdn.co/image/ab67616d00001e028bc6d0a539486bdb1a9f2968",
       "spotify_url": "https://open.spotify.com/track/3Z8NMM7IRu4YKDHBo6vmX3",
       "popularity": 0,
-      "size": "medium"
+      "size": "small"
     },
     {
-      "rank": 4,
+      "rank": 3,
       "id": "3o9jxRsczWG6Juy1KTDNuG",
       "name": "BUGS LIFE",
       "artist": "Number_i",
@@ -54,10 +43,10 @@
       "image_url": "https://i.scdn.co/image/ab67616d00001e02425a1d2feed9239e8214a609",
       "spotify_url": "https://open.spotify.com/track/3o9jxRsczWG6Juy1KTDNuG",
       "popularity": 0,
-      "size": "medium"
+      "size": "small"
     },
     {
-      "rank": 5,
+      "rank": 4,
       "id": "1D5L58KLBbceOynTP4DQnY",
       "name": "It's Me",
       "artist": "ILLIT",
@@ -65,43 +54,10 @@
       "image_url": "https://i.scdn.co/image/ab67616d00001e0261eea484e31bca065904f1c6",
       "spotify_url": "https://open.spotify.com/track/1D5L58KLBbceOynTP4DQnY",
       "popularity": 0,
-      "size": "medium"
+      "size": "small"
     },
     {
-      "rank": 6,
-      "id": "0vE1WglBbhmd5wDO49lcih",
-      "name": "lulu.",
-      "artist": "Mrs. GREEN APPLE",
-      "album": "lulu.",
-      "image_url": "https://i.scdn.co/image/ab67616d00001e029f3b4070433475c017120dec",
-      "spotify_url": "https://open.spotify.com/track/0vE1WglBbhmd5wDO49lcih",
-      "popularity": 0,
-      "size": "medium"
-    },
-    {
-      "rank": 7,
-      "id": "0CeyAPE5CjL749WIjveUAc",
-      "name": "マイオンリー",
-      "artist": "SixTONES",
-      "album": "マイオンリー",
-      "image_url": "https://i.scdn.co/image/ab67616d00001e02a90ea8ab71e6ada1f1b79222",
-      "spotify_url": "https://open.spotify.com/track/0CeyAPE5CjL749WIjveUAc",
-      "popularity": 0,
-      "size": "medium"
-    },
-    {
-      "rank": 8,
-      "id": "01Wc6RiaghdtkpJXV9WmAj",
-      "name": "見知らぬ糸",
-      "artist": "SPITZ",
-      "album": "見知らぬ糸",
-      "image_url": "https://i.scdn.co/image/ab67616d00001e029f6f318c2d70e3dec67321cc",
-      "spotify_url": "https://open.spotify.com/track/01Wc6RiaghdtkpJXV9WmAj",
-      "popularity": 0,
-      "size": "medium"
-    },
-    {
-      "rank": 9,
+      "rank": 5,
       "id": "1F1hibBCtNeObRMmEMLHNh",
       "name": "爆裂愛してる",
       "artist": "M!LK",
@@ -112,18 +68,7 @@
       "size": "small"
     },
     {
-      "rank": 10,
-      "id": "5Ij88F5dK7yib1RoNA8wGV",
-      "name": "烏 - Raven",
-      "artist": "Kenshi Yonezu",
-      "album": "烏 - Raven",
-      "image_url": "https://i.scdn.co/image/ab67616d00001e026587e9ae2e13c8bd69c0bf7e",
-      "spotify_url": "https://open.spotify.com/track/5Ij88F5dK7yib1RoNA8wGV",
-      "popularity": 0,
-      "size": "small"
-    },
-    {
-      "rank": 11,
+      "rank": 6,
       "id": "76lukrvGiAM7GBcjE4Gx4h",
       "name": "運命さがし",
       "artist": "Macaroni Empitsu",
@@ -134,7 +79,7 @@
       "size": "small"
     },
     {
-      "rank": 12,
+      "rank": 7,
       "id": "7HNGIBi7xkcN1YGyhdjPkA",
       "name": "ありふれた世界の果てに (feat. Awich, CHICO CARLITO, ONE OK ROCK & Paledusk)",
       "artist": "YAO, Awich, CHICO CARLITO, ONE OK ROCK, Paledusk",
@@ -145,18 +90,62 @@
       "size": "small"
     },
     {
-      "rank": 13,
-      "id": "1DkRsJu6pgBkyt016HlPdZ",
-      "name": "恋、はじめました。",
-      "artist": "=LOVE",
-      "album": "恋、はじめました。",
-      "image_url": "https://i.scdn.co/image/ab67616d00001e020d6f969b277e5f515eeb2209",
-      "spotify_url": "https://open.spotify.com/track/1DkRsJu6pgBkyt016HlPdZ",
+      "rank": 8,
+      "id": "1zsPhef2vOQaRSj1H7yvXq",
+      "name": "Missing",
+      "artist": "BE:FIRST",
+      "album": "Missing",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e022cd4bda9ecd034c7bacf2838",
+      "spotify_url": "https://open.spotify.com/track/1zsPhef2vOQaRSj1H7yvXq",
       "popularity": 0,
       "size": "small"
     },
     {
-      "rank": 14,
+      "rank": 9,
+      "id": "0CeyAPE5CjL749WIjveUAc",
+      "name": "マイオンリー",
+      "artist": "SixTONES",
+      "album": "マイオンリー",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e02a90ea8ab71e6ada1f1b79222",
+      "spotify_url": "https://open.spotify.com/track/0CeyAPE5CjL749WIjveUAc",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 10,
+      "id": "01Wc6RiaghdtkpJXV9WmAj",
+      "name": "見知らぬ糸",
+      "artist": "SPITZ",
+      "album": "見知らぬ糸",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e029f6f318c2d70e3dec67321cc",
+      "spotify_url": "https://open.spotify.com/track/01Wc6RiaghdtkpJXV9WmAj",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 11,
+      "id": "5Ij88F5dK7yib1RoNA8wGV",
+      "name": "烏 - Raven",
+      "artist": "Kenshi Yonezu",
+      "album": "烏 - Raven",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e026587e9ae2e13c8bd69c0bf7e",
+      "spotify_url": "https://open.spotify.com/track/5Ij88F5dK7yib1RoNA8wGV",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 12,
+      "id": "0vE1WglBbhmd5wDO49lcih",
+      "name": "lulu.",
+      "artist": "Mrs. GREEN APPLE",
+      "album": "lulu.",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e029f3b4070433475c017120dec",
+      "spotify_url": "https://open.spotify.com/track/0vE1WglBbhmd5wDO49lcih",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 13,
       "id": "6ggjkwPk8ghOR5Pu5rTRH6",
       "name": "3XL",
       "artist": "Number_i",
@@ -167,40 +156,7 @@
       "size": "small"
     },
     {
-      "rank": 15,
-      "id": "6hnk0Fesq9JOhWpck8HJsj",
-      "name": "Blue Jeans",
-      "artist": "HANA",
-      "album": "HANA",
-      "image_url": "https://i.scdn.co/image/ab67616d00001e02c175a1d89c39c1cd297cb669",
-      "spotify_url": "https://open.spotify.com/track/6hnk0Fesq9JOhWpck8HJsj",
-      "popularity": 0,
-      "size": "small"
-    },
-    {
-      "rank": 16,
-      "id": "30F0aAsXuyMVcGYD1He7Zx",
-      "name": "IGNITE",
-      "artist": "JO1",
-      "album": "IGNITE",
-      "image_url": "https://i.scdn.co/image/ab67616d00001e029153107ff4636b42bf90b09c",
-      "spotify_url": "https://open.spotify.com/track/30F0aAsXuyMVcGYD1He7Zx",
-      "popularity": 0,
-      "size": "small"
-    },
-    {
-      "rank": 17,
-      "id": "0jIdJN8ZjQNVLmikkg0mnF",
-      "name": "WHATCHA DOIN",
-      "artist": "JO1",
-      "album": "WHATCHA DOIN",
-      "image_url": "https://i.scdn.co/image/ab67616d00001e02a84b978e94c75756dca0a18e",
-      "spotify_url": "https://open.spotify.com/track/0jIdJN8ZjQNVLmikkg0mnF",
-      "popularity": 0,
-      "size": "small"
-    },
-    {
-      "rank": 18,
+      "rank": 14,
       "id": "45Us1IGeAiIRmj3bKWaAkH",
       "name": "DIGITAL GIRL",
       "artist": "Number_i",
@@ -211,7 +167,172 @@
       "size": "small"
     },
     {
+      "rank": 15,
+      "id": "7hORRB8tJcRsi9aK0D0LGc",
+      "name": "REBON",
+      "artist": "Number_i",
+      "album": "REBON / BUGS LIFE / DIGITAL GIRL",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e022a9f6a5fdd7fcca63c92e06f",
+      "spotify_url": "https://open.spotify.com/track/7hORRB8tJcRsi9aK0D0LGc",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 16,
+      "id": "1DkRsJu6pgBkyt016HlPdZ",
+      "name": "恋、はじめました。",
+      "artist": "=LOVE",
+      "album": "恋、はじめました。",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e020d6f969b277e5f515eeb2209",
+      "spotify_url": "https://open.spotify.com/track/1DkRsJu6pgBkyt016HlPdZ",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 17,
+      "id": "5EcJrHYmUA8XjgPTX9yh7q",
+      "name": "ア・ポステリオリ",
+      "artist": "Mrs. GREEN APPLE",
+      "album": "POPS",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e02d0991e8410181815e4566246",
+      "spotify_url": "https://open.spotify.com/track/5EcJrHYmUA8XjgPTX9yh7q",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 18,
+      "id": "5P3Nmg0jSYfrSKoYonTGan",
+      "name": "共犯",
+      "artist": "Mrs. GREEN APPLE",
+      "album": "POPS",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e02d0991e8410181815e4566246",
+      "spotify_url": "https://open.spotify.com/track/5P3Nmg0jSYfrSKoYonTGan",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
       "rank": 19,
+      "id": "57XG0kZLyKKihepR5BmEVj",
+      "name": "Variety",
+      "artist": "Mrs. GREEN APPLE",
+      "album": "POPS",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e02d0991e8410181815e4566246",
+      "spotify_url": "https://open.spotify.com/track/57XG0kZLyKKihepR5BmEVj",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 20,
+      "id": "6hnk0Fesq9JOhWpck8HJsj",
+      "name": "Blue Jeans",
+      "artist": "HANA",
+      "album": "HANA",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e02c175a1d89c39c1cd297cb669",
+      "spotify_url": "https://open.spotify.com/track/6hnk0Fesq9JOhWpck8HJsj",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 21,
+      "id": "5S336OpuvPo7jrlGfUNohQ",
+      "name": "禁じた遊び",
+      "artist": "Mrs. GREEN APPLE",
+      "album": "POPS",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e02d0991e8410181815e4566246",
+      "spotify_url": "https://open.spotify.com/track/5S336OpuvPo7jrlGfUNohQ",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 22,
+      "id": "3IWZeuKAIICpfEj7bkSB6p",
+      "name": "WATCH ME - feat. BIA",
+      "artist": "BE:FIRST, BIA",
+      "album": "WATCH ME",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e026557395b0ba364120fa36e1a",
+      "spotify_url": "https://open.spotify.com/track/3IWZeuKAIICpfEj7bkSB6p",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 23,
+      "id": "0JTVR2cwtb41OVDWZJenvC",
+      "name": "シンデレラ",
+      "artist": "Mrs. GREEN APPLE",
+      "album": "POPS",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e02d0991e8410181815e4566246",
+      "spotify_url": "https://open.spotify.com/track/0JTVR2cwtb41OVDWZJenvC",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 24,
+      "id": "2fQMCSu4kT2sgml5YuUtrf",
+      "name": "本と彗星",
+      "artist": "Mrs. GREEN APPLE",
+      "album": "POPS",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e02d0991e8410181815e4566246",
+      "spotify_url": "https://open.spotify.com/track/2fQMCSu4kT2sgml5YuUtrf",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 25,
+      "id": "65X2koe1LhDgQmRkNdJFv9",
+      "name": "AIZO",
+      "artist": "King Gnu",
+      "album": "AIZO",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e02120734724ff398a2d812f982",
+      "spotify_url": "https://open.spotify.com/track/65X2koe1LhDgQmRkNdJFv9",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 26,
+      "id": "2cIqVZFyBH8h5dnrzBvtre",
+      "name": "Five",
+      "artist": "ARASHI",
+      "album": "Five",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e02d4223a5dd64fe336dd9951e2",
+      "spotify_url": "https://open.spotify.com/track/2cIqVZFyBH8h5dnrzBvtre",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 27,
+      "id": "4Qa2LME2vWWPXMLnFCGgxU",
+      "name": "夜鷹 - Yodaka",
+      "artist": "Kenshi Yonezu",
+      "album": "夜鷹 - Yodaka",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e0262249e32fd6ee1ce0b34640b",
+      "spotify_url": "https://open.spotify.com/track/4Qa2LME2vWWPXMLnFCGgxU",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 28,
+      "id": "4xHW17qjig42xvoNlgCRVc",
+      "name": "エピソード",
+      "artist": "Mrs. GREEN APPLE",
+      "album": "POPS",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e02d0991e8410181815e4566246",
+      "spotify_url": "https://open.spotify.com/track/4xHW17qjig42xvoNlgCRVc",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 29,
+      "id": "6SMUXzvpo1dGg1N7QaMjvy",
+      "name": "BPM (feat. KREVA)",
+      "artist": "Kvi Baba, KREVA",
+      "album": "BPM (feat. KREVA)",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e029286790d7686db6b1a44cff1",
+      "spotify_url": "https://open.spotify.com/track/6SMUXzvpo1dGg1N7QaMjvy",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 30,
       "id": "3NPdo1QXqBKIoQAX2xSCRJ",
       "name": "アイドルパワー",
       "artist": "M!LK",
@@ -222,13 +343,112 @@
       "size": "small"
     },
     {
-      "rank": 20,
-      "id": "7hORRB8tJcRsi9aK0D0LGc",
-      "name": "REBON",
-      "artist": "Number_i",
-      "album": "REBON / BUGS LIFE / DIGITAL GIRL",
-      "image_url": "https://i.scdn.co/image/ab67616d00001e022a9f6a5fdd7fcca63c92e06f",
-      "spotify_url": "https://open.spotify.com/track/7hORRB8tJcRsi9aK0D0LGc",
+      "rank": 31,
+      "id": "6p2pU9ifdZDgZGObiVcETS",
+      "name": "GOOD DAY",
+      "artist": "Mrs. GREEN APPLE",
+      "album": "POPS",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e02d0991e8410181815e4566246",
+      "spotify_url": "https://open.spotify.com/track/6p2pU9ifdZDgZGObiVcETS",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 32,
+      "id": "26Qm11RkM99q8AXizwwdF1",
+      "name": "瞞し",
+      "artist": "Mrs. GREEN APPLE",
+      "album": "POPS",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e02d0991e8410181815e4566246",
+      "spotify_url": "https://open.spotify.com/track/26Qm11RkM99q8AXizwwdF1",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 33,
+      "id": "50HetESAgZlIMF7atFpBRK",
+      "name": "Really Really",
+      "artist": "Mrs. GREEN APPLE",
+      "album": "POPS",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e02d0991e8410181815e4566246",
+      "spotify_url": "https://open.spotify.com/track/50HetESAgZlIMF7atFpBRK",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 34,
+      "id": "2j0mQg77Ivev2aIksyiiqc",
+      "name": "結び",
+      "artist": "Ayumu Imazu",
+      "album": "結び",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e0295133adae7e60650f2b6b4b9",
+      "spotify_url": "https://open.spotify.com/track/2j0mQg77Ivev2aIksyiiqc",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 35,
+      "id": "74ThDjhS3BXmghci7Qbhv9",
+      "name": "You!Joy!Parade!",
+      "artist": "M!LK",
+      "album": "You!Joy!Parade!",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e02f4a2b71319bb7ddd678a9fac",
+      "spotify_url": "https://open.spotify.com/track/74ThDjhS3BXmghci7Qbhv9",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 36,
+      "id": "0sZJ7goWjAmHxNcoV3oRay",
+      "name": "時空超えてユニバース",
+      "artist": "M!LK",
+      "album": "LOVE ENG!NE",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e0239751a237b94d9c80f124f5f",
+      "spotify_url": "https://open.spotify.com/track/0sZJ7goWjAmHxNcoV3oRay",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 37,
+      "id": "5rLa4taWmqZsZBDh5iKNIH",
+      "name": "Mark on Me",
+      "artist": "&TEAM",
+      "album": "Mark on Me",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e0247245b0fd7fefa8f708c4043",
+      "spotify_url": "https://open.spotify.com/track/5rLa4taWmqZsZBDh5iKNIH",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 38,
+      "id": "41fAlGFP2BICMqfsMNgPB1",
+      "name": "プロジェクト4",
+      "artist": "Mrs. GREEN APPLE",
+      "album": "POPS",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e02d0991e8410181815e4566246",
+      "spotify_url": "https://open.spotify.com/track/41fAlGFP2BICMqfsMNgPB1",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 39,
+      "id": "7xIX566RcjiBHRBrFzFEh3",
+      "name": "BAD",
+      "artist": "ATEEZ",
+      "album": "GOLDEN HOUR : Part.5",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e027590080ed9af4e12cc604c45",
+      "spotify_url": "https://open.spotify.com/track/7xIX566RcjiBHRBrFzFEh3",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 40,
+      "id": "0fyNaczpL4vOPtMGYVatFY",
+      "name": "Carrying Happiness",
+      "artist": "Mrs. GREEN APPLE",
+      "album": "POPS",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e02d0991e8410181815e4566246",
+      "spotify_url": "https://open.spotify.com/track/0fyNaczpL4vOPtMGYVatFY",
       "popularity": 0,
       "size": "small"
     }
