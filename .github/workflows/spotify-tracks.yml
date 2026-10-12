@@ -14,7 +14,7 @@ on:
       genres:
         description: "popular のジャンル一覧(カンマ区切り、この順にページが並ぶ。空なら総合 1 ページ)"
         required: false
-        default: "jpop,kpop"
+        default: "jpop,kpop,western"
       query:
         description: "popular の検索条件(genres が空のときだけ使う)"
         required: false
@@ -58,7 +58,7 @@ jobs:
           SPOTIFY_CLIENT_SECRET: ${{ secrets.SPOTIFY_CLIENT_SECRET }}
           SPOTIFY_REFRESH_TOKEN: ${{ secrets.SPOTIFY_REFRESH_TOKEN }}
           SOURCE: ${{ github.event.inputs.source || 'popular' }}
-          GENRES: ${{ github.event.inputs.genres || 'jpop,kpop' }}
+          GENRES: ${{ github.event.inputs.genres || 'jpop,kpop,western' }}
           QUERY: ${{ github.event.inputs.query }}
           ID: ${{ github.event.inputs.id }}
           LIMIT: ${{ github.event.inputs.limit || '40' }}

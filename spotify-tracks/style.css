@@ -1,30 +1,251 @@
-/* 2D 版のタイル。外側の見た目は chrome.css */
+/* ==============================
+   いま人気の曲 コラージュサイト
+   ============================== */
 
-.tile {
+/* --- 全体 --- */
+
+* {
+  box-sizing: border-box; /* 幅に padding を含める(計算がかんたんになる) */
+}
+
+body {
+  margin: 0;
+  background: #2a0a17; /* スマホの外側(PC で見たとき)の色 */
+  font-family: "DotGothic16", sans-serif; /* ドット文字。読み込めないときはふつうのゴシック */
+  color: #fff;
+}
+
+/* スマホの画面と同じ幅の箱。PC でも真ん中にこの形で出す */
+.phone {
+  max-width: 430px;
+  margin: 0 auto;
+  background: #ff4c85; /* ピンク */
+  overflow: hidden; /* 飾りが箱の外にはみ出したら切る */
+}
+
+/* --- ① メインビジュアル --- */
+
+.hero {
+  position: relative; /* 中のボタンを「右上」に置くための基準にする */
+  min-height: 560px;
+  padding: 90px 24px 40px;
+  background: #d9d9d9; /* まだ画像が決まっていないので灰色 */
+  color: #000;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+}
+
+.hero__title {
+  margin: 0;
+  font-size: 64px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -2px;
+}
+
+.hero__text {
+  margin: 16px 0 0;
+  font-size: 14px;
+}
+
+.menu-button {
+  position: absolute; /* .hero の中の好きな場所に置ける */
+  top: 16px;
+  right: 16px;
+  padding: 10px 22px;
+  border: 0;
+  border-radius: 999px; /* 角をいっぱいに丸めると、カプセルの形になる */
+  background: #fff;
+  font: inherit; /* ボタンにも同じフォントを使う */
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.menu {
   position: absolute;
-  display: block;
-  background-color: #222;
-  background-size: cover;
-  background-position: center;
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35), 0 3px 8px rgba(0, 0, 0, 0.35);
-  color: inherit;
+  top: 60px;
+  right: 16px;
+  display: flex;
+  flex-direction: column; /* 縦に並べる */
+  gap: 8px;
+  padding: 12px;
+  border-radius: 16px;
+  background: #fff;
+}
+
+/* hidden がついているときは消す。
+   (.menu に display: flex を書くと、hidden の「消す」より強くなってしまうので、こう書いて直す) */
+.menu[hidden] {
+  display: none;
+}
+
+.menu a {
+  color: #000;
   text-decoration: none;
-  outline: none;
-  transition: transform 0.28s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.28s ease;
-  will-change: transform;
 }
 
-/* カーソル位置に中心が一番近いタイルが、一番上に来て浮き上がる */
-.tile.is-focus {
-  z-index: 1000 !important;
-  transform: scale(1.08);
-  box-shadow: 0 0 0 2px var(--fg), 0 18px 40px rgba(0, 0, 0, 0.7);
+/* --- ②③④ ジャンルの section --- */
+
+.genre {
+  position: relative; /* ステッカーを section の中で自由に置くための基準 */
+  padding: 70px 24px 60px;
+  text-align: center;
 }
 
-.tile:focus-visible {
-  box-shadow: 0 0 0 3px var(--fg);
+.genre h2 {
+  margin: 28px 0 0;
+  font-size: 22px;
+  font-weight: normal;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .tile { transition: none; }
+.genre h3 {
+  margin: 20px 0 0;
+  font-size: 15px;
+  font-weight: normal;
+  letter-spacing: 0.1em;
+}
+
+.genre p {
+  max-width: 300px;
+  margin: 20px auto 0;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+/* --- コラージュ --- */
+
+/* 5 列のマス目。ジャケットは JavaScript が 1 枚ずつ入れる */
+.collage {
+  position: relative;
+  z-index: 1; /* ステッカーより手前 */
+  display: grid;
+  grid-template-columns: repeat(5, 1fr); /* 同じ幅の列を 5 つ */
+  width: 62%;
+  margin: 0 auto;
+  overflow: hidden; /* この箱の中だけに表示する */
+}
+
+/* 1 枚のジャケット。マス目を少しはみ出す大きさにして、少しずらすとコラージュっぽくなる */
+.tile {
+  display: block;
+  aspect-ratio: 1; /* 正方形 */
+  overflow: hidden;
+  background: #333;
+  color: #fff; /* <a> なので、そのままだとリンクの青色になる */
+  text-decoration: none;
+  /* --dx, --dy, --z は JavaScript が 1 枚ずつ決める */
+  transform: translate(var(--dx), var(--dy)) scale(1.25);
+  z-index: var(--z);
+  transition: transform 0.2s;
+}
+
+.tile img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* 形がちがう画像でも、マスいっぱいに表示する */
+}
+
+/* 画像がないときは曲名を小さく出す */
+.tile span {
+  display: block;
+  padding: 4px;
+  font-size: 7px;
+  line-height: 1.3;
+}
+
+/* マウスを乗せたら、一番上に来て大きくなる */
+.tile:hover {
+  z-index: 100;
+  transform: translate(var(--dx), var(--dy)) scale(1.5);
+}
+
+/* --- ステッカー(飾り) --- */
+
+/* 共通: section の中の好きな場所に置く。位置は 1 枚ずつ下で決める */
+.sticker {
+  position: absolute;
+  pointer-events: none; /* 飾りはクリックのじゃまをしない */
+}
+
+/* J-POP */
+.sticker--drip { top: 0; left: -8%; width: 26%; }
+.sticker--star-outline { top: 2%; left: 25%; width: 20%; }
+.sticker--heart { top: 1%; right: -6%; width: 30%; transform: rotate(15deg); }
+.sticker--note-1 { top: 48%; left: 56%; width: 12%; transform: rotate(20deg); z-index: 2; }
+
+/* K-POP */
+.sticker--sparkle-big { top: 0; left: 6%; width: 18%; transform: scaleY(-1) rotate(180deg); }
+.sticker--sparkle-small { top: 9%; left: 5%; width: 12%; transform: scaleY(-1) rotate(-175deg); }
+.sticker--blob { top: 0; left: 50%; width: 18%; }
+.sticker--note-2 { top: 44%; left: 24%; width: 16%; z-index: 2; }
+.sticker--planet { top: 60%; right: 4%; width: 22%; transform: rotate(20deg); }
+
+/* 洋楽 */
+.sticker--clef { top: -1%; left: 57%; width: 11%; transform: rotate(-11deg); }
+.sticker--bolt-star { top: 40%; left: 7%; width: 22%; transform: rotate(-10deg); }
+.sticker--sparkle-cluster { top: 86%; right: 6%; width: 20%; transform: rotate(6deg); }
+.sticker--sparkle-right { top: 92%; right: 1%; width: 15%; }
+
+/* おすすめ */
+.sticker--moon { top: 2%; left: 4%; width: 13%; }
+
+/* --- ⑤ おすすめアーティスト --- */
+
+.artists {
+  position: relative;
+  padding: 90px 16px 40px;
+}
+
+.cards {
+  display: flex; /* 横に並べる */
+  align-items: center; /* 高さがちがっても真ん中でそろえる */
+  justify-content: center;
+  gap: 10px;
+}
+
+/* カプセルの形のカード */
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  width: 30%;
+  padding: 40px 8px;
+  border-radius: 999px;
+  background: rgba(224, 26, 122, 0.4); /* 少し濃いピンクを透かす */
+  color: #fff;
+  text-decoration: none;
+  text-align: center;
+  font-size: 14px;
+}
+
+/* 真ん中のカードだけ大きく */
+.card:nth-child(2) {
+  width: 36%;
+  padding: 60px 8px;
+}
+
+.card img,
+.card .no-image {
+  width: 80%;
+  aspect-ratio: 1;
+  border-radius: 50%; /* 丸く切り抜く */
+  object-fit: cover;
+}
+
+/* 画像がないときの丸 */
+.card .no-image {
+  background: #ff4c85;
+}
+
+/* --- クレジット --- */
+
+.credit {
+  padding: 24px;
+  text-align: center;
+  font-size: 11px;
+}
+
+.credit a {
+  color: inherit;
 }

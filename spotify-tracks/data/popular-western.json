@@ -1,0 +1,211 @@
+{
+  "source": "popular",
+  "label": "洋楽",
+  "month": null,
+  "order": 3,
+  "demo": true,
+  "genre": "western",
+  "generated_at": "2026-09-05T08:17:59.814Z",
+  "tracks": [
+    {
+      "rank": 1,
+      "id": "demo-w1",
+      "name": "Espresso",
+      "artist": "Sabrina Carpenter",
+      "album": "",
+      "image_url": "",
+      "spotify_url": "https://open.spotify.com/",
+      "size": "small"
+    },
+    {
+      "rank": 2,
+      "id": "demo-w2",
+      "name": "Birds of a Feather",
+      "artist": "Billie Eilish",
+      "album": "",
+      "image_url": "",
+      "spotify_url": "https://open.spotify.com/",
+      "size": "small"
+    },
+    {
+      "rank": 3,
+      "id": "demo-w3",
+      "name": "Die With A Smile",
+      "artist": "Lady Gaga, Bruno Mars",
+      "album": "",
+      "image_url": "",
+      "spotify_url": "https://open.spotify.com/",
+      "size": "small"
+    },
+    {
+      "rank": 4,
+      "id": "demo-w4",
+      "name": "Good Luck, Babe!",
+      "artist": "Chappell Roan",
+      "album": "",
+      "image_url": "",
+      "spotify_url": "https://open.spotify.com/",
+      "size": "small"
+    },
+    {
+      "rank": 5,
+      "id": "demo-w5",
+      "name": "APT.",
+      "artist": "ROSÉ, Bruno Mars",
+      "album": "",
+      "image_url": "",
+      "spotify_url": "https://open.spotify.com/",
+      "size": "small"
+    },
+    {
+      "rank": 6,
+      "id": "demo-w6",
+      "name": "Taste",
+      "artist": "Sabrina Carpenter",
+      "album": "",
+      "image_url": "",
+      "spotify_url": "https://open.spotify.com/",
+      "size": "small"
+    },
+    {
+      "rank": 7,
+      "id": "demo-w7",
+      "name": "Beautiful Things",
+      "artist": "Benson Boone",
+      "album": "",
+      "image_url": "",
+      "spotify_url": "https://open.spotify.com/",
+      "size": "small"
+    },
+    {
+      "rank": 8,
+      "id": "demo-w8",
+      "name": "Lose Control",
+      "artist": "Teddy Swims",
+      "album": "",
+      "image_url": "",
+      "spotify_url": "https://open.spotify.com/",
+      "size": "small"
+    },
+    {
+      "rank": 9,
+      "id": "demo-w9",
+      "name": "Too Sweet",
+      "artist": "Hozier",
+      "album": "",
+      "image_url": "",
+      "spotify_url": "https://open.spotify.com/",
+      "size": "small"
+    },
+    {
+      "rank": 10,
+      "id": "demo-w10",
+      "name": "A Bar Song (Tipsy)",
+      "artist": "Shaboozey",
+      "album": "",
+      "image_url": "",
+      "spotify_url": "https://open.spotify.com/",
+      "size": "small"
+    },
+    {
+      "rank": 11,
+      "id": "demo-w11",
+      "name": "Fortnight",
+      "artist": "Taylor Swift",
+      "album": "",
+      "image_url": "",
+      "spotify_url": "https://open.spotify.com/",
+      "size": "small"
+    },
+    {
+      "rank": 12,
+      "id": "demo-w12",
+      "name": "Not Like Us",
+      "artist": "Kendrick Lamar",
+      "album": "",
+      "image_url": "",
+      "spotify_url": "https://open.spotify.com/",
+      "size": "small"
+    },
+    {
+      "rank": 13,
+      "id": "demo-w13",
+      "name": "Please Please Please",
+      "artist": "Sabrina Carpenter",
+      "album": "",
+      "image_url": "",
+      "spotify_url": "https://open.spotify.com/",
+      "size": "small"
+    },
+    {
+      "rank": 14,
+      "id": "demo-w14",
+      "name": "I Had Some Help",
+      "artist": "Post Malone",
+      "album": "",
+      "image_url": "",
+      "spotify_url": "https://open.spotify.com/",
+      "size": "small"
+    },
+    {
+      "rank": 15,
+      "id": "demo-w15",
+      "name": "Stick Season",
+      "artist": "Noah Kahan",
+      "album": "",
+      "image_url": "",
+      "spotify_url": "https://open.spotify.com/",
+      "size": "small"
+    },
+    {
+      "rank": 16,
+      "id": "demo-w16",
+      "name": "Greedy",
+      "artist": "Tate McRae",
+      "album": "",
+      "image_url": "",
+      "spotify_url": "https://open.spotify.com/",
+      "size": "small"
+    },
+    {
+      "rank": 17,
+      "id": "demo-w17",
+      "name": "Lovin On Me",
+      "artist": "Jack Harlow",
+      "album": "",
+      "image_url": "",
+      "spotify_url": "https://open.spotify.com/",
+      "size": "small"
+    },
+    {
+      "rank": 18,
+      "id": "demo-w18",
+      "name": "Cruel Summer",
+      "artist": "Taylor Swift",
+      "album": "",
+      "image_url": "",
+      "spotify_url": "https://open.spotify.com/",
+      "size": "small"
+    },
+    {
+      "rank": 19,
+      "id": "demo-w19",
+      "name": "Houdini",
+      "artist": "Dua Lipa",
+      "album": "",
+      "image_url": "",
+      "spotify_url": "https://open.spotify.com/",
+      "size": "small"
+    },
+    {
+      "rank": 20,
+      "id": "demo-w20",
+      "name": "Saturn",
+      "artist": "SZA",
+      "album": "",
+      "image_url": "",
+      "spotify_url": "https://open.spotify.com/",
+      "size": "small"
+    }
+  ]
+}
