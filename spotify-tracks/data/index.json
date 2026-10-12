@@ -11,6 +11,12 @@
       "label": "K-POP",
       "month": null,
       "order": 2
+    },
+    {
+      "file": "popular-western",
+      "label": "洋楽",
+      "month": null,
+      "order": 3
     }
   ]
 }

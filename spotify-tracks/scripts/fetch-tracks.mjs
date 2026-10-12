@@ -17,7 +17,7 @@
 //   --time-range short_term|medium_term|long_term  (top のみ)
 //   --query TEXT --market CC --pool N              (popular のみ。--query は複数回指定できる。既定は
 //                                                   year:<今年> と genre 別の数パターン、JP、候補 60 件)
-//   --genre KEY  (popular のみ)GENRES の表からクエリ・見出し・ファイル名を決める。KEY は jpop, kpop, pop, hiphop, rock, anime
+//   --genre KEY  (popular のみ)GENRES の表からクエリ・見出し・ファイル名を決める。KEY は jpop, kpop, western, pop, hiphop, rock, anime
 //   --order N    画面でのページの並び順(小さい順)。index.json に反映される
 //
 // --id には URL (https://open.spotify.com/playlist/xxxx?si=...)、URI (spotify:playlist:xxxx)、
@@ -31,7 +31,12 @@ import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import { parseArgs } from "node:util";
 import { resolve } from "node:path";
 import { getAccessToken, getClientCredentialsToken, loadDotenv, requireEnv } from "./spotify-auth.mjs";
-import { formatMonth } from "../layout.js";
+
+// "2026-08" → "2026年8月"
+function formatMonth(key) {
+  const [year, month] = key.split("-");
+  return `${year}年${Number(month)}月`;
+}
 
 loadDotenv();
 const { SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET } = requireEnv("SPOTIFY_CLIENT_ID", "SPOTIFY_CLIENT_SECRET");
@@ -206,6 +211,8 @@ const GENRES = {
   },
   rock: { label: "ROCK", queries: (y) => [`genre:rock year:${y}`, `genre:j-rock year:${y}`, `rock year:${y}`] },
   anime: { label: "ANIME", queries: (y) => [`genre:anime year:${y}`, `anime year:${y}`, `アニメ 主題歌 ${y}`, `anime`] },
+  // 洋楽: アメリカの市場で今年の曲を探す(日本の曲が混ざらないように market を変える)
+  western: { label: "洋楽", market: "US", queries: (y) => [`year:${y}`, `genre:pop year:${y}`, `year:${y - 1}`] },
 };
 
 const sources = {
@@ -224,10 +231,11 @@ const sources = {
       : genre
         ? genre.queries(year)
         : [`year:${year}`, `year:${year} genre:j-pop`, `year:${year} genre:pop`, `year:${year} genre:hip-hop`, `year:${year - 1}`];
-    const market = args.market;
+    const market = genre?.market || args.market;
     const pageSize = 10; // 2026 年 2 月以降の上限
     const poolSize = Math.max(limit, Math.min(200, Number(args.pool) || 40));
     const seen = new Set();
+    const seenImages = new Set(); // 同じジャケット(同じアルバム)は 1 曲だけにする
     const pool = [];
 
     for (const query of queries) {
@@ -249,7 +257,12 @@ const sources = {
           const key = `${track.name}|${track.artists?.[0]?.name || ""}`.toLowerCase();
           if (seen.has(key)) continue;
           seen.add(key);
-          pool.push({ ...trackToItem(track), popularity: track.popularity ?? 0 });
+          // コンピレーション盤は同じジャケットが何曲も並ぶので除く
+          if (track.album?.album_type === "compilation") continue;
+          const item = trackToItem(track);
+          if (item.image_url && seenImages.has(item.image_url)) continue;
+          seenImages.add(item.image_url);
+          pool.push({ ...item, popularity: track.popularity ?? 0 });
           added += 1;
         }
         console.log(`search "${query}" offset=${offset}: ${page.length} 件 (新規 ${added}, 累計 ${pool.length})`);

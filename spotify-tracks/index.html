@@ -2,40 +2,90 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Tracks 3D</title>
-  <script type="importmap">
-    {
-      "imports": {
-        "three": "https://cdn.jsdelivr.net/npm/three@0.175.0/build/three.module.js",
-        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.175.0/examples/jsm/"
-      }
-    }
-  </script>
-  <link rel="stylesheet" href="chrome.css" />
-  <style>
-    #stage { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NOW POPULAR</title>
+  <!-- ドット文字のフォント(Google Fonts から読み込む) -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" />
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="top"><a href="grid.html" title="動作が重いときはこちら">2D 版 →</a></div>
+  <!-- スマホの画面の幅(430px まで)に全部を入れる箱。PC で見ても同じ形になる -->
+  <div class="phone">
 
-  <div class="deck deck--single">
-    <div class="frame">
-      <div class="screen" id="screen">
-        <canvas id="stage"></canvas>
-        <p class="screen__label" id="label"></p>
-        <p class="screen__caption" id="caption"></p>
-      </div>
-    </div>
+    <!-- ===== ① メインビジュアル ===== -->
+    <header class="hero">
+      <button class="menu-button" id="menu-button" type="button">メニュー</button>
+      <!-- メニュー(ふだんは hidden で隠れている。ボタンを押すと JavaScript が表示する) -->
+      <nav class="menu" id="menu" hidden>
+        <a href="#jpop">#J-POP</a>
+        <a href="#kpop">#K-POP</a>
+        <a href="#western">#洋楽</a>
+        <a href="#artists">おすすめ</a>
+      </nav>
+      <h1 class="hero__title">NOW<br />POPULAR</h1>
+      <p class="hero__text">いま人気の曲のジャケットを、ジャンルごとに集めました</p>
+    </header>
+
+    <!-- ===== ② J-POP ===== -->
+    <!-- data-file は、この section に入れるデータのファイル名(data/ の中の JSON) -->
+    <section class="genre" id="jpop" data-file="popular-jpop">
+      <!-- まわりの飾り(銀色のステッカー)。位置は CSS で決める -->
+      <img class="sticker sticker--drip" src="imgs/drip.png" alt="" />
+      <img class="sticker sticker--star-outline" src="imgs/star-outline.png" alt="" />
+      <img class="sticker sticker--heart" src="imgs/heart.png" alt="" />
+      <img class="sticker sticker--note-1" src="imgs/note-1.png" alt="" />
+
+      <!-- コラージュ。中身(ジャケットの画像)は JavaScript が作る -->
+      <div class="collage"></div>
+
+      <h2>#J-POP</h2>
+      <h3>日本で流行っている有名な音楽</h3>
+      <p>アイドル、ロックバンド、シンガーソングライターなど、幅広い楽曲が多く共感しやすい歌詞も多い</p>
+    </section>
+
+    <!-- ===== ③ K-POP ===== -->
+    <section class="genre" id="kpop" data-file="popular-kpop">
+      <img class="sticker sticker--sparkle-big" src="imgs/sparkle-big.png" alt="" />
+      <img class="sticker sticker--sparkle-small" src="imgs/sparkle-small.png" alt="" />
+      <img class="sticker sticker--blob" src="imgs/blob.png" alt="" />
+      <img class="sticker sticker--note-2" src="imgs/note-2.png" alt="" />
+      <img class="sticker sticker--planet" src="imgs/planet.png" alt="" />
+
+      <div class="collage"></div>
+
+      <h2>#K-POP</h2>
+      <h3>韓国発祥の音楽ジャンル</h3>
+      <p>ハイレベルなパフォーマンスや、多国籍でグローバルなメンバーが特徴です</p>
+    </section>
+
+    <!-- ===== ④ 洋楽 ===== -->
+    <section class="genre" id="western" data-file="popular-western">
+      <img class="sticker sticker--clef" src="imgs/clef.png" alt="" />
+      <img class="sticker sticker--bolt-star" src="imgs/bolt-star.png" alt="" />
+      <img class="sticker sticker--sparkle-cluster" src="imgs/sparkle-cluster.png" alt="" />
+      <img class="sticker sticker--sparkle-right" src="imgs/sparkle-right.png" alt="" />
+
+      <div class="collage"></div>
+
+      <h2>#洋楽</h2>
+      <h3>海外で制作された有名な音楽</h3>
+      <p>ロックなイメージで、力強いビートや反逆的なメッセージ性を持ちます</p>
+    </section>
+
+    <!-- ===== ⑤ おすすめアーティスト ===== -->
+    <!-- 各ジャンルの 1 位のアーティストを JavaScript がここに並べる -->
+    <section class="artists" id="artists">
+      <img class="sticker sticker--moon" src="imgs/moon.png" alt="" />
+      <div class="cards" id="cards"></div>
+    </section>
+
+    <footer class="credit">
+      楽曲データとアートワークは
+      <a href="https://open.spotify.com/" target="_blank" rel="noopener">Spotify</a>
+      から取得しています。
+    </footer>
   </div>
 
-  <p class="attribution">
-    楽曲データとアートワークは <a href="https://open.spotify.com/" target="_blank" rel="noopener">Spotify</a> から取得しています。
-  </p>
-
-  <div id="loading" aria-live="polite">読み込み中...</div>
-
-  <script type="module" src="main.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
