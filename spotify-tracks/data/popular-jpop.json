@@ -11,7 +11,7 @@
     "jpop year:2026"
   ],
   "market": "JP",
-  "generated_at": "2026-10-12T06:20:13.676Z",
+  "generated_at": "2026-10-12T12:54:14.253Z",
   "tracks": [
     {
       "rank": 1,
@@ -114,12 +114,12 @@
     },
     {
       "rank": 10,
-      "id": "5Ij88F5dK7yib1RoNA8wGV",
-      "name": "烏 - Raven",
-      "artist": "Kenshi Yonezu",
-      "album": "烏 - Raven",
-      "image_url": "https://i.scdn.co/image/ab67616d00001e026587e9ae2e13c8bd69c0bf7e",
-      "spotify_url": "https://open.spotify.com/track/5Ij88F5dK7yib1RoNA8wGV",
+      "id": "5P3Nmg0jSYfrSKoYonTGan",
+      "name": "共犯",
+      "artist": "Mrs. GREEN APPLE",
+      "album": "POPS",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e02d0991e8410181815e4566246",
+      "spotify_url": "https://open.spotify.com/track/5P3Nmg0jSYfrSKoYonTGan",
       "popularity": 0,
       "size": "small"
     },
@@ -158,12 +158,12 @@
     },
     {
       "rank": 14,
-      "id": "5EcJrHYmUA8XjgPTX9yh7q",
-      "name": "ア・ポステリオリ",
-      "artist": "Mrs. GREEN APPLE",
-      "album": "POPS",
-      "image_url": "https://i.scdn.co/image/ab67616d00001e02d0991e8410181815e4566246",
-      "spotify_url": "https://open.spotify.com/track/5EcJrHYmUA8XjgPTX9yh7q",
+      "id": "5Ij88F5dK7yib1RoNA8wGV",
+      "name": "烏 - Raven",
+      "artist": "Kenshi Yonezu",
+      "album": "烏 - Raven",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e026587e9ae2e13c8bd69c0bf7e",
+      "spotify_url": "https://open.spotify.com/track/5Ij88F5dK7yib1RoNA8wGV",
       "popularity": 0,
       "size": "small"
     },
@@ -180,50 +180,6 @@
     },
     {
       "rank": 16,
-      "id": "5P3Nmg0jSYfrSKoYonTGan",
-      "name": "共犯",
-      "artist": "Mrs. GREEN APPLE",
-      "album": "POPS",
-      "image_url": "https://i.scdn.co/image/ab67616d00001e02d0991e8410181815e4566246",
-      "spotify_url": "https://open.spotify.com/track/5P3Nmg0jSYfrSKoYonTGan",
-      "popularity": 0,
-      "size": "small"
-    },
-    {
-      "rank": 17,
-      "id": "57XG0kZLyKKihepR5BmEVj",
-      "name": "Variety",
-      "artist": "Mrs. GREEN APPLE",
-      "album": "POPS",
-      "image_url": "https://i.scdn.co/image/ab67616d00001e02d0991e8410181815e4566246",
-      "spotify_url": "https://open.spotify.com/track/57XG0kZLyKKihepR5BmEVj",
-      "popularity": 0,
-      "size": "small"
-    },
-    {
-      "rank": 18,
-      "id": "0JTVR2cwtb41OVDWZJenvC",
-      "name": "シンデレラ",
-      "artist": "Mrs. GREEN APPLE",
-      "album": "POPS",
-      "image_url": "https://i.scdn.co/image/ab67616d00001e02d0991e8410181815e4566246",
-      "spotify_url": "https://open.spotify.com/track/0JTVR2cwtb41OVDWZJenvC",
-      "popularity": 0,
-      "size": "small"
-    },
-    {
-      "rank": 19,
-      "id": "2fQMCSu4kT2sgml5YuUtrf",
-      "name": "本と彗星",
-      "artist": "Mrs. GREEN APPLE",
-      "album": "POPS",
-      "image_url": "https://i.scdn.co/image/ab67616d00001e02d0991e8410181815e4566246",
-      "spotify_url": "https://open.spotify.com/track/2fQMCSu4kT2sgml5YuUtrf",
-      "popularity": 0,
-      "size": "small"
-    },
-    {
-      "rank": 20,
       "id": "65X2koe1LhDgQmRkNdJFv9",
       "name": "AIZO",
       "artist": "King Gnu",
@@ -234,7 +190,7 @@
       "size": "small"
     },
     {
-      "rank": 21,
+      "rank": 17,
       "id": "2cIqVZFyBH8h5dnrzBvtre",
       "name": "Five",
       "artist": "ARASHI",
@@ -245,18 +201,7 @@
       "size": "small"
     },
     {
-      "rank": 22,
-      "id": "5S336OpuvPo7jrlGfUNohQ",
-      "name": "禁じた遊び",
-      "artist": "Mrs. GREEN APPLE",
-      "album": "POPS",
-      "image_url": "https://i.scdn.co/image/ab67616d00001e02d0991e8410181815e4566246",
-      "spotify_url": "https://open.spotify.com/track/5S336OpuvPo7jrlGfUNohQ",
-      "popularity": 0,
-      "size": "small"
-    },
-    {
-      "rank": 23,
+      "rank": 18,
       "id": "0sZJ7goWjAmHxNcoV3oRay",
       "name": "時空超えてユニバース",
       "artist": "M!LK",
@@ -267,7 +212,7 @@
       "size": "small"
     },
     {
-      "rank": 24,
+      "rank": 19,
       "id": "4Qa2LME2vWWPXMLnFCGgxU",
       "name": "夜鷹 - Yodaka",
       "artist": "Kenshi Yonezu",
@@ -278,51 +223,7 @@
       "size": "small"
     },
     {
-      "rank": 25,
-      "id": "6p2pU9ifdZDgZGObiVcETS",
-      "name": "GOOD DAY",
-      "artist": "Mrs. GREEN APPLE",
-      "album": "POPS",
-      "image_url": "https://i.scdn.co/image/ab67616d00001e02d0991e8410181815e4566246",
-      "spotify_url": "https://open.spotify.com/track/6p2pU9ifdZDgZGObiVcETS",
-      "popularity": 0,
-      "size": "small"
-    },
-    {
-      "rank": 26,
-      "id": "4xHW17qjig42xvoNlgCRVc",
-      "name": "エピソード",
-      "artist": "Mrs. GREEN APPLE",
-      "album": "POPS",
-      "image_url": "https://i.scdn.co/image/ab67616d00001e02d0991e8410181815e4566246",
-      "spotify_url": "https://open.spotify.com/track/4xHW17qjig42xvoNlgCRVc",
-      "popularity": 0,
-      "size": "small"
-    },
-    {
-      "rank": 27,
-      "id": "26Qm11RkM99q8AXizwwdF1",
-      "name": "瞞し",
-      "artist": "Mrs. GREEN APPLE",
-      "album": "POPS",
-      "image_url": "https://i.scdn.co/image/ab67616d00001e02d0991e8410181815e4566246",
-      "spotify_url": "https://open.spotify.com/track/26Qm11RkM99q8AXizwwdF1",
-      "popularity": 0,
-      "size": "small"
-    },
-    {
-      "rank": 28,
-      "id": "50HetESAgZlIMF7atFpBRK",
-      "name": "Really Really",
-      "artist": "Mrs. GREEN APPLE",
-      "album": "POPS",
-      "image_url": "https://i.scdn.co/image/ab67616d00001e02d0991e8410181815e4566246",
-      "spotify_url": "https://open.spotify.com/track/50HetESAgZlIMF7atFpBRK",
-      "popularity": 0,
-      "size": "small"
-    },
-    {
-      "rank": 29,
+      "rank": 20,
       "id": "74ThDjhS3BXmghci7Qbhv9",
       "name": "You!Joy!Parade!",
       "artist": "M!LK",
@@ -333,7 +234,7 @@
       "size": "small"
     },
     {
-      "rank": 30,
+      "rank": 21,
       "id": "3NPdo1QXqBKIoQAX2xSCRJ",
       "name": "アイドルパワー",
       "artist": "M!LK",
@@ -344,7 +245,7 @@
       "size": "small"
     },
     {
-      "rank": 31,
+      "rank": 22,
       "id": "6PYfA9CD3St7NslD3BYIBT",
       "name": "灰色",
       "artist": "大森元貴",
@@ -355,7 +256,7 @@
       "size": "small"
     },
     {
-      "rank": 32,
+      "rank": 23,
       "id": "54kwD19pq6ea4yGiiX84QB",
       "name": "GO GHOST",
       "artist": "King Gnu",
@@ -366,51 +267,7 @@
       "size": "small"
     },
     {
-      "rank": 33,
-      "id": "41fAlGFP2BICMqfsMNgPB1",
-      "name": "プロジェクト4",
-      "artist": "Mrs. GREEN APPLE",
-      "album": "POPS",
-      "image_url": "https://i.scdn.co/image/ab67616d00001e02d0991e8410181815e4566246",
-      "spotify_url": "https://open.spotify.com/track/41fAlGFP2BICMqfsMNgPB1",
-      "popularity": 0,
-      "size": "small"
-    },
-    {
-      "rank": 34,
-      "id": "24khdCZmrh1UU6H3wZjU83",
-      "name": "夏の影",
-      "artist": "Mrs. GREEN APPLE",
-      "album": "POPS",
-      "image_url": "https://i.scdn.co/image/ab67616d00001e02d0991e8410181815e4566246",
-      "spotify_url": "https://open.spotify.com/track/24khdCZmrh1UU6H3wZjU83",
-      "popularity": 0,
-      "size": "small"
-    },
-    {
-      "rank": 35,
-      "id": "0Uosf3LZpcf8TvuNJCrFoA",
-      "name": "風と町",
-      "artist": "Mrs. GREEN APPLE",
-      "album": "POPS",
-      "image_url": "https://i.scdn.co/image/ab67616d00001e02d0991e8410181815e4566246",
-      "spotify_url": "https://open.spotify.com/track/0Uosf3LZpcf8TvuNJCrFoA",
-      "popularity": 0,
-      "size": "small"
-    },
-    {
-      "rank": 36,
-      "id": "0fyNaczpL4vOPtMGYVatFY",
-      "name": "Carrying Happiness",
-      "artist": "Mrs. GREEN APPLE",
-      "album": "POPS",
-      "image_url": "https://i.scdn.co/image/ab67616d00001e02d0991e8410181815e4566246",
-      "spotify_url": "https://open.spotify.com/track/0fyNaczpL4vOPtMGYVatFY",
-      "popularity": 0,
-      "size": "small"
-    },
-    {
-      "rank": 37,
+      "rank": 24,
       "id": "5oAyDEvsfDuirGzjEh3p3D",
       "name": "So Honey",
       "artist": "King & Prince",
@@ -421,18 +278,7 @@
       "size": "small"
     },
     {
-      "rank": 38,
-      "id": "3920QegiL2PHmaYYBVwexC",
-      "name": "ROSE",
-      "artist": "HANA",
-      "album": "HANA",
-      "image_url": "https://i.scdn.co/image/ab67616d00001e02c175a1d89c39c1cd297cb669",
-      "spotify_url": "https://open.spotify.com/track/3920QegiL2PHmaYYBVwexC",
-      "popularity": 0,
-      "size": "small"
-    },
-    {
-      "rank": 39,
+      "rank": 25,
       "id": "6yhi9oRSrSCZm2mWpIVgoM",
       "name": "グッタイム",
       "artist": "Snow Man",
@@ -443,13 +289,167 @@
       "size": "small"
     },
     {
-      "rank": 40,
+      "rank": 26,
       "id": "0CWAQlHsvfqcKJVVz9up2R",
       "name": "セレナーデ",
       "artist": "natori",
       "album": "深海",
       "image_url": "https://i.scdn.co/image/ab67616d00001e0229f649edf51edde6fdf01a09",
       "spotify_url": "https://open.spotify.com/track/0CWAQlHsvfqcKJVVz9up2R",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 27,
+      "id": "2bLQ0HMyuUWI7uPRzCy5Lo",
+      "name": "Bad Girl",
+      "artist": "HANA",
+      "album": "Bad Girl",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e026dfc60ab085c9ceda0557548",
+      "spotify_url": "https://open.spotify.com/track/2bLQ0HMyuUWI7uPRzCy5Lo",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 28,
+      "id": "5PefvTvI0ucvRy3LCyPvFP",
+      "name": "チェックのワンピース - Live at NISSAN STADIUM, 2026",
+      "artist": "back number",
+      "album": "back number \"Grateful Yesterdays Tour 2026\" Live at NISSAN STADIUM",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e02165ac10d7726575f7601a2df",
+      "spotify_url": "https://open.spotify.com/track/5PefvTvI0ucvRy3LCyPvFP",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 29,
+      "id": "0vDqNzQqEhl7boeRS3Joli",
+      "name": "好きすぎて滅！",
+      "artist": "M!LK",
+      "album": "好きすぎて滅！",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e02acf878204b7868c5bb871e63",
+      "spotify_url": "https://open.spotify.com/track/0vDqNzQqEhl7boeRS3Joli",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 30,
+      "id": "1oFqKeepmT5S8BCGqJl7Ar",
+      "name": "革命道中 - On The Way",
+      "artist": "AiNA THE END",
+      "album": "革命道中 - On The Way",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e029df9218f742e792bcbd711d3",
+      "spotify_url": "https://open.spotify.com/track/1oFqKeepmT5S8BCGqJl7Ar",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 31,
+      "id": "59hVbgr8rfYkDbHfr8RcGI",
+      "name": "IRIS OUT",
+      "artist": "Kenshi Yonezu",
+      "album": "IRIS OUT",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e026d1d4e875e2424cdd07f3232",
+      "spotify_url": "https://open.spotify.com/track/59hVbgr8rfYkDbHfr8RcGI",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 32,
+      "id": "35MeePbBnryubkVG0v8GbI",
+      "name": "ブルーアンバー",
+      "artist": "back number",
+      "album": "ブルーアンバー",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e02a58f0d10db6a676c3b422fda",
+      "spotify_url": "https://open.spotify.com/track/35MeePbBnryubkVG0v8GbI",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 33,
+      "id": "7KNY1e9x1MDvpBAmIAN3tz",
+      "name": "夢中",
+      "artist": "BE:FIRST",
+      "album": "夢中",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e02530e4b27e7f9281ee1ad4ee6",
+      "spotify_url": "https://open.spotify.com/track/7KNY1e9x1MDvpBAmIAN3tz",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 34,
+      "id": "6FhWelfRDMFZRtFUU6SIdC",
+      "name": "怪獣",
+      "artist": "sakanaction",
+      "album": "怪獣",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e023d7f2ac644f635e94a193736",
+      "spotify_url": "https://open.spotify.com/track/6FhWelfRDMFZRtFUU6SIdC",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 35,
+      "id": "6hlYmR30RGaHIz4UlVOG2U",
+      "name": "どうしてもどうしても",
+      "artist": "back number",
+      "album": "どうしてもどうしても",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e026742a4c3db5d172a98733e91",
+      "spotify_url": "https://open.spotify.com/track/6hlYmR30RGaHIz4UlVOG2U",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 36,
+      "id": "4oE7MyJhqSD3BaHRpNs8Nl",
+      "name": "JANE DOE",
+      "artist": "Kenshi Yonezu, Hikaru Utada",
+      "album": "JANE DOE",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e028131aa99fb87ff0e9c511851",
+      "spotify_url": "https://open.spotify.com/track/4oE7MyJhqSD3BaHRpNs8Nl",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 37,
+      "id": "21VsLvoE7elUmJZLSawaMh",
+      "name": "ライラック",
+      "artist": "Mrs. GREEN APPLE",
+      "album": "10",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e02232b48311e311ba914af2811",
+      "spotify_url": "https://open.spotify.com/track/21VsLvoE7elUmJZLSawaMh",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 38,
+      "id": "3huSUfmhUr4entz2S0G31O",
+      "name": "クスシキ",
+      "artist": "Mrs. GREEN APPLE",
+      "album": "クスシキ",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e02f2786222a446af5ef3298f4a",
+      "spotify_url": "https://open.spotify.com/track/3huSUfmhUr4entz2S0G31O",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 39,
+      "id": "2TRxremVZ0t2JVu5OFxbiA",
+      "name": "らしさ",
+      "artist": "OFFICIAL HIGE DANDISM",
+      "album": "らしさ",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e02f4de317fc33b8b30a48b579d",
+      "spotify_url": "https://open.spotify.com/track/2TRxremVZ0t2JVu5OFxbiA",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 40,
+      "id": "0jj4mLjwYcos3PPzjQwVzh",
+      "name": "イイじゃん",
+      "artist": "M!LK",
+      "album": "M!Ⅹ",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e02ac18ee20e1d9ba44ba938a5b",
+      "spotify_url": "https://open.spotify.com/track/0jj4mLjwYcos3PPzjQwVzh",
       "popularity": 0,
       "size": "small"
     }

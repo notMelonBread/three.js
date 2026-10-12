@@ -14,7 +14,7 @@
     "kpop"
   ],
   "market": "JP",
-  "generated_at": "2026-10-12T06:20:17.811Z",
+  "generated_at": "2026-10-12T12:54:21.486Z",
   "tracks": [
     {
       "rank": 1,
@@ -84,23 +84,23 @@
     },
     {
       "rank": 7,
-      "id": "7rDleP2IpI5dpyzEcXcAUr",
-      "name": "I Got Your Back",
-      "artist": "ILLIT, HANA",
-      "album": "I Got Your Back",
-      "image_url": "https://i.scdn.co/image/ab67616d00001e02c54aa6a97c499f2d85449c7e",
-      "spotify_url": "https://open.spotify.com/track/7rDleP2IpI5dpyzEcXcAUr",
-      "popularity": 0,
-      "size": "small"
-    },
-    {
-      "rank": 8,
       "id": "2Hq8l2e9BkRVaQtJni4Ss9",
       "name": "セツナハナビ (Setsuna Hanabi)",
       "artist": "TOMORROW X TOGETHER",
       "album": "セツナハナビ (Setsuna Hanabi)",
       "image_url": "https://i.scdn.co/image/ab67616d00001e02d966ebebd0eeebc68e1545ef",
       "spotify_url": "https://open.spotify.com/track/2Hq8l2e9BkRVaQtJni4Ss9",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 8,
+      "id": "7rDleP2IpI5dpyzEcXcAUr",
+      "name": "I Got Your Back",
+      "artist": "ILLIT, HANA",
+      "album": "I Got Your Back",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e02c54aa6a97c499f2d85449c7e",
+      "spotify_url": "https://open.spotify.com/track/7rDleP2IpI5dpyzEcXcAUr",
       "popularity": 0,
       "size": "small"
     },
@@ -161,17 +161,6 @@
     },
     {
       "rank": 14,
-      "id": "3bmpXHVie1GTy37OkXJ7Vc",
-      "name": "2.0",
-      "artist": "BTS",
-      "album": "ARIRANG",
-      "image_url": "https://i.scdn.co/image/ab67616d00001e02dfa17fad7f190c901603270e",
-      "spotify_url": "https://open.spotify.com/track/3bmpXHVie1GTy37OkXJ7Vc",
-      "popularity": 0,
-      "size": "small"
-    },
-    {
-      "rank": 15,
       "id": "6uvw8GFIqdqaJ4Nr3kN8Rs",
       "name": "Come Over",
       "artist": "BTS",
@@ -182,7 +171,7 @@
       "size": "small"
     },
     {
-      "rank": 16,
+      "rank": 15,
       "id": "26GehcyfHwgzfS0ok9yDYk",
       "name": "Pretty Girl",
       "artist": "RESCENE",
@@ -193,7 +182,7 @@
       "size": "small"
     },
     {
-      "rank": 17,
+      "rank": 16,
       "id": "5bI8Nv7j6qlPZWCKvkNI3Q",
       "name": "BOY MEETS GIRL",
       "artist": "NCT WISH",
@@ -204,18 +193,7 @@
       "size": "small"
     },
     {
-      "rank": 18,
-      "id": "7JKfM9CMJyZP18J35XXdMr",
-      "name": "Good Boy",
-      "artist": "&TEAM",
-      "album": "Mark on Me",
-      "image_url": "https://i.scdn.co/image/ab67616d00001e0247245b0fd7fefa8f708c4043",
-      "spotify_url": "https://open.spotify.com/track/7JKfM9CMJyZP18J35XXdMr",
-      "popularity": 0,
-      "size": "small"
-    },
-    {
-      "rank": 19,
+      "rank": 17,
       "id": "3ouNEk0tv5TTi8VWMe1xbX",
       "name": "Animal",
       "artist": "KATSEYE",
@@ -226,18 +204,7 @@
       "size": "small"
     },
     {
-      "rank": 20,
-      "id": "20dAJsyno9ZoBLJtqgQnUI",
-      "name": "Hooligan",
-      "artist": "BTS",
-      "album": "ARIRANG",
-      "image_url": "https://i.scdn.co/image/ab67616d00001e02dfa17fad7f190c901603270e",
-      "spotify_url": "https://open.spotify.com/track/20dAJsyno9ZoBLJtqgQnUI",
-      "popularity": 0,
-      "size": "small"
-    },
-    {
-      "rank": 21,
+      "rank": 18,
       "id": "1VWiDyYTrqQhhmnWANWkFa",
       "name": "SaWaDiKa",
       "artist": "LISA",
@@ -248,62 +215,7 @@
       "size": "small"
     },
     {
-      "rank": 22,
-      "id": "19UnXjpLshSLobPspdyxlD",
-      "name": "Less than a Lover",
-      "artist": "JENNIE",
-      "album": "Less than a Lover",
-      "image_url": "https://i.scdn.co/image/ab67616d00001e021568796289f10031724bc780",
-      "spotify_url": "https://open.spotify.com/track/19UnXjpLshSLobPspdyxlD",
-      "popularity": 0,
-      "size": "small"
-    },
-    {
-      "rank": 23,
-      "id": "4jCNLZieeYkijwEXXFeixK",
-      "name": "Boom Boom Boom",
-      "artist": "BOYNEXTDOOR",
-      "album": "Boom Boom Boom",
-      "image_url": "https://i.scdn.co/image/ab67616d00001e02e7bd1272b9fc86366047bd7f",
-      "spotify_url": "https://open.spotify.com/track/4jCNLZieeYkijwEXXFeixK",
-      "popularity": 0,
-      "size": "small"
-    },
-    {
-      "rank": 24,
-      "id": "5vlnF0r5xACeurZwjgn0Ij",
-      "name": "Bloody Paradise",
-      "artist": "ENHYPEN",
-      "album": "THE SIN : BLISS (Korean Ver.)",
-      "image_url": "https://i.scdn.co/image/ab67616d00001e02c5908e60eccb7af47cd2df0b",
-      "spotify_url": "https://open.spotify.com/track/5vlnF0r5xACeurZwjgn0Ij",
-      "popularity": 0,
-      "size": "small"
-    },
-    {
-      "rank": 25,
-      "id": "527GleJqmaqrKpQ6LHrpFR",
-      "name": "Love Jang",
-      "artist": "&TEAM",
-      "album": "Mark on Me",
-      "image_url": "https://i.scdn.co/image/ab67616d00001e0247245b0fd7fefa8f708c4043",
-      "spotify_url": "https://open.spotify.com/track/527GleJqmaqrKpQ6LHrpFR",
-      "popularity": 0,
-      "size": "small"
-    },
-    {
-      "rank": 26,
-      "id": "2O9bMJticxbQ8FH3NiQ7Xh",
-      "name": "Catch Catch",
-      "artist": "YENA",
-      "album": "LOVE CATCHER",
-      "image_url": "https://i.scdn.co/image/ab67616d00001e029687ef1de31954cfdeac2f5a",
-      "spotify_url": "https://open.spotify.com/track/2O9bMJticxbQ8FH3NiQ7Xh",
-      "popularity": 0,
-      "size": "small"
-    },
-    {
-      "rank": 27,
+      "rank": 19,
       "id": "3Fse9qXqMNey4TL5mLy8IF",
       "name": "KISS N TELL",
       "artist": "aespa",
@@ -314,7 +226,40 @@
       "size": "small"
     },
     {
-      "rank": 28,
+      "rank": 20,
+      "id": "19UnXjpLshSLobPspdyxlD",
+      "name": "Less than a Lover",
+      "artist": "JENNIE",
+      "album": "Less than a Lover",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e021568796289f10031724bc780",
+      "spotify_url": "https://open.spotify.com/track/19UnXjpLshSLobPspdyxlD",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 21,
+      "id": "5vlnF0r5xACeurZwjgn0Ij",
+      "name": "Bloody Paradise",
+      "artist": "ENHYPEN",
+      "album": "THE SIN : BLISS (Korean Ver.)",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e02c5908e60eccb7af47cd2df0b",
+      "spotify_url": "https://open.spotify.com/track/5vlnF0r5xACeurZwjgn0Ij",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 22,
+      "id": "2O9bMJticxbQ8FH3NiQ7Xh",
+      "name": "Catch Catch",
+      "artist": "YENA",
+      "album": "LOVE CATCHER",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e029687ef1de31954cfdeac2f5a",
+      "spotify_url": "https://open.spotify.com/track/2O9bMJticxbQ8FH3NiQ7Xh",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 23,
       "id": "41d2WjuL0ikRKVjxmL7ZFz",
       "name": "BOOMPALA",
       "artist": "LE SSERAFIM",
@@ -325,29 +270,18 @@
       "size": "small"
     },
     {
-      "rank": 29,
-      "id": "4B4Q7zfd0aHcuhQBfCRnH5",
-      "name": "NORMAL",
-      "artist": "BTS",
-      "album": "ARIRANG",
-      "image_url": "https://i.scdn.co/image/ab67616d00001e02dfa17fad7f190c901603270e",
-      "spotify_url": "https://open.spotify.com/track/4B4Q7zfd0aHcuhQBfCRnH5",
+      "rank": 24,
+      "id": "4jCNLZieeYkijwEXXFeixK",
+      "name": "Boom Boom Boom",
+      "artist": "BOYNEXTDOOR",
+      "album": "Boom Boom Boom",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e02e7bd1272b9fc86366047bd7f",
+      "spotify_url": "https://open.spotify.com/track/4jCNLZieeYkijwEXXFeixK",
       "popularity": 0,
       "size": "small"
     },
     {
-      "rank": 30,
-      "id": "0b61A7v9agI08BG21jJPQ9",
-      "name": "they don’t know ’bout us",
-      "artist": "BTS",
-      "album": "ARIRANG",
-      "image_url": "https://i.scdn.co/image/ab67616d00001e02dfa17fad7f190c901603270e",
-      "spotify_url": "https://open.spotify.com/track/0b61A7v9agI08BG21jJPQ9",
-      "popularity": 0,
-      "size": "small"
-    },
-    {
-      "rank": 31,
+      "rank": 25,
       "id": "4z30ixoNDtDJC2rOI1GLt9",
       "name": "Rockstarr (Male Ver.) (Prod By THE HUB)",
       "artist": "YEONJUN",
@@ -358,62 +292,7 @@
       "size": "small"
     },
     {
-      "rank": 32,
-      "id": "5QfpzkkJSE3TusgWMxiVmZ",
-      "name": "Empty",
-      "artist": "&TEAM",
-      "album": "Mark on Me",
-      "image_url": "https://i.scdn.co/image/ab67616d00001e0247245b0fd7fefa8f708c4043",
-      "spotify_url": "https://open.spotify.com/track/5QfpzkkJSE3TusgWMxiVmZ",
-      "popularity": 0,
-      "size": "small"
-    },
-    {
-      "rank": 33,
-      "id": "5tg21NdePCn5m8F9BXOEeJ",
-      "name": "Aliens",
-      "artist": "BTS",
-      "album": "ARIRANG",
-      "image_url": "https://i.scdn.co/image/ab67616d00001e02dfa17fad7f190c901603270e",
-      "spotify_url": "https://open.spotify.com/track/5tg21NdePCn5m8F9BXOEeJ",
-      "popularity": 0,
-      "size": "small"
-    },
-    {
-      "rank": 34,
-      "id": "5sbQXYKMaWnXqUDf60ILx1",
-      "name": "Accelerate",
-      "artist": "&TEAM",
-      "album": "Mark on Me",
-      "image_url": "https://i.scdn.co/image/ab67616d00001e0247245b0fd7fefa8f708c4043",
-      "spotify_url": "https://open.spotify.com/track/5sbQXYKMaWnXqUDf60ILx1",
-      "popularity": 0,
-      "size": "small"
-    },
-    {
-      "rank": 35,
-      "id": "7Jpb9OejYYIwsBIVQwceRy",
-      "name": "SUN KISS",
-      "artist": "TUIDE",
-      "album": "TUNE & PLAY",
-      "image_url": "https://i.scdn.co/image/ab67616d00001e029ee310150eb907c28c40397a",
-      "spotify_url": "https://open.spotify.com/track/7Jpb9OejYYIwsBIVQwceRy",
-      "popularity": 0,
-      "size": "small"
-    },
-    {
-      "rank": 36,
-      "id": "5Ij88F5dK7yib1RoNA8wGV",
-      "name": "烏 - Raven",
-      "artist": "Kenshi Yonezu",
-      "album": "烏 - Raven",
-      "image_url": "https://i.scdn.co/image/ab67616d00001e026587e9ae2e13c8bd69c0bf7e",
-      "spotify_url": "https://open.spotify.com/track/5Ij88F5dK7yib1RoNA8wGV",
-      "popularity": 0,
-      "size": "small"
-    },
-    {
-      "rank": 37,
+      "rank": 26,
       "id": "2RVhhsSkegAflv3Zwe61xw",
       "name": "Good Boy - Japanese ver.",
       "artist": "&TEAM",
@@ -424,18 +303,29 @@
       "size": "small"
     },
     {
-      "rank": 38,
-      "id": "2rKkfc4VZ74FQDc1FF1Zo6",
-      "name": "Body to Body",
-      "artist": "BTS",
-      "album": "ARIRANG",
-      "image_url": "https://i.scdn.co/image/ab67616d00001e02dfa17fad7f190c901603270e",
-      "spotify_url": "https://open.spotify.com/track/2rKkfc4VZ74FQDc1FF1Zo6",
+      "rank": 27,
+      "id": "5Ij88F5dK7yib1RoNA8wGV",
+      "name": "烏 - Raven",
+      "artist": "Kenshi Yonezu",
+      "album": "烏 - Raven",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e026587e9ae2e13c8bd69c0bf7e",
+      "spotify_url": "https://open.spotify.com/track/5Ij88F5dK7yib1RoNA8wGV",
       "popularity": 0,
       "size": "small"
     },
     {
-      "rank": 39,
+      "rank": 28,
+      "id": "5P3Nmg0jSYfrSKoYonTGan",
+      "name": "共犯",
+      "artist": "Mrs. GREEN APPLE",
+      "album": "POPS",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e02d0991e8410181815e4566246",
+      "spotify_url": "https://open.spotify.com/track/5P3Nmg0jSYfrSKoYonTGan",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 29,
       "id": "1ios97PK96GBYvGeLwwKqb",
       "name": "Home",
       "artist": "YEONJUN",
@@ -446,13 +336,123 @@
       "size": "small"
     },
     {
-      "rank": 40,
-      "id": "1TtqALMlSp0o2RUu91Auz8",
-      "name": "GRLS",
+      "rank": 30,
+      "id": "7Jpb9OejYYIwsBIVQwceRy",
+      "name": "SUN KISS",
       "artist": "TUIDE",
       "album": "TUNE & PLAY",
       "image_url": "https://i.scdn.co/image/ab67616d00001e029ee310150eb907c28c40397a",
-      "spotify_url": "https://open.spotify.com/track/1TtqALMlSp0o2RUu91Auz8",
+      "spotify_url": "https://open.spotify.com/track/7Jpb9OejYYIwsBIVQwceRy",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 31,
+      "id": "5GKBPdWbW4RQtx9VkQ6xKO",
+      "name": "new trick",
+      "artist": "ROSÉ",
+      "album": "new trick",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e0226967d275a8c9f248170dd22",
+      "spotify_url": "https://open.spotify.com/track/5GKBPdWbW4RQtx9VkQ6xKO",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 32,
+      "id": "2kTUvehmbBMYky7r29uylJ",
+      "name": "We on Fire",
+      "artist": "&TEAM",
+      "album": "We on Fire",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e02159528e5b706cfb5b5b559d6",
+      "spotify_url": "https://open.spotify.com/track/2kTUvehmbBMYky7r29uylJ",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 33,
+      "id": "3U7iIHygNSOcjcL98KwHQg",
+      "name": "ANIMAL",
+      "artist": "BOYNEXTDOOR",
+      "album": "HOME: DELUXE",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e025cf8adfa610ca8898675a749",
+      "spotify_url": "https://open.spotify.com/track/3U7iIHygNSOcjcL98KwHQg",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 34,
+      "id": "3IWNxztdd0eOeB2Zsslqa3",
+      "name": "IF I",
+      "artist": "TREASURE",
+      "album": "4th MINI ALBUM [NEW WAV]",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e024bfa7f88b274b4e53caba279",
+      "spotify_url": "https://open.spotify.com/track/3IWNxztdd0eOeB2Zsslqa3",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 35,
+      "id": "75QkBCdRc5DGgcyPiVSg4b",
+      "name": "FALLEN ANGEL",
+      "artist": "JENNIE",
+      "album": "Fallen Angel",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e02236bc23de8631dcf60b68d2a",
+      "spotify_url": "https://open.spotify.com/track/75QkBCdRc5DGgcyPiVSg4b",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 36,
+      "id": "0NqmROY1BA3g9A7ZqF8D6O",
+      "name": "VIRAL",
+      "artist": "BOYNEXTDOOR",
+      "album": "HOME",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e025d7b9ba3a4a1e7aa5acbec20",
+      "spotify_url": "https://open.spotify.com/track/0NqmROY1BA3g9A7ZqF8D6O",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 37,
+      "id": "1DkRsJu6pgBkyt016HlPdZ",
+      "name": "恋、はじめました。",
+      "artist": "=LOVE",
+      "album": "恋、はじめました。",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e020d6f969b277e5f515eeb2209",
+      "spotify_url": "https://open.spotify.com/track/1DkRsJu6pgBkyt016HlPdZ",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 38,
+      "id": "1zyNO73bPNPC6KBi3raNmZ",
+      "name": "CLICK",
+      "artist": "JISOO",
+      "album": "CLICK",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e0231cc6756a13caaf2ea4a3b82",
+      "spotify_url": "https://open.spotify.com/track/1zyNO73bPNPC6KBi3raNmZ",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 39,
+      "id": "1hRZJgqpTb8VzSALbDSUrk",
+      "name": "Swingin’ Magic",
+      "artist": "ILLIT",
+      "album": "Swingin’ Magic",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e02bf93c52e0bcf3afbbb41ff3e",
+      "spotify_url": "https://open.spotify.com/track/1hRZJgqpTb8VzSALbDSUrk",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 40,
+      "id": "2h81piRbzIJmjpxR4qnM2o",
+      "name": "Serenade (KARINA & WINTER)",
+      "artist": "aespa",
+      "album": "SYNK : aeXIS LINE - 2026 Special Digital Single",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e027a0e88eef1c0bc3247e03a0f",
+      "spotify_url": "https://open.spotify.com/track/2h81piRbzIJmjpxR4qnM2o",
       "popularity": 0,
       "size": "small"
     }
