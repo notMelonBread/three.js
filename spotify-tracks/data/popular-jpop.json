@@ -11,7 +11,7 @@
     "jpop year:2026"
   ],
   "market": "JP",
-  "generated_at": "2026-10-12T12:54:14.253Z",
+  "generated_at": "2026-10-13T01:08:31.983Z",
   "tracks": [
     {
       "rank": 1,
@@ -22,7 +22,7 @@
       "image_url": "https://i.scdn.co/image/ab67616d00001e02902e640490a6decd6dcebef8",
       "spotify_url": "https://open.spotify.com/track/7L1UsUbSqowTKwrgT0v8AS",
       "popularity": 0,
-      "size": "large"
+      "size": "medium"
     },
     {
       "rank": 2,
@@ -92,23 +92,23 @@
     },
     {
       "rank": 8,
-      "id": "3o9jxRsczWG6Juy1KTDNuG",
-      "name": "BUGS LIFE",
-      "artist": "Number_i",
-      "album": "BUGS LIFE",
-      "image_url": "https://i.scdn.co/image/ab67616d00001e02425a1d2feed9239e8214a609",
-      "spotify_url": "https://open.spotify.com/track/3o9jxRsczWG6Juy1KTDNuG",
-      "popularity": 0,
-      "size": "small"
-    },
-    {
-      "rank": 9,
       "id": "1F1hibBCtNeObRMmEMLHNh",
       "name": "爆裂愛してる",
       "artist": "M!LK",
       "album": "爆裂愛してる",
       "image_url": "https://i.scdn.co/image/ab67616d00001e023c5d76d53f7fa26ee39399d8",
       "spotify_url": "https://open.spotify.com/track/1F1hibBCtNeObRMmEMLHNh",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 9,
+      "id": "3o9jxRsczWG6Juy1KTDNuG",
+      "name": "BUGS LIFE",
+      "artist": "Number_i",
+      "album": "BUGS LIFE",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e02425a1d2feed9239e8214a609",
+      "spotify_url": "https://open.spotify.com/track/3o9jxRsczWG6Juy1KTDNuG",
       "popularity": 0,
       "size": "small"
     },
@@ -400,23 +400,23 @@
     },
     {
       "rank": 36,
-      "id": "4oE7MyJhqSD3BaHRpNs8Nl",
-      "name": "JANE DOE",
-      "artist": "Kenshi Yonezu, Hikaru Utada",
-      "album": "JANE DOE",
-      "image_url": "https://i.scdn.co/image/ab67616d00001e028131aa99fb87ff0e9c511851",
-      "spotify_url": "https://open.spotify.com/track/4oE7MyJhqSD3BaHRpNs8Nl",
-      "popularity": 0,
-      "size": "small"
-    },
-    {
-      "rank": 37,
       "id": "21VsLvoE7elUmJZLSawaMh",
       "name": "ライラック",
       "artist": "Mrs. GREEN APPLE",
       "album": "10",
       "image_url": "https://i.scdn.co/image/ab67616d00001e02232b48311e311ba914af2811",
       "spotify_url": "https://open.spotify.com/track/21VsLvoE7elUmJZLSawaMh",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 37,
+      "id": "4oE7MyJhqSD3BaHRpNs8Nl",
+      "name": "JANE DOE",
+      "artist": "Kenshi Yonezu, Hikaru Utada",
+      "album": "JANE DOE",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e028131aa99fb87ff0e9c511851",
+      "spotify_url": "https://open.spotify.com/track/4oE7MyJhqSD3BaHRpNs8Nl",
       "popularity": 0,
       "size": "small"
     },
@@ -450,6 +450,61 @@
       "album": "M!Ⅹ",
       "image_url": "https://i.scdn.co/image/ab67616d00001e02ac18ee20e1d9ba44ba938a5b",
       "spotify_url": "https://open.spotify.com/track/0jj4mLjwYcos3PPzjQwVzh",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 41,
+      "id": "075HUD50Nuea3rNaABIsNZ",
+      "name": "晩餐歌 - Bansanka",
+      "artist": "tuki.",
+      "album": "15",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e022d68ffbcaeaa5e6fbe102202",
+      "spotify_url": "https://open.spotify.com/track/075HUD50Nuea3rNaABIsNZ",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 42,
+      "id": "6iltt0n1DkQ0AtCcwxXNZJ",
+      "name": "Theater",
+      "artist": "King & Prince",
+      "album": "STARRING",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e0217729fc980bfd497e1a62dc3",
+      "spotify_url": "https://open.spotify.com/track/6iltt0n1DkQ0AtCcwxXNZJ",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 43,
+      "id": "0IByNT868RxZwmcj1rQgno",
+      "name": "Prema",
+      "artist": "Fujii Kaze",
+      "album": "Prema",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e023706a2459c0f1d9a155493dd",
+      "spotify_url": "https://open.spotify.com/track/0IByNT868RxZwmcj1rQgno",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 44,
+      "id": "29nEadzf4CqeLYzcf44zub",
+      "name": "ファンファーレ",
+      "artist": "Koji Tamaki",
+      "album": "ファンファーレ",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e027938205eb14fe7a2d2c2d6c9",
+      "spotify_url": "https://open.spotify.com/track/29nEadzf4CqeLYzcf44zub",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 45,
+      "id": "2RMBCQdXkfFArpX3NIuuNm",
+      "name": "織姫とBABY",
+      "artist": "neguse., 汐れいら",
+      "album": "織姫とBABY",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e0246141df3b619f1dccdc174a3",
+      "spotify_url": "https://open.spotify.com/track/2RMBCQdXkfFArpX3NIuuNm",
       "popularity": 0,
       "size": "small"
     }

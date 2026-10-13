@@ -10,7 +10,7 @@
     "year:2025"
   ],
   "market": "US",
-  "generated_at": "2026-10-12T12:54:28.388Z",
+  "generated_at": "2026-10-13T01:08:46.753Z",
   "tracks": [
     {
       "rank": 1,
@@ -21,7 +21,7 @@
       "image_url": "https://i.scdn.co/image/ab67616d00001e0221deb742375f88edfb2e7368",
       "spotify_url": "https://open.spotify.com/track/3h5T5JypYU7huFiVYhv1dr",
       "popularity": 0,
-      "size": "large"
+      "size": "medium"
     },
     {
       "rank": 2,
@@ -322,12 +322,12 @@
     },
     {
       "rank": 29,
-      "id": "3iy2QuCtCzpWnR6tia39AB",
-      "name": "hate that i made you love me",
+      "id": "70pVCVMGjmIWPbWXDwf11e",
+      "name": "petal",
       "artist": "Ariana Grande",
       "album": "petal",
       "image_url": "https://i.scdn.co/image/ab67616d00001e028baf677ee2d8dda6cc9fcbd7",
-      "spotify_url": "https://open.spotify.com/track/3iy2QuCtCzpWnR6tia39AB",
+      "spotify_url": "https://open.spotify.com/track/70pVCVMGjmIWPbWXDwf11e",
       "popularity": 0,
       "size": "small"
     },
@@ -449,6 +449,61 @@
       "album": "DeBÍ TiRAR MáS FOToS",
       "image_url": "https://i.scdn.co/image/ab67616d00001e02bbd45c8d36e0e045ef640411",
       "spotify_url": "https://open.spotify.com/track/3sK8wGT43QFpWrvNQsrQya",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 41,
+      "id": "5BZsQlgw21vDOAjoqkNgKb",
+      "name": "DAISIES",
+      "artist": "Justin Bieber",
+      "album": "SWAG",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e02d65c4773bc5061fd27facc5b",
+      "spotify_url": "https://open.spotify.com/track/5BZsQlgw21vDOAjoqkNgKb",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 42,
+      "id": "1DwscornXpj8fmOmYVlqZt",
+      "name": "Stateside + Zara Larsson",
+      "artist": "PinkPantheress, Zara Larsson",
+      "album": "Fancy Some More?",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e02684ecc5bc1b724d0106ad694",
+      "spotify_url": "https://open.spotify.com/track/1DwscornXpj8fmOmYVlqZt",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 43,
+      "id": "7bxaFZ1O3cHkgLKMsdC3xR",
+      "name": "Loser",
+      "artist": "Tame Impala",
+      "album": "Deadbeat",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e02208500450dcd0fd294d7bd3b",
+      "spotify_url": "https://open.spotify.com/track/7bxaFZ1O3cHkgLKMsdC3xR",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 44,
+      "id": "53iuhJlwXhSER5J2IYYv1W",
+      "name": "The Fate of Ophelia",
+      "artist": "Taylor Swift",
+      "album": "The Life of a Showgirl",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e02d7812467811a7da6e6a44902",
+      "spotify_url": "https://open.spotify.com/track/53iuhJlwXhSER5J2IYYv1W",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 45,
+      "id": "1CPZ5BxNNd0n0nF4Orb9JS",
+      "name": "Golden",
+      "artist": "HUNTR/X, EJAE, AUDREY NUNA, REI AMI, KPop Demon Hunters Cast",
+      "album": "KPop Demon Hunters (Soundtrack from the Netflix Film)",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e024dcb6c5df15cf74596ab25a4",
+      "spotify_url": "https://open.spotify.com/track/1CPZ5BxNNd0n0nF4Orb9JS",
       "popularity": 0,
       "size": "small"
     }

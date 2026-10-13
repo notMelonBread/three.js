@@ -14,7 +14,7 @@
     "kpop"
   ],
   "market": "JP",
-  "generated_at": "2026-10-12T12:54:21.486Z",
+  "generated_at": "2026-10-13T01:08:39.358Z",
   "tracks": [
     {
       "rank": 1,
@@ -25,7 +25,7 @@
       "image_url": "https://i.scdn.co/image/ab67616d00001e027590080ed9af4e12cc604c45",
       "spotify_url": "https://open.spotify.com/track/7xIX566RcjiBHRBrFzFEh3",
       "popularity": 0,
-      "size": "large"
+      "size": "medium"
     },
     {
       "rank": 2,
@@ -84,23 +84,23 @@
     },
     {
       "rank": 7,
-      "id": "2Hq8l2e9BkRVaQtJni4Ss9",
-      "name": "セツナハナビ (Setsuna Hanabi)",
-      "artist": "TOMORROW X TOGETHER",
-      "album": "セツナハナビ (Setsuna Hanabi)",
-      "image_url": "https://i.scdn.co/image/ab67616d00001e02d966ebebd0eeebc68e1545ef",
-      "spotify_url": "https://open.spotify.com/track/2Hq8l2e9BkRVaQtJni4Ss9",
-      "popularity": 0,
-      "size": "small"
-    },
-    {
-      "rank": 8,
       "id": "7rDleP2IpI5dpyzEcXcAUr",
       "name": "I Got Your Back",
       "artist": "ILLIT, HANA",
       "album": "I Got Your Back",
       "image_url": "https://i.scdn.co/image/ab67616d00001e02c54aa6a97c499f2d85449c7e",
       "spotify_url": "https://open.spotify.com/track/7rDleP2IpI5dpyzEcXcAUr",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 8,
+      "id": "2Hq8l2e9BkRVaQtJni4Ss9",
+      "name": "セツナハナビ (Setsuna Hanabi)",
+      "artist": "TOMORROW X TOGETHER",
+      "album": "セツナハナビ (Setsuna Hanabi)",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e02d966ebebd0eeebc68e1545ef",
+      "spotify_url": "https://open.spotify.com/track/2Hq8l2e9BkRVaQtJni4Ss9",
       "popularity": 0,
       "size": "small"
     },
@@ -453,6 +453,61 @@
       "album": "SYNK : aeXIS LINE - 2026 Special Digital Single",
       "image_url": "https://i.scdn.co/image/ab67616d00001e027a0e88eef1c0bc3247e03a0f",
       "spotify_url": "https://open.spotify.com/track/2h81piRbzIJmjpxR4qnM2o",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 41,
+      "id": "6rjpIfWNWwzg7hd1KxDK5f",
+      "name": "Sunday Morning",
+      "artist": "ILLIT",
+      "album": "Sunday Morning",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e02889f10e7427d7ee40e2ad5d1",
+      "spotify_url": "https://open.spotify.com/track/6rjpIfWNWwzg7hd1KxDK5f",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 42,
+      "id": "6oUUmBcUbZa5O48V5pjgAD",
+      "name": "Hootie Frutti",
+      "artist": "KATSEYE",
+      "album": "WILD",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e025631546bdc010851494d88ba",
+      "spotify_url": "https://open.spotify.com/track/6oUUmBcUbZa5O48V5pjgAD",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 43,
+      "id": "08aIVRb9ucpxKdAJb50HAx",
+      "name": "Ode to Love",
+      "artist": "NCT WISH",
+      "album": "Ode to Love - The 1st Album",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e02253a8ddc03c042c5fbc1d0a7",
+      "spotify_url": "https://open.spotify.com/track/08aIVRb9ucpxKdAJb50HAx",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 44,
+      "id": "57gjiXuk5Z992BWHrvncEa",
+      "name": "SODA SODA",
+      "artist": "TWS",
+      "album": "SODA SODA",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e029d96c1e161707b258bade0bc",
+      "spotify_url": "https://open.spotify.com/track/57gjiXuk5Z992BWHrvncEa",
+      "popularity": 0,
+      "size": "small"
+    },
+    {
+      "rank": 45,
+      "id": "7aLKGDoX89xj6f50tWQEUf",
+      "name": "YO-I-DON!",
+      "artist": "NCT WISH",
+      "album": "YO-I-DON! / BOY MEETS GIRL",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e02fd9d4f3b2206b25dd1b130e7",
+      "spotify_url": "https://open.spotify.com/track/7aLKGDoX89xj6f50tWQEUf",
       "popularity": 0,
       "size": "small"
     }
