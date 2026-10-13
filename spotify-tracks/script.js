@@ -146,22 +146,47 @@ menu.addEventListener("click", () => {
 
 // カードは 3 枚とも HTML の中に並んでいて、CSS で「2 番目のカード」だけ大きくしている。
 // だから、並び順を変えるだけで「真ん中のカード」が入れかわる。
+// それだけだと一瞬で切りかわるので、「前の場所」から「新しい場所」へすべらせて、回って見えるようにする。
 const cards = document.getElementById("cards");
 
-function swapAnimation() {
+function rotateCards(direction) {
+  // 1. 動かす前の、それぞれのカードの場所と大きさを覚えておく
+  const before = new Map();
   for (const card of cards.children) {
-    card.classList.remove("swap");
-    void card.offsetWidth; // いったん消してから付け直すと、アニメーションがもう一度動く
-    card.classList.add("swap");
+    before.set(card, card.getBoundingClientRect());
   }
+
+  // 2. 並び順を変える(端のカードが反対の端へ移る)
+  const moved = direction === "right" ? cards.firstElementChild : cards.lastElementChild;
+  if (direction === "right") {
+    cards.appendChild(moved); // 先頭を最後へ → 全体が左に 1 つ回る
+  } else {
+    cards.prepend(moved); // 最後を先頭へ → 全体が右に 1 つ回る
+  }
+
+  // 3. 新しい場所と前の場所の差を transform に入れて、見た目だけ「前の場所」に戻す
+  for (const card of cards.children) {
+    const from = before.get(card);
+    const to = card.getBoundingClientRect();
+    const dx = from.left - to.left;
+    const dy = from.top - to.top;
+    const scale = from.width / to.width;
+    card.classList.remove("moving"); // transition を切ってから
+    card.style.transformOrigin = "top left";
+    card.style.transform = `translate(${dx}px, ${dy}px) scale(${scale})`;
+    card.style.zIndex = card === moved ? 0 : 1; // 端から端へ飛ぶカードは、うしろ側を通る
+    card.style.opacity = card === moved ? 0.4 : 1;
+  }
+
+  // 4. 次の瞬間に transition をつけて transform を 0 に戻す → すべるように動く
+  requestAnimationFrame(() => {
+    for (const card of cards.children) {
+      card.classList.add("moving");
+      card.style.transform = "";
+      card.style.opacity = "";
+    }
+  });
 }
 
-document.getElementById("arrow-right").addEventListener("click", () => {
-  cards.appendChild(cards.firstElementChild); // 先頭のカードを最後に移す → 全体が左へ 1 つずれる
-  swapAnimation();
-});
-
-document.getElementById("arrow-left").addEventListener("click", () => {
-  cards.prepend(cards.lastElementChild); // 最後のカードを先頭に移す → 全体が右へ 1 つずれる
-  swapAnimation();
-});
+document.getElementById("arrow-right").addEventListener("click", () => rotateCards("right"));
+document.getElementById("arrow-left").addEventListener("click", () => rotateCards("left"));

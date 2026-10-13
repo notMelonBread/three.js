@@ -2,10 +2,9 @@
    MUSIC INTRO  いま人気の曲 コラージュサイト
    ==============================
 
-   位置や大きさの数字は、Figma のデザイン(横幅 4941)から
-   「割合(%)」に直したものです。
-     横の位置・幅   = Figma の数字 ÷ 4941
-     縦の位置      = Figma の数字 ÷ その section の高さ
+   位置や大きさは、スマホの横幅(480px)に対する「割合(%)」で書いてあります。
+     横の位置・幅   = Figma の数字 ÷ 480
+     縦の位置      = Figma の数字 ÷ その section の高さ(1040)
    こうしておくと、スマホの幅が変わっても同じ形になります。
 */
 
@@ -29,7 +28,7 @@ img {
 
 /* スマホの画面と同じ幅の箱。PC でも真ん中にこの形で出す */
 .phone {
-  max-width: 430px;
+  max-width: 480px;
   margin: 0 auto;
 }
 
@@ -45,7 +44,7 @@ img {
 /* キービジュアルの部分。下の section と同じスマホ幅にして、真ん中に置く */
 .hero__inner {
   position: relative; /* メニューボタンを「右上」に置くための基準 */
-  max-width: 430px;
+  max-width: 480px;
   height: 100%;
   margin: 0 auto;
 }
@@ -101,46 +100,42 @@ img {
 
 .genre {
   position: relative; /* ステッカーを section の中で自由に置くための基準 */
-  padding-top: 9.3%; /* コラージュまでのすき間(% は横幅に対する割合) */
+  /* 縦横の比率を固定する(480 : 1040)。
+     こうすると、ステッカーの top: ○% が、どの幅のスマホでも同じ場所になる */
+  aspect-ratio: 480 / 1040;
   text-align: center;
 }
 
-/* 縦横の比率を Figma と同じに固定する。
-   こうすると、ステッカーの top: ○% が Figma とぴったり同じ場所になる */
-#jpop { aspect-ratio: 4941 / 4717; }
-#kpop { aspect-ratio: 4941 / 4077; padding-top: 0; } /* K-POP はコラージュから始まる */
-#western { aspect-ratio: 4941 / 5102; }
-
 .genre h2 {
-  margin: 3.6% 0 0;
-  font-size: 12px;
+  margin: 24px 0 0;
+  font-size: 13px;
   font-weight: normal;
 }
 
 .genre h3 {
-  margin: 4.7% 0 0;
+  margin: 12px 0 0;
   font-size: 12px;
   font-weight: normal;
   letter-spacing: 0.1em;
 }
 
 .genre p {
-  max-width: 50%;
-  margin: 4.3% auto 0;
+  max-width: 300px;
+  margin: 12px auto 0;
   font-size: 12px;
-  line-height: 1.2;
+  line-height: 1.5;
 }
 
 /* --- コラージュ --- */
 
-/* 5 列のマス目。ジャケットは JavaScript が 1 枚ずつ入れる */
+/* 5 列のマス目。メインビジュアルと同じ「横幅いっぱい × 9:16」の大きさ。
+   ジャケットは JavaScript が 1 枚ずつ入れる(45 曲 = 5 列 × 9 行) */
 .collage {
   position: relative;
-  z-index: 1; /* ステッカーより手前 */
+  z-index: 1;
   display: grid;
   grid-template-columns: repeat(5, 1fr); /* 同じ幅の列を 5 つ */
-  width: 29.3%; /* Figma: 1449 ÷ 4941 */
-  margin: 0 auto;
+  width: 100%;
   overflow: hidden; /* この箱の中だけに表示する */
 }
 
@@ -167,15 +162,15 @@ img {
 /* 画像がないときは曲名を小さく出す */
 .tile span {
   display: block;
-  padding: 2px;
-  font-size: 5px;
-  line-height: 1.2;
+  padding: 6px;
+  font-size: 10px;
+  line-height: 1.3;
 }
 
 /* マウスを乗せたら、一番上に来て大きくなる */
 .tile:hover {
   z-index: 100;
-  transform: translate(var(--dx), var(--dy)) scale(1.8);
+  transform: translate(var(--dx), var(--dy)) scale(1.5);
 }
 
 /* --- ステッカー(飾り) --- */
@@ -183,37 +178,37 @@ img {
 /* 共通: section の中の好きな場所に置く。位置は 1 枚ずつ下で決める */
 .sticker {
   position: absolute;
+  z-index: 2; /* コラージュの上に重ねる */
   pointer-events: none; /* 飾りはクリックのじゃまをしない */
 }
 
-/* J-POP(section の高さ 4717) */
-.sticker--drip { left: -13.7%; top: 0; width: 23.8%; }
-.sticker--star-outline { left: 26.7%; top: 3.9%; width: 17.3%; }
-.sticker--heart { left: 75%; top: 7.1%; width: 26.7%; transform: rotate(14.9deg); }
-.sticker--note-1 { left: 59.3%; top: 52%; width: 10.4%; transform: rotate(19.8deg); z-index: 2; }
+/* J-POP */
+.sticker--drip { left: -10%; top: -1%; width: 26%; }
+.sticker--star-outline { left: 68%; top: 3%; width: 22%; }
+.sticker--heart { left: 70%; top: 34%; width: 30%; transform: rotate(15deg); }
+.sticker--note-1 { left: 3%; top: 70%; width: 12%; transform: rotate(20deg); }
 
-/* K-POP(section の高さ 4077) */
-.sticker--sparkle-big { left: 8.2%; top: -4.4%; width: 15.5%; transform: scaleX(-1); } /* 左右反転 */
-.sticker--sparkle-small { left: 7.6%; top: 2.9%; width: 10%; transform: rotate(-175.2deg) scaleY(-1); }
-.sticker--blob { left: 50%; top: -3.1%; width: 17.5%; }
-.sticker--note-2 { left: 25.1%; top: 48.2%; width: 13.7%; z-index: 2; }
-.sticker--planet { left: 76%; top: 73%; width: 18.7%; transform: rotate(20.6deg); }
+/* K-POP */
+.sticker--sparkle-big { left: -4%; top: 1%; width: 19%; transform: scaleX(-1); } /* 左右反転 */
+.sticker--sparkle-small { left: 11%; top: 9%; width: 10%; }
+.sticker--blob { left: 56%; top: -3%; width: 22%; }
+.sticker--note-2 { left: 70%; top: 58%; width: 16%; }
+.sticker--planet { left: 1%; top: 77%; width: 22%; transform: rotate(20deg); }
 
-/* 洋楽(section の高さ 5102) */
-.sticker--clef { left: 59.7%; top: 0.5%; width: 9.8%; transform: rotate(-11.1deg); }
-.sticker--bolt-star { left: 8.1%; top: 45%; width: 20.2%; transform: rotate(-10deg); }
-.sticker--sparkle-cluster { left: 73%; top: 83.9%; width: 17.8%; transform: rotate(6.1deg); }
-.sticker--sparkle-right { left: 83.9%; top: 90.8%; width: 14.1%; }
+/* 洋楽 */
+.sticker--clef { left: 80%; top: -2%; width: 11%; transform: rotate(-11deg); }
+.sticker--bolt-star { left: -6%; top: 30%; width: 24%; transform: rotate(-10deg); }
+.sticker--sparkle-cluster { left: 74%; top: 70%; width: 20%; transform: rotate(6deg); }
+.sticker--sparkle-right { left: 88%; top: 85%; width: 14%; }
 
 /* おすすめ */
-.sticker--moon { left: 4.8%; top: -0.3%; width: 12.8%; }
+.sticker--moon { left: 4%; top: 0; width: 13%; }
 
 /* --- ⑤ おすすめアーティスト --- */
 
 .artists {
   position: relative;
-  aspect-ratio: 4941 / 4913;
-  padding: 10% 2% 0;
+  padding: 12% 2% 10%;
 }
 
 .cards {
@@ -266,14 +261,10 @@ img {
   background: #ff4c85;
 }
 
-/* 入れ替わったときの動き(JavaScript が .card に swap クラスを付ける) */
-.card.swap {
-  animation: swap 0.35s;
-}
-
-@keyframes swap {
-  from { opacity: 0; transform: scale(0.85); }
-  to { opacity: 1; transform: none; }
+/* 回るときの動き: JavaScript が「前の場所からの距離」を transform に入れて、
+   それを 0 に戻すことで、前の場所から新しい場所へすべるように動く */
+.card.moving {
+  transition: transform 0.45s, opacity 0.45s;
 }
 
 /* 左右の矢印ボタン */
