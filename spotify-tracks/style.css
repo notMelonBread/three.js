@@ -61,6 +61,17 @@ img {
   object-fit: cover; /* 箱いっぱいに広げて、はみ出した分は切る(画像はゆがまない) */
 }
 
+/* 画像の下 1/4 くらいを、透明 → ピンク のグラデーションでおおう */
+.hero__fade {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 28%;
+  background: linear-gradient(transparent, #ff4c85); /* 上は透明、下はページと同じピンク */
+  pointer-events: none;
+}
+
 .menu-button {
   position: absolute; /* .hero__inner の中の好きな場所に置ける */
   top: 2%;
@@ -185,7 +196,7 @@ img {
 }
 
 /* J-POP(コラージュは横 15%〜85%、縦 0〜79% の位置) */
-.sticker--drip { left: 2%; top: -2%; width: 24%; }
+.sticker--drip { left: 2%; top: -11%; width: 24%; } /* 上の余白をまたいで、メインビジュアルからしたたる */
 .sticker--star-outline { left: 70%; top: 2%; width: 22%; }
 .sticker--heart { left: 74%; top: 30%; width: 28%; transform: rotate(15deg); }
 .sticker--note-1 { left: 6%; top: 60%; width: 12%; transform: rotate(20deg); }
