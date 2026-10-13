@@ -4,7 +4,7 @@
 
    位置や大きさは、スマホの横幅(480px)に対する「割合(%)」で書いてあります。
      横の位置・幅   = Figma の数字 ÷ 480
-     縦の位置      = Figma の数字 ÷ その section の高さ(1040)
+     縦の位置      = Figma の数字 ÷ その section の高さ(770)
    こうしておくと、スマホの幅が変わっても同じ形になります。
 */
 
@@ -101,20 +101,20 @@ img {
 
 .genre {
   position: relative; /* ステッカーを section の中で自由に置くための基準 */
-  /* 縦横の比率を固定する(480 : 1040)。
-     こうすると、ステッカーの top: ○% が、どの幅のスマホでも同じ場所になる */
-  aspect-ratio: 480 / 1040;
+  /* 縦横の比率を固定する(480 : 770)。スマホでも PC でも、コラージュと説明文が 1 画面に収まる高さ。
+     こうしておくと、ステッカーの top: ○% が、どの幅のスマホでも同じ場所になる */
+  aspect-ratio: 480 / 770;
   text-align: center;
 }
 
 .genre h2 {
-  margin: 24px 0 0;
+  margin: 20px 0 0;
   font-size: 13px;
   font-weight: normal;
 }
 
 .genre h3 {
-  margin: 12px 0 0;
+  margin: 10px 0 0;
   font-size: 12px;
   font-weight: normal;
   letter-spacing: 0.1em;
@@ -122,21 +122,22 @@ img {
 
 .genre p {
   max-width: 300px;
-  margin: 12px auto 0;
+  margin: 10px auto 0;
   font-size: 12px;
   line-height: 1.5;
 }
 
 /* --- コラージュ --- */
 
-/* 5 列のマス目。メインビジュアルと同じ「横幅いっぱい × 9:16」の大きさ。
+/* 5 列のマス目。メインビジュアルと同じ 9:16 の形で、横幅の 70%(説明文まで 1 画面に入る大きさ)。
    ジャケットは JavaScript が 1 枚ずつ入れる(45 曲 = 5 列 × 9 行) */
 .collage {
   position: relative;
   z-index: 1;
   display: grid;
   grid-template-columns: repeat(5, 1fr); /* 同じ幅の列を 5 つ */
-  width: 100%;
+  width: 70%;
+  margin: 0 auto;
   overflow: hidden; /* この箱の中だけに表示する */
 }
 
@@ -183,24 +184,24 @@ img {
   pointer-events: none; /* 飾りはクリックのじゃまをしない */
 }
 
-/* J-POP */
-.sticker--drip { left: -10%; top: -1%; width: 26%; }
-.sticker--star-outline { left: 68%; top: 3%; width: 22%; }
-.sticker--heart { left: 70%; top: 34%; width: 30%; transform: rotate(15deg); }
-.sticker--note-1 { left: 3%; top: 70%; width: 12%; transform: rotate(20deg); }
+/* J-POP(コラージュは横 15%〜85%、縦 0〜79% の位置) */
+.sticker--drip { left: 2%; top: -2%; width: 24%; }
+.sticker--star-outline { left: 70%; top: 2%; width: 22%; }
+.sticker--heart { left: 74%; top: 30%; width: 28%; transform: rotate(15deg); }
+.sticker--note-1 { left: 6%; top: 60%; width: 12%; transform: rotate(20deg); }
 
 /* K-POP */
-.sticker--sparkle-big { left: -4%; top: 1%; width: 19%; transform: scaleX(-1); } /* 左右反転 */
-.sticker--sparkle-small { left: 11%; top: 9%; width: 10%; }
-.sticker--blob { left: 56%; top: -3%; width: 22%; }
-.sticker--note-2 { left: 70%; top: 58%; width: 16%; }
-.sticker--planet { left: 1%; top: 77%; width: 22%; transform: rotate(20deg); }
+.sticker--sparkle-big { left: 0; top: 0; width: 19%; transform: scaleX(-1); } /* 左右反転 */
+.sticker--sparkle-small { left: 12%; top: 8%; width: 10%; }
+.sticker--blob { left: 60%; top: -3%; width: 22%; }
+.sticker--note-2 { left: 76%; top: 50%; width: 16%; }
+.sticker--planet { left: 2%; top: 66%; width: 22%; transform: rotate(20deg); }
 
 /* 洋楽 */
 .sticker--clef { left: 80%; top: -2%; width: 11%; transform: rotate(-11deg); }
-.sticker--bolt-star { left: -6%; top: 30%; width: 24%; transform: rotate(-10deg); }
-.sticker--sparkle-cluster { left: 74%; top: 70%; width: 20%; transform: rotate(6deg); }
-.sticker--sparkle-right { left: 88%; top: 85%; width: 14%; }
+.sticker--bolt-star { left: -2%; top: 26%; width: 24%; transform: rotate(-10deg); }
+.sticker--sparkle-cluster { left: 78%; top: 60%; width: 20%; transform: rotate(6deg); }
+.sticker--sparkle-right { left: 88%; top: 74%; width: 14%; }
 
 /* おすすめ */
 .sticker--moon { left: 4%; top: 0; width: 13%; }
