@@ -1,24 +1,32 @@
 {
-  "demo": true,
-  "generated_at": "2026-10-13T00:00:00.000Z",
+  "generated_at": "2026-10-13T01:14:15.838Z",
   "artists": [
     {
       "name": "back number",
-      "spotify_url": "https://open.spotify.com/search/back%20number",
-      "image_url": "",
-      "track": null
+      "spotify_url": "https://open.spotify.com/artist/6rs1KAoQnFalSqSU4LTh8g",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e02e09353d6028fda18c3699085",
+      "track": {
+        "name": "ハッピーエンド",
+        "spotify_url": "https://open.spotify.com/track/4GqO80eGXA542oTvlYv4LS"
+      }
     },
     {
       "name": "なとり",
-      "spotify_url": "https://open.spotify.com/search/%E3%81%AA%E3%81%A8%E3%82%8A",
-      "image_url": "",
-      "track": null
+      "spotify_url": "https://open.spotify.com/artist/3lagKxU3X84fGgnH9gekjy",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e022f8fec1c6704b73f89e77e79",
+      "track": {
+        "name": "プロポーズ",
+        "spotify_url": "https://open.spotify.com/track/2VmWOZiKDnLq373THopgWC"
+      }
     },
     {
-      "name": "スピッツ",
-      "spotify_url": "https://open.spotify.com/search/%E3%82%B9%E3%83%94%E3%83%83%E3%83%84",
-      "image_url": "",
-      "track": null
+      "name": "SPITZ",
+      "spotify_url": "https://open.spotify.com/artist/5kjGRHClVacSyllOUqU1S0",
+      "image_url": "https://i.scdn.co/image/ab67616d00001e029f6f318c2d70e3dec67321cc",
+      "track": {
+        "name": "見知らぬ糸",
+        "spotify_url": "https://open.spotify.com/track/01Wc6RiaghdtkpJXV9WmAj"
+      }
     }
   ]
 }
