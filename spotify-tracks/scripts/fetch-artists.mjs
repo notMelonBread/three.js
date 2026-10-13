@@ -68,7 +68,8 @@ for (const name of names) {
     }
     const track = await findTrack(artist);
     artists.push({
-      name: artist.name,
+      name, // 画面に出す名前は、指定したとおり(Spotify では "SPITZ" のように英語表記のことがある)
+      spotify_name: artist.name,
       spotify_url: artist.external_urls?.spotify || "",
       image_url: pickImage(track?.album?.images)?.url || pickImage(artist.images)?.url || "",
       track: track ? { name: track.name, spotify_url: track.external_urls?.spotify || "" } : null,

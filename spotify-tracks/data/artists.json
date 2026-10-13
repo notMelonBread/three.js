@@ -3,6 +3,7 @@
   "artists": [
     {
       "name": "back number",
+      "spotify_name": "back number",
       "spotify_url": "https://open.spotify.com/artist/6rs1KAoQnFalSqSU4LTh8g",
       "image_url": "https://i.scdn.co/image/ab67616d00001e02e09353d6028fda18c3699085",
       "track": {
@@ -12,6 +13,7 @@
     },
     {
       "name": "なとり",
+      "spotify_name": "なとり",
       "spotify_url": "https://open.spotify.com/artist/3lagKxU3X84fGgnH9gekjy",
       "image_url": "https://i.scdn.co/image/ab67616d00001e022f8fec1c6704b73f89e77e79",
       "track": {
@@ -20,7 +22,8 @@
       }
     },
     {
-      "name": "SPITZ",
+      "name": "スピッツ",
+      "spotify_name": "SPITZ",
       "spotify_url": "https://open.spotify.com/artist/5kjGRHClVacSyllOUqU1S0",
       "image_url": "https://i.scdn.co/image/ab67616d00001e029f6f318c2d70e3dec67321cc",
       "track": {
