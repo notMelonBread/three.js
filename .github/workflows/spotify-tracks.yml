@@ -24,9 +24,9 @@ on:
         required: false
         default: ""
       limit:
-        description: "件数 (既定 40、最大 49)"
+        description: "件数 (既定 45、最大 49)"
         required: false
-        default: "40"
+        default: "45"
       label:
         description: "画面の見出し(空なら自動)"
         required: false
@@ -61,7 +61,7 @@ jobs:
           GENRES: ${{ github.event.inputs.genres || 'jpop,kpop,western' }}
           QUERY: ${{ github.event.inputs.query }}
           ID: ${{ github.event.inputs.id }}
-          LIMIT: ${{ github.event.inputs.limit || '40' }}
+          LIMIT: ${{ github.event.inputs.limit || '45' }}
           LABEL: ${{ github.event.inputs.label }}
           MONTH: ${{ github.event.inputs.month }}
         run: |

@@ -30,8 +30,9 @@ Figma の「オリジナルサイト」(node 41-186)をもとにしている。
 - 各ジャンルは「飾りのステッカー → コラージュ → `h2` `h3` `p`」の順。Figma の青い `h2` `h3` `p` `img` の注記はタグの指定。
 - コラージュは 5 列の CSS grid に正方形を並べ、1 枚ずつ `scale(1.25)` と `translate` で少しずらし、`z-index` を無作為にして重ねる。外側のマスは外側にずらさず、`transform-origin` で内側にだけ広がるので、**全部枠の中に収まり、隙間もできない**。
 - おすすめカードは各ジャンルの 1 位の曲のアーティストとジャケット(デザインの back number / なとり / スピッツ の枠をデータで埋める)。
-- 「メインビジュアル」は Figma では灰色の仮置きだったので、3 ジャンル全曲のジャケットを `repeat(auto-fill, …)` の grid で敷き詰めたモザイクにし、上に半透明の黒とタイトルを重ねている。写真に差し替えたいときは `.hero__bg` を `background: url(...) center/cover` に変えるだけ。
-- 背景のピンクとメインビジュアルは `.phone` の外(`body` / `header`)にあるので、PC でも画面の端まで塗り足される。
+- メインビジュアルは Figma のキービジュアル(`imgs/main-visual.jpg`、9:16)。タイトル「MUSIC INTRO」は画像内にあるので `h1 > img` にして `alt` で文字を持たせる。PC では同じ画像をぼかして後ろに敷き、画面の端まで塗り足す。
+- ステッカーの位置・幅・回転は Figma の座標(横幅 4941 基準)を % にしたもの。縦位置の % が効くように、各 section は `aspect-ratio` で Figma と同じ縦横比に固定している(`#jpop` 4941/4717 など)。
+- 背景のピンクは `body` に塗ってあるので、PC でも画面の端まで広がる。
 
 ## データの作り方(先生側)
 
@@ -53,7 +54,7 @@ python3 -m http.server 8000   # http://localhost:8000/ で確認(fetch を使う
 ```
 
 - `--genre` は `jpop` `kpop` `western` `pop` `hiphop` `rock` `anime`(表は `fetch-tracks.mjs` の `GENRES`)。`--order` がページの並び順。
-- `--limit` は既定 40(5 列 × 8 行でぴったり)。`index.html` の `data-file` と JSON のファイル名を合わせる。
+- `--limit` は既定 45(5 列 × 9 行で、Figma のコラージュとほぼ同じ縦横比)。`index.html` の `data-file` と JSON のファイル名を合わせる。
 - 同梱の JSON はサンプル(色板)。実行すると上書きされる。
 - `--source top` / `saved-tracks` / `playlist` など自分のアカウントのデータを使うものは `SPOTIFY_REFRESH_TOKEN` が必要(`get-refresh-token.mjs` で取得)。
 

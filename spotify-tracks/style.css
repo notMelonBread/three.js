@@ -1,6 +1,13 @@
 /* ==============================
-   いま人気の曲 コラージュサイト
-   ============================== */
+   MUSIC INTRO  いま人気の曲 コラージュサイト
+   ==============================
+
+   位置や大きさの数字は、Figma のデザイン(横幅 4941)から
+   「割合(%)」に直したものです。
+     横の位置・幅   = Figma の数字 ÷ 4941
+     縦の位置      = Figma の数字 ÷ その section の高さ
+   こうしておくと、スマホの幅が変わっても同じ形になります。
+*/
 
 /* --- 全体 --- */
 
@@ -16,6 +23,10 @@ body {
   color: #fff;
 }
 
+img {
+  display: block; /* 画像の下にできる、なぞのすき間をなくす */
+}
+
 /* スマホの画面と同じ幅の箱。PC でも真ん中にこの形で出す */
 .phone {
   max-width: 430px;
@@ -26,75 +37,49 @@ body {
 
 .hero {
   position: relative; /* 中の背景を重ねるための基準にする */
-  min-height: 560px;
-  overflow: hidden; /* モザイクがはみ出した分は切る */
-  color: #fff;
-  font-family: "Helvetica Neue", Arial, sans-serif;
+  overflow: hidden; /* ぼかした背景がはみ出した分は切る */
 }
 
-/* 背景のモザイク。ジャケットを「入るだけ」並べる */
+/* 塗り足し: 同じ画像を大きく・ぼかして後ろに敷く */
 .hero__bg {
   position: absolute;
-  inset: 0; /* 上下左右 0 = .hero と同じ大きさにぴったり重ねる */
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); /* 90px 以上の列を、入るだけ作る */
+  inset: -40px; /* 上下左右を 40px ずつ広げる(ぼかすと端が白くなるので) */
+  background: url(imgs/main-visual.jpg) center / cover;
+  filter: blur(20px);
 }
 
-.hero__bg img {
-  display: block;
-  width: 100%;
-  aspect-ratio: 1;
-  object-fit: cover;
-}
-
-/* モザイクの上にかぶせる、うすい黒 */
-.hero__shade {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.55)); /* 上はうすく、下は濃く */
-}
-
-/* 文字の部分。スマホの幅に入れて、モザイクより手前に出す */
+/* キービジュアルの部分。スマホの幅に入れて、背景より手前に出す */
 .hero__inner {
   position: relative; /* これがないと、絶対配置(absolute)の背景の下に隠れてしまう */
   max-width: 430px;
-  min-height: 560px;
   margin: 0 auto;
-  padding: 90px 24px 40px;
 }
 
 .hero__title {
   margin: 0;
-  font-size: 64px;
-  font-weight: 800;
-  line-height: 1;
-  letter-spacing: -2px;
-  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5); /* 影をつけて読みやすくする */
 }
 
-.hero__text {
-  margin: 16px 0 0;
-  font-size: 14px;
-  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.6);
+.hero__title img {
+  width: 100%; /* 横幅いっぱい。縦は画像の比率(9:16)で自動 */
 }
 
 .menu-button {
-  position: absolute; /* .hero の中の好きな場所に置ける */
-  top: 16px;
-  right: 16px;
-  padding: 10px 22px;
+  position: absolute; /* .hero__inner の中の好きな場所に置ける */
+  top: 2%;
+  right: 2%;
+  padding: 10px 8px;
   border: 0;
   border-radius: 999px; /* 角をいっぱいに丸めると、カプセルの形になる */
   background: #fff;
   font: inherit; /* ボタンにも同じフォントを使う */
-  font-size: 14px;
+  font-size: 12px;
   cursor: pointer;
 }
 
 .menu {
   position: absolute;
-  top: 60px;
-  right: 16px;
+  top: 12%;
+  right: 2%;
   display: flex;
   flex-direction: column; /* 縦に並べる */
   gap: 8px;
@@ -118,28 +103,34 @@ body {
 
 .genre {
   position: relative; /* ステッカーを section の中で自由に置くための基準 */
-  padding: 70px 24px 60px;
+  padding-top: 9.3%; /* コラージュまでのすき間(% は横幅に対する割合) */
   text-align: center;
 }
 
+/* 縦横の比率を Figma と同じに固定する。
+   こうすると、ステッカーの top: ○% が Figma とぴったり同じ場所になる */
+#jpop { aspect-ratio: 4941 / 4717; }
+#kpop { aspect-ratio: 4941 / 4077; padding-top: 0; } /* K-POP はコラージュから始まる */
+#western { aspect-ratio: 4941 / 5102; }
+
 .genre h2 {
-  margin: 28px 0 0;
-  font-size: 22px;
+  margin: 3.6% 0 0;
+  font-size: 12px;
   font-weight: normal;
 }
 
 .genre h3 {
-  margin: 20px 0 0;
-  font-size: 15px;
+  margin: 4.7% 0 0;
+  font-size: 12px;
   font-weight: normal;
   letter-spacing: 0.1em;
 }
 
 .genre p {
-  max-width: 300px;
-  margin: 20px auto 0;
-  font-size: 14px;
-  line-height: 1.7;
+  max-width: 50%;
+  margin: 4.3% auto 0;
+  font-size: 12px;
+  line-height: 1.2;
 }
 
 /* --- コラージュ --- */
@@ -150,7 +141,7 @@ body {
   z-index: 1; /* ステッカーより手前 */
   display: grid;
   grid-template-columns: repeat(5, 1fr); /* 同じ幅の列を 5 つ */
-  width: 62%;
+  width: 29.3%; /* Figma: 1449 ÷ 4941 */
   margin: 0 auto;
   overflow: hidden; /* この箱の中だけに表示する */
 }
@@ -170,7 +161,6 @@ body {
 }
 
 .tile img {
-  display: block;
   width: 100%;
   height: 100%;
   object-fit: cover; /* 形がちがう画像でも、マスいっぱいに表示する */
@@ -179,15 +169,15 @@ body {
 /* 画像がないときは曲名を小さく出す */
 .tile span {
   display: block;
-  padding: 4px;
-  font-size: 7px;
-  line-height: 1.3;
+  padding: 2px;
+  font-size: 5px;
+  line-height: 1.2;
 }
 
 /* マウスを乗せたら、一番上に来て大きくなる */
 .tile:hover {
   z-index: 100;
-  transform: translate(var(--dx), var(--dy)) scale(1.5);
+  transform: translate(var(--dx), var(--dy)) scale(1.8);
 }
 
 /* --- ステッカー(飾り) --- */
@@ -198,40 +188,41 @@ body {
   pointer-events: none; /* 飾りはクリックのじゃまをしない */
 }
 
-/* J-POP */
-.sticker--drip { top: 0; left: -8%; width: 26%; }
-.sticker--star-outline { top: 2%; left: 25%; width: 20%; }
-.sticker--heart { top: 1%; right: -6%; width: 30%; transform: rotate(15deg); }
-.sticker--note-1 { top: 48%; left: 56%; width: 12%; transform: rotate(20deg); z-index: 2; }
+/* J-POP(section の高さ 4717) */
+.sticker--drip { left: -13.7%; top: 0; width: 23.8%; }
+.sticker--star-outline { left: 26.7%; top: 3.9%; width: 17.3%; }
+.sticker--heart { left: 75%; top: 7.1%; width: 26.7%; transform: rotate(14.9deg); }
+.sticker--note-1 { left: 59.3%; top: 52%; width: 10.4%; transform: rotate(19.8deg); z-index: 2; }
 
-/* K-POP */
-.sticker--sparkle-big { top: 0; left: 6%; width: 18%; transform: scaleY(-1) rotate(180deg); }
-.sticker--sparkle-small { top: 9%; left: 5%; width: 12%; transform: scaleY(-1) rotate(-175deg); }
-.sticker--blob { top: 0; left: 50%; width: 18%; }
-.sticker--note-2 { top: 44%; left: 24%; width: 16%; z-index: 2; }
-.sticker--planet { top: 60%; right: 4%; width: 22%; transform: rotate(20deg); }
+/* K-POP(section の高さ 4077) */
+.sticker--sparkle-big { left: 8.2%; top: -4.4%; width: 15.5%; transform: scaleX(-1); } /* 左右反転 */
+.sticker--sparkle-small { left: 7.6%; top: 2.9%; width: 10%; transform: rotate(-175.2deg) scaleY(-1); }
+.sticker--blob { left: 50%; top: -3.1%; width: 17.5%; }
+.sticker--note-2 { left: 25.1%; top: 48.2%; width: 13.7%; z-index: 2; }
+.sticker--planet { left: 76%; top: 73%; width: 18.7%; transform: rotate(20.6deg); }
 
-/* 洋楽 */
-.sticker--clef { top: -1%; left: 57%; width: 11%; transform: rotate(-11deg); }
-.sticker--bolt-star { top: 40%; left: 7%; width: 22%; transform: rotate(-10deg); }
-.sticker--sparkle-cluster { top: 86%; right: 6%; width: 20%; transform: rotate(6deg); }
-.sticker--sparkle-right { top: 92%; right: 1%; width: 15%; }
+/* 洋楽(section の高さ 5102) */
+.sticker--clef { left: 59.7%; top: 0.5%; width: 9.8%; transform: rotate(-11.1deg); }
+.sticker--bolt-star { left: 8.1%; top: 45%; width: 20.2%; transform: rotate(-10deg); }
+.sticker--sparkle-cluster { left: 73%; top: 83.9%; width: 17.8%; transform: rotate(6.1deg); }
+.sticker--sparkle-right { left: 83.9%; top: 90.8%; width: 14.1%; }
 
 /* おすすめ */
-.sticker--moon { top: 2%; left: 4%; width: 13%; }
+.sticker--moon { left: 4.8%; top: -0.3%; width: 12.8%; }
 
 /* --- ⑤ おすすめアーティスト --- */
 
 .artists {
   position: relative;
-  padding: 90px 16px 40px;
+  aspect-ratio: 4941 / 4913;
+  padding: 10% 2% 0;
 }
 
 .cards {
   display: flex; /* 横に並べる */
   align-items: center; /* 高さがちがっても真ん中でそろえる */
   justify-content: center;
-  gap: 10px;
+  gap: 2.4%;
 }
 
 /* カプセルの形のカード */
@@ -239,21 +230,24 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
-  width: 30%;
-  padding: 40px 8px;
+  gap: 14px;
+  width: 28.2%;
+  aspect-ratio: 1394 / 2869;
+  padding: 50px 6px 0;
   border-radius: 999px;
   background: rgba(224, 26, 122, 0.4); /* 少し濃いピンクを透かす */
   color: #fff;
   text-decoration: none;
   text-align: center;
-  font-size: 14px;
+  font-size: 12px;
 }
 
 /* 真ん中のカードだけ大きく */
 .card:nth-child(2) {
-  width: 36%;
-  padding: 60px 8px;
+  gap: 10px;
+  width: 34.8%;
+  aspect-ratio: 1721 / 3427;
+  padding-top: 64px;
 }
 
 .card img,
@@ -262,6 +256,11 @@ body {
   aspect-ratio: 1;
   border-radius: 50%; /* 丸く切り抜く */
   object-fit: cover;
+}
+
+.card:nth-child(2) img,
+.card:nth-child(2) .no-image {
+  width: 83%;
 }
 
 /* 画像がないときの丸 */

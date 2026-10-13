@@ -3,21 +3,21 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>NOW POPULAR</title>
+  <title>MUSIC INTRO</title>
   <!-- ドット文字のフォント(Google Fonts から読み込む) -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <!-- ===== ① メインビジュアル ===== -->
-  <!-- 画面の横幅いっぱいに広がる(PC でも塗り足しされる)。文字だけ真ん中のスマホ幅に入れる -->
+  <!-- 画面の横幅いっぱいに広がる(PC でも塗り足しされる)。中身だけ真ん中のスマホ幅に入れる -->
   <header class="hero">
-    <!-- 背景のモザイク。3 ジャンル全部のジャケットを JavaScript が敷き詰める -->
-    <div class="hero__bg" id="hero-bg"></div>
-    <!-- 文字が読めるように、モザイクの上に少し暗い色をかぶせる -->
-    <div class="hero__shade"></div>
+    <!-- 塗り足し用: 同じ画像をぼかして後ろに敷く -->
+    <div class="hero__bg"></div>
 
     <div class="hero__inner">
+      <!-- キービジュアル。タイトル(MUSIC INTRO)は画像の中に描いてあるので h1 に画像を入れる -->
+      <h1 class="hero__title"><img src="imgs/main-visual.jpg" alt="MUSIC INTRO" /></h1>
       <button class="menu-button" id="menu-button" type="button">メニュー</button>
       <!-- メニュー(ふだんは hidden で隠れている。ボタンを押すと JavaScript が表示する) -->
       <nav class="menu" id="menu" hidden>
@@ -26,8 +26,6 @@
         <a href="#western">#洋楽</a>
         <a href="#artists">おすすめ</a>
       </nav>
-      <h1 class="hero__title">NOW<br />POPULAR</h1>
-      <p class="hero__text">いま人気の曲のジャケットを、ジャンルごとに集めました</p>
     </div>
   </header>
 

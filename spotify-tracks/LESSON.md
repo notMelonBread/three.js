@@ -17,7 +17,7 @@ imgs/        銀色のステッカー画像
 
 | 場所 | タグ | 中身 |
 |---|---|---|
-| ① メインビジュアル | `<header class="hero">` | ジャケットのモザイク(背景)、タイトル、「メニュー」ボタン |
+| ① メインビジュアル | `<header class="hero">` | キービジュアルの画像(`h1`)、「メニュー」ボタン |
 | ② J-POP | `<section class="genre" id="jpop">` | 飾り、コラージュの箱、見出し、説明 |
 | ③ K-POP | `<section class="genre" id="kpop">` | 同じ |
 | ④ 洋楽 | `<section class="genre" id="western">` | 同じ |
@@ -27,8 +27,9 @@ imgs/        銀色のステッカー画像
 ポイント:
 
 - ②③④は **まったく同じ形** です。中身の文字と `data-file` だけが違います。同じものは同じ書き方にすると、CSS も JavaScript も 1 回書けばすみます。
-- `<div class="collage"></div>` と `<div class="hero__bg">` は **空っぽ** です。ジャケットは JavaScript があとから入れます。
-- ①だけは `.phone` の **外** にあります。背景を PC でも画面いっぱいに広げたい(塗り足し)ので、文字の部分だけ `.hero__inner` でスマホ幅にしています。
+- `<div class="collage"></div>` は **空っぽ** です。ジャケットは JavaScript があとから入れます。
+- ①だけは `.phone` の **外** にあります。背景を PC でも画面いっぱいに広げたい(塗り足し)ので、画像の部分だけ `.hero__inner` でスマホ幅にしています。
+- タイトルの「MUSIC INTRO」は画像の中に描いてあるので、`<h1>` の中に `<img>` を入れ、`alt` に文字を書いています(見えなくても、検索や読み上げには文字として伝わる)。
 - `<nav class="menu" hidden>` の `hidden` は「隠す」という意味。ボタンを押したときに JavaScript が外します。
 - デザイン(Figma)に青い文字で `h2` `h3` `p` `img` と書いてあったのは、「ここはこのタグで作る」という印です。
 
@@ -48,25 +49,44 @@ PC で開いても、真ん中にスマホと同じ形で出ます。背景の�
 ### 背景を重ねる(メインビジュアル)
 
 ```css
-.hero { position: relative; }
-.hero__bg    { position: absolute; inset: 0; }  /* inset: 0 = 上下左右 0 = 親にぴったり重ねる */
-.hero__shade { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.4); }
-.hero__inner { position: relative; }           /* これで背景より手前に来る */
+.hero { position: relative; overflow: hidden; }
+.hero__bg {
+  position: absolute;
+  inset: -40px;                                        /* 上下左右 0 なら親にぴったり。-40px で少し広げる */
+  background: url(imgs/main-visual.jpg) center / cover; /* 同じ画像を、箱いっぱいに */
+  filter: blur(20px);                                  /* ぼかす */
+}
+.hero__inner { position: relative; max-width: 430px; margin: 0 auto; } /* これで背景より手前に来る */
 ```
 
-モザイク → うすい黒 → 文字、の順に 3 枚を重ねています。HTML で **あとに書いたものが上** に来ます。`.hero__inner` に `position: relative` を書かないと、`absolute` の 2 枚の下に隠れてしまいます。
-
-モザイクは `grid-template-columns: repeat(auto-fill, minmax(90px, 1fr))` で「90px 以上の列を、入るだけ作る」と書いてあるので、スマホでは 4 列、PC では 15 列くらいになります。
+PC で見たとき、スマホ幅の外側が空かないように、**同じ画像をぼかして後ろに敷いて** います(塗り足し)。HTML で **あとに書いたものが上** に来ます。`.hero__inner` に `position: relative` を書かないと、`absolute` の背景の下に隠れてしまいます。
 
 ### 飾りを好きな場所に置く(position)
 
 ```css
 .genre { position: relative; }   /* 親に書く: ここを基準にする */
 .sticker { position: absolute; } /* 子に書く: 親の中の好きな場所に置ける */
-.sticker--heart { top: 1%; right: -6%; width: 30%; }
+.sticker--heart { left: 75%; top: 7.1%; width: 26.7%; transform: rotate(14.9deg); }
 ```
 
-`relative` の親の中で、`absolute` の子は `top / left / right / bottom` で場所を決められます。`right: -6%` のようにマイナスにすると、わざと少しはみ出せます。
+`relative` の親の中で、`absolute` の子は `top / left / right / bottom` で場所を決められます。`left: -13.7%` のようにマイナスにすると、わざと少しはみ出せます。`transform: rotate(14.9deg)` で傾けられます。
+
+### Figma の数字を % にする
+
+Figma の画面は横幅 4941 で描いてあります。これをそのまま px にすると、スマホの幅が変わったときにずれるので、**割合(%)** に直します。
+
+```
+横の位置・幅 = Figma の数字 ÷ 4941 × 100
+例: ハートの幅 1321 ÷ 4941 = 26.7%
+```
+
+縦の位置の `top: ○%` は「親の高さ」に対する割合です。親(section)の高さは中身で変わってしまうので、
+
+```css
+#jpop { aspect-ratio: 4941 / 4717; }  /* 横 : 縦 の比率を固定 */
+```
+
+と **Figma と同じ縦横比に固定** しておきます。こうすると `top: 7.1%` が、どの幅のスマホでも Figma と同じ場所になります。
 
 ### 5 列のマス目(grid)
 
@@ -78,7 +98,7 @@ PC で開いても、真ん中にスマホと同じ形で出ます。背景の�
 .tile { aspect-ratio: 1; } /* 正方形 */
 ```
 
-これだけで、入れた順に左上から 5 列ずつ並びます。マス目だから **隙間ができません**。
+これだけで、入れた順に左上から 5 列ずつ並びます。マス目だから **隙間ができません**。曲は 45 曲なので 5 列 × 9 行、Figma のコラージュ(1449 × 2576)とほぼ同じ縦横比になります。
 
 ### コラージュっぽく見せる(transform)
 
