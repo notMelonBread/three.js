@@ -33,13 +33,16 @@
     <!-- data-file は、この section に入れるデータのファイル名(data/ の中の JSON) -->
     <section class="genre" id="jpop" data-file="popular-jpop">
       <!-- まわりの飾り(銀色のステッカー)。位置は CSS で決める -->
-      <img class="sticker sticker--drip" src="imgs/drip.png" alt="" />
-      <img class="sticker sticker--star-outline" src="imgs/star-outline.png" alt="" />
-      <img class="sticker sticker--heart" src="imgs/heart.png" alt="" />
-      <img class="sticker sticker--note-1" src="imgs/note-1.png" alt="" />
+      <!-- コラージュと飾りをひとまとめにする箱。飾りの位置はこの箱(= コラージュ)を基準にする -->
+      <div class="collage-wrap">
+        <img class="sticker sticker--drip" src="imgs/drip.png" alt="" />
+        <img class="sticker sticker--star-outline" src="imgs/star-outline.png" alt="" />
+        <img class="sticker sticker--heart" src="imgs/heart.png" alt="" />
+        <img class="sticker sticker--note-1" src="imgs/note-1.png" alt="" />
 
-      <!-- コラージュ。中身(ジャケットの画像)は JavaScript が作る -->
-      <div class="collage"></div>
+        <!-- コラージュ。中身(ジャケットの画像)は JavaScript が作る -->
+        <div class="collage"></div>
+      </div>
 
       <h2>#J-POP</h2>
       <h3>日本で流行っている有名な音楽</h3>
@@ -48,13 +51,16 @@
 
     <!-- ===== ③ K-POP ===== -->
     <section class="genre" id="kpop" data-file="popular-kpop">
-      <img class="sticker sticker--sparkle-big" src="imgs/sparkle-big.png" alt="" />
-      <img class="sticker sticker--sparkle-small" src="imgs/sparkle-small.png" alt="" />
-      <img class="sticker sticker--blob" src="imgs/blob.png" alt="" />
-      <img class="sticker sticker--note-2" src="imgs/note-2.png" alt="" />
-      <img class="sticker sticker--planet" src="imgs/planet.png" alt="" />
+      <!-- コラージュと飾りをひとまとめにする箱。飾りの位置はこの箱(= コラージュ)を基準にする -->
+      <div class="collage-wrap">
+        <img class="sticker sticker--sparkle-big" src="imgs/sparkle-big.png" alt="" />
+        <img class="sticker sticker--sparkle-small" src="imgs/sparkle-small.png" alt="" />
+        <img class="sticker sticker--blob" src="imgs/blob.png" alt="" />
+        <img class="sticker sticker--note-2" src="imgs/note-2.png" alt="" />
+        <img class="sticker sticker--planet" src="imgs/planet.png" alt="" />
 
-      <div class="collage"></div>
+        <div class="collage"></div>
+      </div>
 
       <h2>#K-POP</h2>
       <h3>韓国発祥の音楽ジャンル</h3>
@@ -63,12 +69,15 @@
 
     <!-- ===== ④ 洋楽 ===== -->
     <section class="genre" id="western" data-file="popular-western">
-      <img class="sticker sticker--clef" src="imgs/clef.png" alt="" />
-      <img class="sticker sticker--bolt-star" src="imgs/bolt-star.png" alt="" />
-      <img class="sticker sticker--sparkle-cluster" src="imgs/sparkle-cluster.png" alt="" />
-      <img class="sticker sticker--sparkle-right" src="imgs/sparkle-right.png" alt="" />
+      <!-- コラージュと飾りをひとまとめにする箱。飾りの位置はこの箱(= コラージュ)を基準にする -->
+      <div class="collage-wrap">
+        <img class="sticker sticker--clef" src="imgs/clef.png" alt="" />
+        <img class="sticker sticker--bolt-star" src="imgs/bolt-star.png" alt="" />
+        <img class="sticker sticker--sparkle-cluster" src="imgs/sparkle-cluster.png" alt="" />
+        <img class="sticker sticker--sparkle-right" src="imgs/sparkle-right.png" alt="" />
 
-      <div class="collage"></div>
+        <div class="collage"></div>
+      </div>
 
       <h2>#洋楽</h2>
       <h3>海外で制作された有名な音楽</h3>

@@ -2,10 +2,10 @@
    MUSIC INTRO  いま人気の曲 コラージュサイト
    ==============================
 
-   位置や大きさは、スマホの横幅(480px)に対する「割合(%)」で書いてあります。
-     横の位置・幅   = Figma の数字 ÷ 480
-     縦の位置      = Figma の数字 ÷ その section の高さ(770)
-   こうしておくと、スマホの幅が変わっても同じ形になります。
+   飾り(ステッカー)の位置や大きさは、コラージュ(Figma では 336 × 605)に対する「割合(%)」で書いてあります。
+     横の位置・幅   = Figma の数字 ÷ 336
+     縦の位置      = Figma の数字 ÷ 605
+   こうしておくと、画面の大きさが変わってコラージュが大きくなったり小さくなったりしても、同じ形になります。
 */
 
 /* --- 全体 --- */
@@ -100,10 +100,12 @@ img {
 /* --- ②③④ ジャンルの section --- */
 
 .genre {
-  position: relative; /* ステッカーを section の中で自由に置くための基準 */
-  /* 縦横の比率を固定する(480 : 770)。スマホでも PC でも、コラージュと説明文が 1 画面に収まる高さ。
-     こうしておくと、ステッカーの top: ○% が、どの幅のスマホでも同じ場所になる */
-  aspect-ratio: 480 / 770;
+  height: 100vh; /* 1 セクション = 画面の高さ 1 枚ぶん */
+  height: 100svh;
+  display: flex; /* 中身(コラージュと文字)を縦に並べて、上下の真ん中に寄せる */
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   text-align: center;
 }
 
@@ -129,15 +131,22 @@ img {
 
 /* --- コラージュ --- */
 
-/* 5 列のマス目。メインビジュアルと同じ 9:16 の形で、横幅の 70%(説明文まで 1 画面に入る大きさ)。
+/* コラージュと飾りの箱。
+   幅は「横幅の 70%」と「画面の高さ − 文字の分(230px)を 9:5 で幅に直したもの」の小さいほう。
+   → 横に長い画面でも縦に短い画面でも、説明文まで 1 画面に入る */
+.collage-wrap {
+  position: relative; /* 飾り(.sticker)の位置の基準 */
+  width: min(70%, calc((100svh - 230px) * 5 / 9));
+}
+
+/* 5 列のマス目。メインビジュアルと同じ 9:16 の形。
    ジャケットは JavaScript が 1 枚ずつ入れる(45 曲 = 5 列 × 9 行) */
 .collage {
   position: relative;
   z-index: 1;
   display: grid;
   grid-template-columns: repeat(5, 1fr); /* 同じ幅の列を 5 つ */
-  width: 70%;
-  margin: 0 auto;
+  width: 100%;
   overflow: hidden; /* この箱の中だけに表示する */
 }
 
@@ -177,33 +186,35 @@ img {
 
 /* --- ステッカー(飾り) --- */
 
-/* 共通: section の中の好きな場所に置く。位置は 1 枚ずつ下で決める */
+/* 共通: .collage-wrap の中の好きな場所に置く。% はコラージュの幅・高さに対する割合。
+   マイナスや 100% 超えで、コラージュの外にはみ出す */
 .sticker {
   position: absolute;
   z-index: 2; /* コラージュの上に重ねる */
   pointer-events: none; /* 飾りはクリックのじゃまをしない */
 }
 
-/* J-POP(コラージュは横 15%〜85%、縦 0〜79% の位置) */
-.sticker--drip { left: 2%; top: -2%; width: 24%; }
-.sticker--star-outline { left: 70%; top: 2%; width: 22%; }
-.sticker--heart { left: 74%; top: 30%; width: 28%; transform: rotate(15deg); }
-.sticker--note-1 { left: 6%; top: 60%; width: 12%; transform: rotate(20deg); }
+/* J-POP */
+.sticker--drip { left: -19%; top: -3%; width: 34%; }
+.sticker--star-outline { left: 79%; top: 3%; width: 31%; }
+.sticker--heart { left: 84%; top: 38%; width: 40%; transform: rotate(15deg); }
+.sticker--note-1 { left: -13%; top: 76%; width: 17%; transform: rotate(20deg); }
 
 /* K-POP */
-.sticker--sparkle-big { left: 0; top: 0; width: 19%; transform: scaleX(-1); } /* 左右反転 */
-.sticker--sparkle-small { left: 12%; top: 8%; width: 10%; }
-.sticker--blob { left: 60%; top: -3%; width: 22%; }
-.sticker--note-2 { left: 76%; top: 50%; width: 16%; }
-.sticker--planet { left: 2%; top: 66%; width: 22%; transform: rotate(20deg); }
+.sticker--sparkle-big { left: -21%; top: 0; width: 27%; transform: scaleX(-1); } /* 左右反転 */
+.sticker--sparkle-small { left: -4%; top: 10%; width: 14%; }
+.sticker--blob { left: 64%; top: -4%; width: 31%; }
+.sticker--note-2 { left: 87%; top: 64%; width: 23%; }
+.sticker--planet { left: -19%; top: 84%; width: 31%; transform: rotate(20deg); }
 
 /* 洋楽 */
-.sticker--clef { left: 80%; top: -2%; width: 11%; transform: rotate(-11deg); }
-.sticker--bolt-star { left: -2%; top: 26%; width: 24%; transform: rotate(-10deg); }
-.sticker--sparkle-cluster { left: 78%; top: 60%; width: 20%; transform: rotate(6deg); }
-.sticker--sparkle-right { left: 88%; top: 74%; width: 14%; }
+.sticker--clef { left: 93%; top: -3%; width: 16%; transform: rotate(-11deg); }
+.sticker--bolt-star { left: -24%; top: 33%; width: 34%; transform: rotate(-10deg); }
+.sticker--sparkle-cluster { left: 90%; top: 76%; width: 29%; transform: rotate(6deg); }
+.sticker--sparkle-right { left: 104%; top: 94%; width: 20%; }
 
-/* おすすめ */
+/* おすすめ(こちらは section.artists を基準にしている) */
+.artists { position: relative; }
 .sticker--moon { left: 4%; top: 0; width: 13%; }
 
 /* --- ⑤ おすすめアーティスト --- */
