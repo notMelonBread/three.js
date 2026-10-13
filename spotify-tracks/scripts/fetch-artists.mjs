@@ -3,8 +3,9 @@
 //   node scripts/fetch-artists.mjs                                   # 既定: back number / なとり / スピッツ
 //   node scripts/fetch-artists.mjs --name "back number" --name "YOASOBI" --name "SPITZ"
 //
-// 名前で検索して、いちばん近いアーティストの「いちばん人気の曲」のジャケットと、
+// 名前で検索して、いちばん近いアーティストの代表曲のジャケットと、
 // アーティストの Spotify ページへのリンクを保存する。ログイン不要(client credentials)。
+// (開発モードのアプリでは /artists/{id}/top-tracks が 403 になるので、曲は search で探す)
 
 import { mkdir, writeFile } from "node:fs/promises";
 import { parseArgs } from "node:util";
@@ -50,22 +51,32 @@ async function findArtist(name) {
   return found.find((a) => normalize(a.name) === normalize(name)) || found[0];
 }
 
+// そのアーティストの曲を検索して 1 曲目(検索順 ≒ 人気順)を返す
+async function findTrack(artist) {
+  const json = await api("/search", { q: `artist:"${artist.name}"`, type: "track", market: args.market, limit: 10 });
+  const tracks = json.tracks?.items || [];
+  return tracks.find((t) => (t.artists || []).some((a) => a.id === artist.id)) || tracks[0] || null;
+}
+
 const artists = [];
 for (const name of names) {
-  const artist = await findArtist(name);
-  if (!artist) {
-    console.warn(`"${name}" は見つかりませんでした`);
-    continue;
+  try {
+    const artist = await findArtist(name);
+    if (!artist) {
+      console.warn(`"${name}" は見つかりませんでした`);
+      continue;
+    }
+    const track = await findTrack(artist);
+    artists.push({
+      name: artist.name,
+      spotify_url: artist.external_urls?.spotify || "",
+      image_url: pickImage(track?.album?.images)?.url || pickImage(artist.images)?.url || "",
+      track: track ? { name: track.name, spotify_url: track.external_urls?.spotify || "" } : null,
+    });
+    console.log(`${name} → ${artist.name}: ${track?.name || "(曲なし)"}`);
+  } catch (error) {
+    console.warn(`"${name}" の取得に失敗: ${error.message}`);
   }
-  const top = await api(`/artists/${artist.id}/top-tracks`, { market: args.market });
-  const track = top.tracks?.[0];
-  artists.push({
-    name: artist.name,
-    spotify_url: artist.external_urls?.spotify || "",
-    image_url: pickImage(track?.album?.images)?.url || pickImage(artist.images)?.url || "",
-    track: track ? { name: track.name, spotify_url: track.external_urls?.spotify || "" } : null,
-  });
-  console.log(`${name} → ${artist.name}: ${track?.name || "(曲なし)"}`);
 }
 
 if (artists.length === 0) {
