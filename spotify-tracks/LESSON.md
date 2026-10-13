@@ -17,7 +17,7 @@ imgs/        銀色のステッカー画像
 
 | 場所 | タグ | 中身 |
 |---|---|---|
-| ① メインビジュアル | `<header class="hero">` | タイトルと「メニュー」ボタン |
+| ① メインビジュアル | `<header class="hero">` | ジャケットのモザイク(背景)、タイトル、「メニュー」ボタン |
 | ② J-POP | `<section class="genre" id="jpop">` | 飾り、コラージュの箱、見出し、説明 |
 | ③ K-POP | `<section class="genre" id="kpop">` | 同じ |
 | ④ 洋楽 | `<section class="genre" id="western">` | 同じ |
@@ -27,7 +27,8 @@ imgs/        銀色のステッカー画像
 ポイント:
 
 - ②③④は **まったく同じ形** です。中身の文字と `data-file` だけが違います。同じものは同じ書き方にすると、CSS も JavaScript も 1 回書けばすみます。
-- `<div class="collage"></div>` は **空っぽ** です。ジャケットは JavaScript があとから入れます。
+- `<div class="collage"></div>` と `<div class="hero__bg">` は **空っぽ** です。ジャケットは JavaScript があとから入れます。
+- ①だけは `.phone` の **外** にあります。背景を PC でも画面いっぱいに広げたい(塗り足し)ので、文字の部分だけ `.hero__inner` でスマホ幅にしています。
 - `<nav class="menu" hidden>` の `hidden` は「隠す」という意味。ボタンを押したときに JavaScript が外します。
 - デザイン(Figma)に青い文字で `h2` `h3` `p` `img` と書いてあったのは、「ここはこのタグで作る」という印です。
 
@@ -42,7 +43,20 @@ imgs/        銀色のステッカー画像
 }
 ```
 
-PC で開いても、真ん中にスマホと同じ形で出ます。
+PC で開いても、真ん中にスマホと同じ形で出ます。背景のピンクは `body` に塗ってあるので、PC では画面の端まで広がります(印刷で言う「塗り足し」)。
+
+### 背景を重ねる(メインビジュアル)
+
+```css
+.hero { position: relative; }
+.hero__bg    { position: absolute; inset: 0; }  /* inset: 0 = 上下左右 0 = 親にぴったり重ねる */
+.hero__shade { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.4); }
+.hero__inner { position: relative; }           /* これで背景より手前に来る */
+```
+
+モザイク → うすい黒 → 文字、の順に 3 枚を重ねています。HTML で **あとに書いたものが上** に来ます。`.hero__inner` に `position: relative` を書かないと、`absolute` の 2 枚の下に隠れてしまいます。
+
+モザイクは `grid-template-columns: repeat(auto-fill, minmax(90px, 1fr))` で「90px 以上の列を、入るだけ作る」と書いてあるので、スマホでは 4 列、PC では 15 列くらいになります。
 
 ### 飾りを好きな場所に置く(position)
 

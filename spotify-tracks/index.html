@@ -9,11 +9,15 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <!-- スマホの画面の幅(430px まで)に全部を入れる箱。PC で見ても同じ形になる -->
-  <div class="phone">
+  <!-- ===== ① メインビジュアル ===== -->
+  <!-- 画面の横幅いっぱいに広がる(PC でも塗り足しされる)。文字だけ真ん中のスマホ幅に入れる -->
+  <header class="hero">
+    <!-- 背景のモザイク。3 ジャンル全部のジャケットを JavaScript が敷き詰める -->
+    <div class="hero__bg" id="hero-bg"></div>
+    <!-- 文字が読めるように、モザイクの上に少し暗い色をかぶせる -->
+    <div class="hero__shade"></div>
 
-    <!-- ===== ① メインビジュアル ===== -->
-    <header class="hero">
+    <div class="hero__inner">
       <button class="menu-button" id="menu-button" type="button">メニュー</button>
       <!-- メニュー(ふだんは hidden で隠れている。ボタンを押すと JavaScript が表示する) -->
       <nav class="menu" id="menu" hidden>
@@ -24,7 +28,11 @@
       </nav>
       <h1 class="hero__title">NOW<br />POPULAR</h1>
       <p class="hero__text">いま人気の曲のジャケットを、ジャンルごとに集めました</p>
-    </header>
+    </div>
+  </header>
+
+  <!-- スマホの画面の幅(430px まで)に中身を入れる箱。PC で見ても同じ形になる -->
+  <div class="phone">
 
     <!-- ===== ② J-POP ===== -->
     <!-- data-file は、この section に入れるデータのファイル名(data/ の中の JSON) -->

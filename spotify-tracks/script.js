@@ -98,11 +98,30 @@ function makeCard(track) {
   return card;
 }
 
+// ---------- メインビジュアルのモザイクを作る ----------
+
+// tracks: 全ジャンルの曲をまとめたリスト
+function makeHeroMosaic(tracks) {
+  const bg = document.getElementById("hero-bg");
+
+  // 順番をてきとうに入れかえる(ジャンルが混ざって見える)
+  const shuffled = [...tracks].sort(() => Math.random() - 0.5);
+
+  for (const track of shuffled) {
+    if (!track.image_url) continue; // 画像のない曲はとばす
+    const img = document.createElement("img");
+    img.src = track.image_url;
+    img.alt = "";
+    bg.appendChild(img);
+  }
+}
+
 // ---------- 1. データを読んで、ページを作る ----------
 
 async function main() {
   const sections = document.querySelectorAll(".genre"); // ジャンルの section を全部
   const cards = document.getElementById("cards");
+  const allTracks = []; // メインビジュアル用に、全ジャンルの曲をためておく
 
   for (const section of sections) {
     const file = section.dataset.file; // HTML の data-file="..." の値
@@ -119,7 +138,11 @@ async function main() {
 
     // 1 位の曲でおすすめカードを作る
     cards.appendChild(makeCard(data.tracks[0]));
+
+    allTracks.push(...data.tracks); // リストの中身を全部まとめて追加
   }
+
+  makeHeroMosaic(allTracks);
 }
 
 main();

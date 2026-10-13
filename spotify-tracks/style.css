@@ -10,7 +10,8 @@
 
 body {
   margin: 0;
-  background: #2a0a17; /* スマホの外側(PC で見たとき)の色 */
+  background: #ff4c85; /* ピンク。PC で見たときも画面いっぱいに塗る(塗り足し) */
+  overflow-x: hidden; /* 飾りが画面の横にはみ出しても、横スクロールは出さない */
   font-family: "DotGothic16", sans-serif; /* ドット文字。読み込めないときはふつうのゴシック */
   color: #fff;
 }
@@ -19,19 +20,47 @@ body {
 .phone {
   max-width: 430px;
   margin: 0 auto;
-  background: #ff4c85; /* ピンク */
-  overflow: hidden; /* 飾りが箱の外にはみ出したら切る */
 }
 
 /* --- ① メインビジュアル --- */
 
 .hero {
-  position: relative; /* 中のボタンを「右上」に置くための基準にする */
+  position: relative; /* 中の背景を重ねるための基準にする */
   min-height: 560px;
-  padding: 90px 24px 40px;
-  background: #d9d9d9; /* まだ画像が決まっていないので灰色 */
-  color: #000;
+  overflow: hidden; /* モザイクがはみ出した分は切る */
+  color: #fff;
   font-family: "Helvetica Neue", Arial, sans-serif;
+}
+
+/* 背景のモザイク。ジャケットを「入るだけ」並べる */
+.hero__bg {
+  position: absolute;
+  inset: 0; /* 上下左右 0 = .hero と同じ大きさにぴったり重ねる */
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); /* 90px 以上の列を、入るだけ作る */
+}
+
+.hero__bg img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+}
+
+/* モザイクの上にかぶせる、うすい黒 */
+.hero__shade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.55)); /* 上はうすく、下は濃く */
+}
+
+/* 文字の部分。スマホの幅に入れて、モザイクより手前に出す */
+.hero__inner {
+  position: relative; /* これがないと、絶対配置(absolute)の背景の下に隠れてしまう */
+  max-width: 430px;
+  min-height: 560px;
+  margin: 0 auto;
+  padding: 90px 24px 40px;
 }
 
 .hero__title {
@@ -40,11 +69,13 @@ body {
   font-weight: 800;
   line-height: 1;
   letter-spacing: -2px;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5); /* 影をつけて読みやすくする */
 }
 
 .hero__text {
   margin: 16px 0 0;
   font-size: 14px;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.6);
 }
 
 .menu-button {
