@@ -30,7 +30,7 @@ Figma の「オリジナルサイト」(node 41-186)をもとにしている。
 - 各ジャンルは「飾りのステッカー → コラージュ → `h2` `h3` `p`」の順。Figma の青い `h2` `h3` `p` `img` の注記はタグの指定。
 - コラージュは 5 列の CSS grid に正方形を並べ、1 枚ずつ `scale(1.25)` と `translate` で少しずらし、`z-index` を無作為にして重ねる。外側のマスは外側にずらさず、`transform-origin` で内側にだけ広がるので、**全部枠の中に収まり、隙間もできない**。
 - おすすめカードは Figma どおり back number / なとり / スピッツ の 3 組。`scripts/fetch-artists.mjs` が名前で検索し、各アーティストのいちばん人気の曲のジャケットとアーティストページのリンクを `data/artists.json` に書く(`--name` で差し替え可。ワークフローの `artists` 入力も同じ)。
-- メインビジュアルは Figma のキービジュアル(`imgs/main-visual.jpg`、9:16)。タイトル「MUSIC INTRO」は画像内にあるので `h1 > img` にして `alt` で文字を持たせる。PC では同じ画像をぼかして後ろに敷き、画面の端まで塗り足す。
+- メインビジュアルは Figma のキービジュアル(`imgs/main-visual.jpg`、9:16)。タイトル「MUSIC INTRO」は画像内にあるので `h1 > img` にして `alt` で文字を持たせる。高さは画面いっぱい(`100svh`)、幅は下の section と同じ 430px で、`object-fit: cover` で収める。
 - ステッカーの位置・幅・回転は Figma の座標(横幅 4941 基準)を % にしたもの。縦位置の % が効くように、各 section は `aspect-ratio` で Figma と同じ縦横比に固定している(`#jpop` 4941/4717 など)。
 - 背景のピンクは `body` に塗ってあるので、PC でも画面の端まで広がる。
 

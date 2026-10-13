@@ -1,9 +1,10 @@
 // ==============================
 // いま人気の曲 コラージュサイト
-// JavaScript のしごとは 3 つ
+// JavaScript のしごとは 4 つ
 //   1. data/ の中の JSON ファイル(曲のリスト)を読む
 //   2. ジャケットの画像を並べてコラージュを作る
 //   3. 「メニュー」ボタンで、メニューを出したり消したりする
+//   4. 矢印ボタンで、おすすめのカードをくるっと回す
 // ==============================
 
 // ---------- 2. コラージュを作る ----------
@@ -139,4 +140,28 @@ menuButton.addEventListener("click", () => {
 // メニューの中のリンクを押したら、メニューを閉じる
 menu.addEventListener("click", () => {
   menu.hidden = true;
+});
+
+// ---------- 4. 矢印でカードを回す ----------
+
+// カードは 3 枚とも HTML の中に並んでいて、CSS で「2 番目のカード」だけ大きくしている。
+// だから、並び順を変えるだけで「真ん中のカード」が入れかわる。
+const cards = document.getElementById("cards");
+
+function swapAnimation() {
+  for (const card of cards.children) {
+    card.classList.remove("swap");
+    void card.offsetWidth; // いったん消してから付け直すと、アニメーションがもう一度動く
+    card.classList.add("swap");
+  }
+}
+
+document.getElementById("arrow-right").addEventListener("click", () => {
+  cards.appendChild(cards.firstElementChild); // 先頭のカードを最後に移す → 全体が左へ 1 つずれる
+  swapAnimation();
+});
+
+document.getElementById("arrow-left").addEventListener("click", () => {
+  cards.prepend(cards.lastElementChild); // 最後のカードを先頭に移す → 全体が右へ 1 つずれる
+  swapAnimation();
 });

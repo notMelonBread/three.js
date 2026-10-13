@@ -21,14 +21,14 @@ imgs/        銀色のステッカー画像
 | ② J-POP | `<section class="genre" id="jpop">` | 飾り、コラージュの箱、見出し、説明 |
 | ③ K-POP | `<section class="genre" id="kpop">` | 同じ |
 | ④ 洋楽 | `<section class="genre" id="western">` | 同じ |
-| ⑤ おすすめ | `<section class="artists">` | 3 枚のカード(back number / なとり / スピッツ。`data/artists.json` から作る) |
+| ⑤ おすすめ | `<section class="artists">` | 左右の矢印ボタンと 3 枚のカード(back number / なとり / スピッツ。`data/artists.json` から作る) |
 | クレジット | `<footer>` | Spotify の表記 |
 
 ポイント:
 
 - ②③④は **まったく同じ形** です。中身の文字と `data-file` だけが違います。同じものは同じ書き方にすると、CSS も JavaScript も 1 回書けばすみます。
 - `<div class="collage"></div>` は **空っぽ** です。ジャケットは JavaScript があとから入れます。
-- ①だけは `.phone` の **外** にあります。背景を PC でも画面いっぱいに広げたい(塗り足し)ので、画像の部分だけ `.hero__inner` でスマホ幅にしています。
+- ①だけは `.phone` の **外** にあります。高さを画面いっぱいにしたいからで、幅は `.hero__inner` で同じスマホ幅(430px)にそろえています。
 - タイトルの「MUSIC INTRO」は画像の中に描いてあるので、`<h1>` の中に `<img>` を入れ、`alt` に文字を書いています(見えなくても、検索や読み上げには文字として伝わる)。
 - `<nav class="menu" hidden>` の `hidden` は「隠す」という意味。ボタンを押したときに JavaScript が外します。
 - デザイン(Figma)に青い文字で `h2` `h3` `p` `img` と書いてあったのは、「ここはこのタグで作る」という印です。
@@ -46,20 +46,15 @@ imgs/        銀色のステッカー画像
 
 PC で開いても、真ん中にスマホと同じ形で出ます。背景のピンクは `body` に塗ってあるので、PC では画面の端まで広がります(印刷で言う「塗り足し」)。
 
-### 背景を重ねる(メインビジュアル)
+### 画面いっぱいのメインビジュアル
 
 ```css
-.hero { position: relative; overflow: hidden; }
-.hero__bg {
-  position: absolute;
-  inset: -40px;                                        /* 上下左右 0 なら親にぴったり。-40px で少し広げる */
-  background: url(imgs/main-visual.jpg) center / cover; /* 同じ画像を、箱いっぱいに */
-  filter: blur(20px);                                  /* ぼかす */
-}
-.hero__inner { position: relative; max-width: 430px; margin: 0 auto; } /* これで背景より手前に来る */
+.hero { height: 100vh; }                       /* vh = 画面の高さの 1%。100vh で画面いっぱい */
+.hero__inner { max-width: 430px; height: 100%; margin: 0 auto; }
+.hero__title img { width: 100%; height: 100%; object-fit: cover; } /* 箱いっぱいに広げて、はみ出しは切る */
 ```
 
-PC で見たとき、スマホ幅の外側が空かないように、**同じ画像をぼかして後ろに敷いて** います(塗り足し)。HTML で **あとに書いたものが上** に来ます。`.hero__inner` に `position: relative` を書かないと、`absolute` の背景の下に隠れてしまいます。
+`object-fit: cover` は「画像をゆがめずに箱いっぱいに広げて、はみ出した分を切る」という意味です。画面の縦横比が画像(9:16)とちがっても、きれいに収まります。
 
 ### 飾りを好きな場所に置く(position)
 
@@ -194,6 +189,14 @@ menuButton.addEventListener("click", () => {
 ```
 
 を足して、「`hidden` がついているときは消す」とはっきり書くと直ります。
+
+### 矢印でカードを回す
+
+```js
+cards.appendChild(cards.firstElementChild); // 先頭のカードを最後に移す
+```
+
+カードは 3 枚とも HTML に並んでいて、CSS の `.card:nth-child(2)` で **2 番目だけ大きく** しています。だから JavaScript は並び順を変えるだけで、真ん中のカードが入れかわります。`appendChild` は「もうあるものを渡すと移動になる」のがポイントです。
 
 ## 4. 作る順番(おすすめ)
 

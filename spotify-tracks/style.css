@@ -35,32 +35,30 @@ img {
 
 /* --- ① メインビジュアル --- */
 
+/* 画面の高さいっぱい(vh = 画面の高さの 1%。svh はスマホのアドレスバーを除いた高さ) */
 .hero {
-  position: relative; /* 中の背景を重ねるための基準にする */
-  overflow: hidden; /* ぼかした背景がはみ出した分は切る */
+  height: 100vh;
+  height: 100svh;
+  min-height: 560px;
 }
 
-/* 塗り足し: 同じ画像を大きく・ぼかして後ろに敷く */
-.hero__bg {
-  position: absolute;
-  inset: -40px; /* 上下左右を 40px ずつ広げる(ぼかすと端が白くなるので) */
-  background: url(imgs/main-visual.jpg) center / cover;
-  filter: blur(20px);
-}
-
-/* キービジュアルの部分。スマホの幅に入れて、背景より手前に出す */
+/* キービジュアルの部分。下の section と同じスマホ幅にして、真ん中に置く */
 .hero__inner {
-  position: relative; /* これがないと、絶対配置(absolute)の背景の下に隠れてしまう */
+  position: relative; /* メニューボタンを「右上」に置くための基準 */
   max-width: 430px;
+  height: 100%;
   margin: 0 auto;
 }
 
 .hero__title {
   margin: 0;
+  height: 100%;
 }
 
 .hero__title img {
-  width: 100%; /* 横幅いっぱい。縦は画像の比率(9:16)で自動 */
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* 箱いっぱいに広げて、はみ出した分は切る(画像はゆがまない) */
 }
 
 .menu-button {
@@ -267,6 +265,35 @@ img {
 .card .no-image {
   background: #ff4c85;
 }
+
+/* 入れ替わったときの動き(JavaScript が .card に swap クラスを付ける) */
+.card.swap {
+  animation: swap 0.35s;
+}
+
+@keyframes swap {
+  from { opacity: 0; transform: scale(0.85); }
+  to { opacity: 1; transform: none; }
+}
+
+/* 左右の矢印ボタン */
+.arrow {
+  position: absolute;
+  top: 45%;
+  z-index: 3; /* カードより手前 */
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 50%;
+  background: #fff;
+  color: #ff4c85;
+  font-size: 26px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.arrow--left { left: 2%; }
+.arrow--right { right: 2%; }
 
 /* --- クレジット --- */
 

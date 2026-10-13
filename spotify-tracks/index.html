@@ -10,11 +10,8 @@
 </head>
 <body>
   <!-- ===== ① メインビジュアル ===== -->
-  <!-- 画面の横幅いっぱいに広がる(PC でも塗り足しされる)。中身だけ真ん中のスマホ幅に入れる -->
+  <!-- 画面の高さいっぱい。中身はスマホ幅(430px)で、外側は body のピンクが塗り足しになる -->
   <header class="hero">
-    <!-- 塗り足し用: 同じ画像をぼかして後ろに敷く -->
-    <div class="hero__bg"></div>
-
     <div class="hero__inner">
       <!-- キービジュアル。タイトル(MUSIC INTRO)は画像の中に描いてあるので h1 に画像を入れる -->
       <h1 class="hero__title"><img src="imgs/main-visual.jpg" alt="MUSIC INTRO" /></h1>
@@ -82,7 +79,10 @@
     <!-- 各ジャンルの 1 位のアーティストを JavaScript がここに並べる -->
     <section class="artists" id="artists">
       <img class="sticker sticker--moon" src="imgs/moon.png" alt="" />
+      <!-- 左右の矢印を押すと、カードの並びがくるっと回る(JavaScript) -->
+      <button class="arrow arrow--left" id="arrow-left" type="button" aria-label="前へ">&lsaquo;</button>
       <div class="cards" id="cards"></div>
+      <button class="arrow arrow--right" id="arrow-right" type="button" aria-label="次へ">&rsaquo;</button>
     </section>
 
     <footer class="credit">
