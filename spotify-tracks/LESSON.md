@@ -21,7 +21,7 @@ imgs/        銀色のステッカー画像
 | ② J-POP | `<section class="genre" id="jpop">` | 飾り、コラージュの箱、見出し、説明 |
 | ③ K-POP | `<section class="genre" id="kpop">` | 同じ |
 | ④ 洋楽 | `<section class="genre" id="western">` | 同じ |
-| ⑤ おすすめ | `<section class="artists">` | 3 枚のカード |
+| ⑤ おすすめ | `<section class="artists">` | 3 枚のカード(back number / なとり / スピッツ。`data/artists.json` から作る) |
 | クレジット | `<footer>` | Spotify の表記 |
 
 ポイント:
@@ -215,4 +215,4 @@ menuButton.addEventListener("click", () => {
 
 ## データはどうやって作っている?
 
-`data/` の JSON は、先生側で `scripts/fetch-tracks.mjs` を動かして Spotify の API から取っています(毎週、自動で更新)。くわしくは `README.md`。生徒は JSON を「もらうもの」として使えば OK です。
+`data/` の JSON は、先生側で `scripts/fetch-tracks.mjs`(曲)と `scripts/fetch-artists.mjs`(おすすめの 3 組)を動かして Spotify の API から取っています(毎週、自動で更新)。くわしくは `README.md`。生徒は JSON を「もらうもの」として使えば OK です。

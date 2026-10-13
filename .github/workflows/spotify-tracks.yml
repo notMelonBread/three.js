@@ -35,6 +35,10 @@ on:
         description: "top のときの月 (YYYY-MM、空なら先月)"
         required: false
         default: ""
+      artists:
+        description: "おすすめアーティスト(カンマ区切り、3 組)"
+        required: false
+        default: "back number,なとり,スピッツ"
 
 permissions:
   contents: write
@@ -64,6 +68,7 @@ jobs:
           LIMIT: ${{ github.event.inputs.limit || '45' }}
           LABEL: ${{ github.event.inputs.label }}
           MONTH: ${{ github.event.inputs.month }}
+          ARTISTS: ${{ github.event.inputs.artists || 'back number,なとり,スピッツ' }}
         run: |
           if [ "$SOURCE" = "popular" ] && [ -n "$GENRES" ]; then
             # ジャンルごとに 1 ページ。並び順は GENRES の順。
@@ -87,6 +92,11 @@ jobs:
             [ -n "$MONTH" ] && set -- "$@" --month "$MONTH"
             node scripts/fetch-tracks.mjs "$@"
           fi
+
+          # おすすめアーティスト(失敗しても曲データは出す)
+          set --
+          IFS=','; for a in $ARTISTS; do set -- "$@" --name "$a"; done; unset IFS
+          node scripts/fetch-artists.mjs "$@" || echo "::warning::おすすめアーティストを取得できませんでした"
 
       - name: Commit and push
         run: |

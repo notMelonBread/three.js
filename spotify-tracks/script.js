@@ -71,23 +71,22 @@ function makeCollage(collage, tracks) {
 
 // ---------- おすすめアーティストのカードを作る ----------
 
-// track: そのジャンルの 1 位の曲
-function makeCard(track) {
+// artist: data/artists.json の 1 組分 { name, spotify_url, image_url, track }
+function makeCard(artist) {
   const card = document.createElement("a");
   card.className = "card";
-  card.href = track.spotify_url;
+  card.href = artist.spotify_url;
   card.target = "_blank";
+  if (artist.track) card.title = `${artist.name} - ${artist.track.name}`;
 
   const name = document.createElement("span");
-  // "A, B, C" のように何組も入っているときは、最初の 1 組だけ出す
-  name.textContent = track.artist.split(", ")[0];
-
+  name.textContent = artist.name;
   card.appendChild(name);
 
-  if (track.image_url) {
+  if (artist.image_url) {
     const img = document.createElement("img");
-    img.src = track.image_url;
-    img.alt = track.name;
+    img.src = artist.image_url;
+    img.alt = artist.track ? artist.track.name : artist.name;
     card.appendChild(img);
   } else {
     // 画像がないときは、ただの丸を置く
@@ -102,7 +101,6 @@ function makeCard(track) {
 
 async function main() {
   const sections = document.querySelectorAll(".genre"); // ジャンルの section を全部
-  const cards = document.getElementById("cards");
 
   for (const section of sections) {
     const file = section.dataset.file; // HTML の data-file="..." の値
@@ -116,9 +114,14 @@ async function main() {
     if (data.demo) {
       section.querySelector("h2").textContent += "(サンプル)";
     }
+  }
 
-    // 1 位の曲でおすすめカードを作る
-    cards.appendChild(makeCard(data.tracks[0]));
+  // おすすめアーティストの 3 枚のカード
+  const response = await fetch("data/artists.json");
+  const data = await response.json();
+  const cards = document.getElementById("cards");
+  for (const artist of data.artists) {
+    cards.appendChild(makeCard(artist));
   }
 }
 

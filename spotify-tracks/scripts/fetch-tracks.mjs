@@ -356,7 +356,8 @@ const sources = {
 // ---------- index.json ----------
 
 async function writeIndex() {
-  const files = (await readdir(outDir)).filter((f) => f.endsWith(".json") && f !== "index.json");
+  // index.json 自身と、おすすめアーティスト用の artists.json はページではないので除く
+  const files = (await readdir(outDir)).filter((f) => f.endsWith(".json") && f !== "index.json" && f !== "artists.json");
   const entries = [];
   for (const file of files) {
     try {
