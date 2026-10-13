@@ -30,6 +30,7 @@ img {
 .phone {
   max-width: 480px;
   margin: 0 auto;
+  padding-top: 48px; /* メインビジュアルと最初のコラージュの間の余白 */
 }
 
 /* --- ① メインビジュアル --- */

@@ -40,6 +40,7 @@ imgs/        銀色のステッカー画像
 ```css
 .phone {
   max-width: 480px;  /* スマホの横幅まで */
+  padding-top: 48px; /* メインビジュアルとの間の余白 */
   margin: 0 auto;    /* 左右の余白を自動 = 真ん中に */
 }
 ```
