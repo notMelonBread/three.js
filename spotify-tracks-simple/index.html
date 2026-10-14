@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MUSIC INTRO</title>
+  <!-- ドット文字のフォント(Google Fonts から読み込む) -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- ===== ① メインビジュアル ===== -->
+  <!-- 画面の高さいっぱい。中身はスマホ幅(430px)で、外側は body のピンクが塗り足しになる -->
+  <header class="hero">
+    <div class="hero__inner">
+      <!-- キービジュアル。タイトル(MUSIC INTRO)は画像の中に描いてあるので h1 に画像を入れる -->
+      <h1 class="hero__title"><img src="imgs/main-visual.jpg" alt="MUSIC INTRO" /></h1>
+      <button class="menu-button" id="menu-button" type="button">メニュー</button>
+      <!-- メニュー(ふだんは hidden で隠れている。ボタンを押すと JavaScript が表示する) -->
+      <nav class="menu" id="menu" hidden>
+        <a href="#jpop">#J-POP</a>
+        <a href="#kpop">#K-POP</a>
+        <a href="#western">#洋楽</a>
+        <a href="#artists">おすすめ</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- スマホの画面の幅(430px まで)に中身を入れる箱。PC で見ても同じ形になる -->
+  <div class="phone">
+
+    <!-- ===== ② J-POP ===== -->
+    <!-- data-genre は、この section に入れるジャンル(script.js の GENRES の名前) -->
+    <section class="genre" id="jpop" data-genre="jpop">
+      <!-- まわりの飾り(銀色のステッカー)。位置は CSS で決める -->
+      <!-- コラージュと飾りをひとまとめにする箱。飾りの位置はこの箱(= コラージュ)を基準にする -->
+      <div class="collage-wrap">
+        <img class="sticker sticker--drip" src="imgs/drip.png" alt="" />
+        <img class="sticker sticker--star-outline" src="imgs/star-outline.png" alt="" />
+        <img class="sticker sticker--heart" src="imgs/heart.png" alt="" />
+        <img class="sticker sticker--note-1" src="imgs/note-1.png" alt="" />
+
+        <!-- コラージュ。中身(ジャケットの画像)は JavaScript が作る -->
+        <div class="collage"></div>
+      </div>
+
+      <h2>#J-POP</h2>
+      <h3>日本で流行っている有名な音楽</h3>
+      <p>アイドル、ロックバンド、シンガーソングライターなど、幅広い楽曲が多く共感しやすい歌詞も多い</p>
+    </section>
+
+    <!-- ===== ③ K-POP ===== -->
+    <section class="genre" id="kpop" data-genre="kpop">
+      <!-- コラージュと飾りをひとまとめにする箱。飾りの位置はこの箱(= コラージュ)を基準にする -->
+      <div class="collage-wrap">
+        <img class="sticker sticker--sparkle-big" src="imgs/sparkle-big.png" alt="" />
+        <img class="sticker sticker--sparkle-small" src="imgs/sparkle-small.png" alt="" />
+        <img class="sticker sticker--blob" src="imgs/blob.png" alt="" />
+        <img class="sticker sticker--note-2" src="imgs/note-2.png" alt="" />
+        <img class="sticker sticker--planet" src="imgs/planet.png" alt="" />
+
+        <div class="collage"></div>
+      </div>
+
+      <h2>#K-POP</h2>
+      <h3>韓国発祥の音楽ジャンル</h3>
+      <p>ハイレベルなパフォーマンスや、多国籍でグローバルなメンバーが特徴です</p>
+    </section>
+
+    <!-- ===== ④ 洋楽 ===== -->
+    <section class="genre" id="western" data-genre="western">
+      <!-- コラージュと飾りをひとまとめにする箱。飾りの位置はこの箱(= コラージュ)を基準にする -->
+      <div class="collage-wrap">
+        <img class="sticker sticker--clef" src="imgs/clef.png" alt="" />
+        <img class="sticker sticker--bolt-star" src="imgs/bolt-star.png" alt="" />
+        <img class="sticker sticker--sparkle-cluster" src="imgs/sparkle-cluster.png" alt="" />
+        <img class="sticker sticker--sparkle-right" src="imgs/sparkle-right.png" alt="" />
+
+        <div class="collage"></div>
+      </div>
+
+      <h2>#洋楽</h2>
+      <h3>海外で制作された有名な音楽</h3>
+      <p>ロックなイメージで、力強いビートや反逆的なメッセージ性を持ちます</p>
+    </section>
+
+    <!-- ===== ⑤ おすすめアーティスト ===== -->
+    <!-- script.js の ARTISTS に書いたアーティストのカードを JavaScript がここに並べる -->
+    <section class="artists" id="artists">
+      <img class="sticker sticker--moon" src="imgs/moon.png" alt="" />
+      <!-- 左右の矢印を押すと、カードの並びがくるっと回る(JavaScript) -->
+      <button class="arrow arrow--left" id="arrow-left" type="button" aria-label="前へ">&lsaquo;</button>
+      <div class="cards" id="cards"></div>
+      <button class="arrow arrow--right" id="arrow-right" type="button" aria-label="次へ">&rsaquo;</button>
+    </section>
+
+    <footer class="credit">
+      楽曲データとアートワークは
+      <a href="https://open.spotify.com/" target="_blank" rel="noopener">Spotify</a>
+      から取得しています。
+    </footer>
+  </div>
+
+  <script src="keys.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

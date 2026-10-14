@@ -1,0 +1,312 @@
+/* ==============================
+   MUSIC INTRO  いま人気の曲 コラージュサイト
+   ==============================
+
+   飾り(ステッカー)の位置や大きさは、コラージュ(Figma では 336 × 605)に対する「割合(%)」で書いてあります。
+     横の位置・幅   = Figma の数字 ÷ 336
+     縦の位置      = Figma の数字 ÷ 605
+   こうしておくと、画面の大きさが変わってコラージュが大きくなったり小さくなったりしても、同じ形になります。
+*/
+
+/* --- 全体 --- */
+
+* {
+  box-sizing: border-box; /* 幅に padding を含める(計算がかんたんになる) */
+}
+
+body {
+  margin: 0;
+  background: #ff4c85; /* ピンク。PC で見たときも画面いっぱいに塗る(塗り足し) */
+  overflow-x: hidden; /* 飾りが画面の横にはみ出しても、横スクロールは出さない */
+  font-family: "DotGothic16", sans-serif; /* ドット文字。読み込めないときはふつうのゴシック */
+  color: #fff;
+}
+
+img {
+  display: block; /* 画像の下にできる、なぞのすき間をなくす */
+}
+
+/* スマホの画面と同じ幅の箱。PC でも真ん中にこの形で出す */
+.phone {
+  max-width: 480px;
+  margin: 0 auto;
+  padding-top: 48px; /* メインビジュアルと最初のコラージュの間の余白 */
+}
+
+/* --- ① メインビジュアル --- */
+
+/* 画面の高さいっぱい(vh = 画面の高さの 1%。svh はスマホのアドレスバーを除いた高さ) */
+.hero {
+  height: 100vh;
+  height: 100svh;
+  min-height: 560px;
+}
+
+/* キービジュアルの部分。下の section と同じスマホ幅にして、真ん中に置く */
+.hero__inner {
+  position: relative; /* メニューボタンを「右上」に置くための基準 */
+  max-width: 480px;
+  height: 100%;
+  margin: 0 auto;
+}
+
+.hero__title {
+  margin: 0;
+  height: 100%;
+}
+
+.hero__title img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* 箱いっぱいに広げて、はみ出した分は切る(画像はゆがまない) */
+}
+
+.menu-button {
+  position: absolute; /* .hero__inner の中の好きな場所に置ける */
+  top: 2%;
+  right: 2%;
+  padding: 10px 8px;
+  border: 0;
+  border-radius: 999px; /* 角をいっぱいに丸めると、カプセルの形になる */
+  background: #fff;
+  font: inherit; /* ボタンにも同じフォントを使う */
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.menu {
+  position: absolute;
+  top: 12%;
+  right: 2%;
+  display: flex;
+  flex-direction: column; /* 縦に並べる */
+  gap: 8px;
+  padding: 12px;
+  border-radius: 16px;
+  background: #fff;
+}
+
+/* hidden がついているときは消す。
+   (.menu に display: flex を書くと、hidden の「消す」より強くなってしまうので、こう書いて直す) */
+.menu[hidden] {
+  display: none;
+}
+
+.menu a {
+  color: #000;
+  text-decoration: none;
+}
+
+/* --- ②③④ ジャンルの section --- */
+
+.genre {
+  height: 100vh; /* 1 セクション = 画面の高さ 1 枚ぶん */
+  height: 100svh;
+  display: flex; /* 中身(コラージュと文字)を縦に並べて、上下の真ん中に寄せる */
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.genre h2 {
+  margin: 20px 0 0;
+  font-size: 13px;
+  font-weight: normal;
+}
+
+.genre h3 {
+  margin: 10px 0 0;
+  font-size: 12px;
+  font-weight: normal;
+  letter-spacing: 0.1em;
+}
+
+.genre p {
+  max-width: 300px;
+  margin: 10px auto 0;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+/* --- コラージュ --- */
+
+/* コラージュと飾りの箱。
+   幅は「横幅の 70%」と「画面の高さ − 文字の分(230px)を 9:5 で幅に直したもの」の小さいほう。
+   → 横に長い画面でも縦に短い画面でも、説明文まで 1 画面に入る */
+.collage-wrap {
+  position: relative; /* 飾り(.sticker)の位置の基準 */
+  width: min(70%, calc((100svh - 230px) * 5 / 9));
+}
+
+/* 5 列のマス目。メインビジュアルと同じ 9:16 の形。
+   ジャケットは JavaScript が 1 枚ずつ入れる(45 曲 = 5 列 × 9 行) */
+.collage {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr); /* 同じ幅の列を 5 つ */
+  width: 100%;
+  overflow: hidden; /* この箱の中だけに表示する */
+}
+
+/* 1 枚のジャケット。マス目を少しはみ出す大きさにして、少しずらすとコラージュっぽくなる */
+.tile {
+  display: block;
+  aspect-ratio: 1; /* 正方形 */
+  overflow: hidden;
+  background: #333;
+  color: #fff; /* <a> なので、そのままだとリンクの青色になる */
+  text-decoration: none;
+  /* --dx, --dy, --z は JavaScript が 1 枚ずつ決める */
+  transform: translate(var(--dx), var(--dy)) scale(1.25);
+  z-index: var(--z);
+  transition: transform 0.2s;
+}
+
+.tile img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* 形がちがう画像でも、マスいっぱいに表示する */
+}
+
+/* 画像がないときは曲名を小さく出す */
+.tile span {
+  display: block;
+  padding: 6px;
+  font-size: 10px;
+  line-height: 1.3;
+}
+
+/* マウスを乗せたら、一番上に来て大きくなる */
+.tile:hover {
+  z-index: 100;
+  transform: translate(var(--dx), var(--dy)) scale(1.5);
+}
+
+/* --- ステッカー(飾り) --- */
+
+/* 共通: .collage-wrap の中の好きな場所に置く。% はコラージュの幅・高さに対する割合。
+   マイナスや 100% 超えで、コラージュの外にはみ出す */
+.sticker {
+  position: absolute;
+  z-index: 2; /* コラージュの上に重ねる */
+  pointer-events: none; /* 飾りはクリックのじゃまをしない */
+}
+
+/* J-POP */
+.sticker--drip { left: -19%; top: -3%; width: 34%; }
+.sticker--star-outline { left: 79%; top: 3%; width: 31%; }
+.sticker--heart { left: 84%; top: 38%; width: 40%; transform: rotate(15deg); }
+.sticker--note-1 { left: -13%; top: 76%; width: 17%; transform: rotate(20deg); }
+
+/* K-POP */
+.sticker--sparkle-big { left: -21%; top: 0; width: 27%; transform: scaleX(-1); } /* 左右反転 */
+.sticker--sparkle-small { left: -4%; top: 10%; width: 14%; }
+.sticker--blob { left: 64%; top: -4%; width: 31%; }
+.sticker--note-2 { left: 87%; top: 64%; width: 23%; }
+.sticker--planet { left: -19%; top: 84%; width: 31%; transform: rotate(20deg); }
+
+/* 洋楽 */
+.sticker--clef { left: 93%; top: -3%; width: 16%; transform: rotate(-11deg); }
+.sticker--bolt-star { left: -24%; top: 33%; width: 34%; transform: rotate(-10deg); }
+.sticker--sparkle-cluster { left: 90%; top: 76%; width: 29%; transform: rotate(6deg); }
+.sticker--sparkle-right { left: 104%; top: 94%; width: 20%; }
+
+/* おすすめ(こちらは section.artists を基準にしている) */
+.artists { position: relative; }
+.sticker--moon { left: 4%; top: 0; width: 13%; }
+
+/* --- ⑤ おすすめアーティスト --- */
+
+.artists {
+  position: relative;
+  padding: 12% 2% 10%;
+}
+
+.cards {
+  display: flex; /* 横に並べる */
+  align-items: center; /* 高さがちがっても真ん中でそろえる */
+  justify-content: center;
+  gap: 2.4%;
+}
+
+/* カプセルの形のカード */
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  width: 28.2%;
+  aspect-ratio: 1394 / 2869;
+  padding: 50px 6px 0;
+  border-radius: 999px;
+  background: rgba(224, 26, 122, 0.4); /* 少し濃いピンクを透かす */
+  color: #fff;
+  text-decoration: none;
+  text-align: center;
+  font-size: 12px;
+}
+
+/* 真ん中のカードだけ大きく */
+.card:nth-child(2) {
+  gap: 10px;
+  width: 34.8%;
+  aspect-ratio: 1721 / 3427;
+  padding-top: 64px;
+}
+
+.card img,
+.card .no-image {
+  width: 80%;
+  aspect-ratio: 1;
+  border-radius: 50%; /* 丸く切り抜く */
+  object-fit: cover;
+}
+
+.card:nth-child(2) img,
+.card:nth-child(2) .no-image {
+  width: 83%;
+}
+
+/* 画像がないときの丸 */
+.card .no-image {
+  background: #ff4c85;
+}
+
+/* 回るときの動き: JavaScript が「前の場所からの距離」を transform に入れて、
+   それを 0 に戻すことで、前の場所から新しい場所へすべるように動く */
+.card.moving {
+  transition: transform 0.45s, opacity 0.45s;
+}
+
+/* 左右の矢印ボタン */
+.arrow {
+  position: absolute;
+  top: 45%;
+  z-index: 3; /* カードより手前 */
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 50%;
+  background: #fff;
+  color: #ff4c85;
+  font-size: 26px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.arrow--left { left: 2%; }
+.arrow--right { right: 2%; }
+
+/* --- クレジット --- */
+
+.credit {
+  padding: 24px;
+  text-align: center;
+  font-size: 11px;
+}
+
+.credit a {
+  color: inherit;
+}
