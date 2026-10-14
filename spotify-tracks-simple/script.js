@@ -12,15 +12,12 @@
 
 // 入場券(トークン)をもらう。keys.js の 2 つの鍵を見せると、1 時間使える券が返ってくる
 async function getToken() {
-  const response = await fetch("https://accounts.spotify.com/api/token", {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({
-      grant_type: "client_credentials",
-      client_id: SPOTIFY_CLIENT_ID,
-      client_secret: SPOTIFY_CLIENT_SECRET,
-    }),
+  const body = new URLSearchParams({
+    grant_type: "client_credentials",
+    client_id: SPOTIFY_CLIENT_ID,
+    client_secret: SPOTIFY_CLIENT_SECRET,
   });
+  const response = await fetch("https://accounts.spotify.com/api/token", { method: "POST", body });
   const json = await response.json();
   if (!json.access_token) {
     throw new Error("トークンが取れなかった。keys.js の鍵を確認しよう: " + JSON.stringify(json));
