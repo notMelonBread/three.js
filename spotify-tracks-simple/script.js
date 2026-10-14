@@ -19,75 +19,57 @@ async function getToken() {
   });
   const response = await fetch("https://accounts.spotify.com/api/token", { method: "POST", body });
   const json = await response.json();
-  if (!json.access_token) {
-    throw new Error("トークンが取れなかった。keys.js の鍵を確認しよう: " + JSON.stringify(json));
-  }
   return json.access_token;
 }
 
 // 入場券を付けて /search に「この条件のものを出して」と頼む(これが API)
-// type は "track"(曲) か "artist"(アーティスト)。1 回に 10 件まで返ってくる
+// q = 検索条件、type = "track"(曲) か "artist"、market = どの国、offset = 何件目から。1 回に 10 件まで
 async function search(token, q, type, market, offset = 0) {
   const url = new URL("https://api.spotify.com/v1/search");
   url.search = new URLSearchParams({ q, type, market, limit: 10, offset });
   const response = await fetch(url, { headers: { Authorization: "Bearer " + token } });
-  if (!response.ok) throw new Error(`search 失敗: ${response.status}`);
   return response.json();
 }
 
-// ジャンルごとの検索条件。1 つ目で足りなければ 2 つ目、3 つ目…と進む
-const year = new Date().getFullYear();
-const GENRES = {
-  jpop: {
-    market: "JP",
-    queries: [`genre:j-pop year:${year}`, `genre:j-pop year:${year - 1}`, `j-pop year:${year}`, "jpop"],
-  },
-  kpop: {
-    market: "JP",
-    queries: [`genre:k-pop year:${year}`, `genre:k-pop year:${year - 1}`, `k-pop year:${year}`, "kpop"],
-  },
-  // 洋楽は日本の曲が混ざらないように、アメリカの市場で探す
-  western: {
-    market: "US",
-    queries: [`year:${year}`, `genre:pop year:${year}`, `year:${year - 1}`],
-  },
-};
-
-// おすすめアーティスト。ここの名前を変えると、カードが変わる
-const ARTISTS = ["back number", "なとり", "スピッツ"];
-
-// 1 曲を { name, artist, image_url, spotify_url } の形にそろえる
+// 長い返事から、使う 4 つだけ取り出す
 function toItem(track) {
   return {
     name: track.name,
-    artist: track.artists.map((a) => a.name).join(", "),
-    image_url: track.album.images[1]?.url || track.album.images[0]?.url || "",
+    artist: track.artists[0].name,
+    image_url: track.album.images[1].url, // images は 640・300・64px の 3 枚。[1] が 300px
     spotify_url: track.external_urls.spotify,
   };
 }
+
+// ジャンルごとの検索条件。1 つ目で足りなければ 2 つ目、3 つ目…と進む
+// 洋楽は日本の曲が混ざらないように、アメリカ(US)で探す
+const year = new Date().getFullYear();
+const GENRES = {
+  jpop: { market: "JP", queries: [`genre:j-pop year:${year}`, `genre:j-pop year:${year - 1}`, "j-pop"] },
+  kpop: { market: "JP", queries: [`genre:k-pop year:${year}`, `genre:k-pop year:${year - 1}`, "k-pop"] },
+  western: { market: "US", queries: [`year:${year}`, `genre:pop year:${year}`, `year:${year - 1}`] },
+};
 
 // そのジャンルの曲を limit 曲ぶん集める。同じジャケットは 1 曲だけ
 async function fetchTracks(token, genre, limit = 45) {
   const { market, queries } = GENRES[genre];
   const tracks = [];
-  const seenImages = new Set();
+  const seenImages = new Set(); // 「もう出したジャケット」を覚えておく箱
 
   for (const q of queries) {
-    // 10 件ずつ、最大 100 件まで読み進める
+    // 10 件ずつしか返ってこないので、offset をずらして、45 曲たまるまで何回も聞く
     for (let offset = 0; offset < 100 && tracks.length < limit; offset += 10) {
       const json = await search(token, q, "track", market, offset);
-      const items = json.tracks.items;
-      if (items.length === 0) break; // もう結果がない → 次の条件へ
-
-      for (const track of items) {
-        if (track.album.album_type === "compilation") continue; // コンピ盤は同じジャケットが並ぶので除く
+      if (json.tracks.items.length === 0) break; // もう結果がない → 次の条件へ
+      for (const track of json.tracks.items) {
+        if (track.album.album_type === "compilation") continue; // コンピ盤は同じジャケットが並ぶので飛ばす
+        if (track.album.images.length === 0) continue; // ジャケットがない曲は飛ばす
         const item = toItem(track);
-        if (!item.image_url || seenImages.has(item.image_url)) continue; // 同じジャケットは 1 回だけ
+        if (seenImages.has(item.image_url)) continue; // もう出したジャケットは飛ばす
         seenImages.add(item.image_url);
         tracks.push(item);
       }
     }
-    if (tracks.length >= limit) break;
   }
   return tracks.slice(0, limit);
 }
@@ -96,17 +78,18 @@ async function fetchTracks(token, genre, limit = 45) {
 async function fetchArtist(token, name) {
   const found = await search(token, name, "artist", "JP");
   const artist = found.artists.items[0];
-  if (!artist) return null;
-
   const result = await search(token, `artist:"${artist.name}"`, "track", "JP");
   const track = result.tracks.items[0];
   return {
-    name, // 画面に出す名前は ARTISTS に書いたとおり(Spotify では "SPITZ" のように英語のことがある)
+    name, // 画面に出す名前は自分が書いたとおり(Spotify では "SPITZ" のように英語のことがある)
     spotify_url: artist.external_urls.spotify,
-    image_url: track ? toItem(track).image_url : artist.images[0]?.url || "",
-    track: track ? { name: track.name, spotify_url: track.external_urls.spotify } : null,
+    image_url: track.album.images[1].url,
+    track_name: track.name,
   };
 }
+
+// おすすめアーティスト。ここの名前を変えると、カードが変わる
+const ARTISTS = ["back number", "なとり", "スピッツ"];
 
 // ---------- 2. コラージュを作る ----------
 
@@ -132,11 +115,9 @@ function makeCollage(collage, tracks) {
     tile.href = track.spotify_url;
     tile.target = "_blank";
     tile.title = `${track.name} / ${track.artist}`;
-
     const img = document.createElement("img");
     img.src = track.image_url;
     img.alt = track.name;
-    img.loading = "lazy"; // 見えるところまで来てから読み込む
     tile.appendChild(img);
 
     // --- ここがコラージュっぽく見せるコツ ---
@@ -162,24 +143,27 @@ function makeCollage(collage, tracks) {
   });
 }
 
+// 1 つの section(ジャンル)に、そのジャンルのコラージュを入れる
+async function fillGenre(token, section) {
+  const tracks = await fetchTracks(token, section.dataset.genre); // HTML の data-genre="..." の値
+  makeCollage(section.querySelector(".collage"), tracks);
+}
+
 // ---------- おすすめアーティストのカードを作る ----------
 
-// artist: fetchArtist の結果 { name, spotify_url, image_url, track }
+// artist: fetchArtist の結果 { name, spotify_url, image_url, track_name }
 function makeCard(artist) {
   const card = document.createElement("a");
   card.className = "card";
   card.href = artist.spotify_url;
   card.target = "_blank";
-  if (artist.track) card.title = `${artist.name} - ${artist.track.name}`;
-
+  card.title = `${artist.name} - ${artist.track_name}`;
   const name = document.createElement("span");
   name.textContent = artist.name;
-  card.appendChild(name);
-
   const img = document.createElement("img");
   img.src = artist.image_url;
-  img.alt = artist.track ? artist.track.name : artist.name;
-  card.appendChild(img);
+  img.alt = artist.track_name;
+  card.append(name, img);
   return card;
 }
 
@@ -188,37 +172,25 @@ function makeCard(artist) {
 async function main() {
   const token = await getToken();
 
-  // ジャンルの section を全部。3 つ同時に取りに行く
-  const sections = document.querySelectorAll(".genre");
-  await Promise.all(
-    [...sections].map(async (section) => {
-      const tracks = await fetchTracks(token, section.dataset.genre); // HTML の data-genre="..." の値
-      makeCollage(section.querySelector(".collage"), tracks);
-    }),
-  );
+  // ジャンルの section を全部。await を付けないので、3 つ同時に取りに行く
+  for (const section of document.querySelectorAll(".genre")) {
+    fillGenre(token, section);
+  }
 
   // おすすめアーティストの 3 枚のカード
   const cards = document.getElementById("cards");
   for (const name of ARTISTS) {
-    const artist = await fetchArtist(token, name);
-    if (artist) cards.appendChild(makeCard(artist));
+    cards.appendChild(makeCard(await fetchArtist(token, name)));
   }
 }
-
-main().catch((error) => {
-  console.error(error);
-  document.querySelector(".genre h3").textContent = "ジャケットを取れなかった。F12 の Console を見よう";
-});
+main();
 
 // ---------- 3. メニューを出したり消したりする ----------
 
-const menuButton = document.getElementById("menu-button");
 const menu = document.getElementById("menu");
-
-menuButton.addEventListener("click", () => {
+document.getElementById("menu-button").addEventListener("click", () => {
   menu.hidden = !menu.hidden; // 隠れていたら出す、出ていたら隠す
 });
-
 // メニューの中のリンクを押したら、メニューを閉じる
 menu.addEventListener("click", () => {
   menu.hidden = true;

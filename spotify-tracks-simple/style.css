@@ -256,22 +256,15 @@ img {
   padding-top: 64px;
 }
 
-.card img,
-.card .no-image {
+.card img {
   width: 80%;
   aspect-ratio: 1;
   border-radius: 50%; /* 丸く切り抜く */
   object-fit: cover;
 }
 
-.card:nth-child(2) img,
-.card:nth-child(2) .no-image {
+.card:nth-child(2) img {
   width: 83%;
-}
-
-/* 画像がないときの丸 */
-.card .no-image {
-  background: #ff4c85;
 }
 
 /* 回るときの動き: JavaScript が「前の場所からの距離」を transform に入れて、
