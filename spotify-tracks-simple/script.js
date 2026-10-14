@@ -27,7 +27,8 @@ async function getToken() {
 async function search(token, q, type, market, offset = 0) {
   const url = new URL("https://api.spotify.com/v1/search");
   url.search = new URLSearchParams({ q, type, market, limit: 10, offset });
-  const response = await fetch(url, { headers: { Authorization: "Bearer " + token } });
+  const headers = { Authorization: "Bearer " + token };
+  const response = await fetch(url, { headers });
   return response.json();
 }
 
@@ -41,13 +42,13 @@ function toItem(track) {
   };
 }
 
-// ジャンルごとの検索条件。1 つ目で足りなければ 2 つ目、3 つ目…と進む
+// ジャンルごとの検索条件。1 つ目(今年の曲)で足りなければ 2 つ目を使う
 // 洋楽は日本の曲が混ざらないように、アメリカ(US)で探す
 const year = new Date().getFullYear();
 const GENRES = {
-  jpop: { market: "JP", queries: [`genre:j-pop year:${year}`, `genre:j-pop year:${year - 1}`, "j-pop"] },
-  kpop: { market: "JP", queries: [`genre:k-pop year:${year}`, `genre:k-pop year:${year - 1}`, "k-pop"] },
-  western: { market: "US", queries: [`year:${year}`, `genre:pop year:${year}`, `year:${year - 1}`] },
+  jpop: { market: "JP", queries: [`genre:j-pop year:${year}`, "j-pop"] },
+  kpop: { market: "JP", queries: [`genre:k-pop year:${year}`, "k-pop"] },
+  western: { market: "US", queries: [`year:${year}`, "pop"] },
 };
 
 // そのジャンルの曲を limit 曲ぶん集める。同じジャケットは 1 曲だけ
