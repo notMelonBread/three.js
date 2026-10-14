@@ -115,6 +115,8 @@ function trackToItem(track) {
     name: track.name,
     artist: (track.artists || []).map((a) => a.name).join(", "),
     album: track.album?.name || "",
+    release_date: track.album?.release_date || "",
+    duration_ms: track.duration_ms || 0,
     image_url: pickImage(track.album?.images)?.url || "",
     spotify_url: track.external_urls?.spotify || "",
   };

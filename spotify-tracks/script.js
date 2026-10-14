@@ -4,7 +4,7 @@
 //   1. data/ の中の JSON ファイル(曲のリスト)を読む
 //   2. ジャケットの画像を並べてコラージュを作る
 //   3. 「メニュー」ボタンで、メニューを出したり消したりする
-//   4. 矢印ボタンで、おすすめのカードをくるっと回す
+//   4. 矢印ボタンで、好きなアーティストのカードをくるっと回す
 // ==============================
 
 // ---------- 2. コラージュを作る ----------
@@ -19,6 +19,7 @@ function random(min, max) {
 function makeCollage(collage, tracks) {
   const COLUMNS = 5; // CSS の grid-template-columns と同じ数にする
   const rows = Math.ceil(tracks.length / COLUMNS); // 行の数(切り上げ)
+  const tiles = []; // [tile, track] のペア。あとでマウスの処理に使う
 
   tracks.forEach((track, i) => {
     // 何列目・何行目のマスか
@@ -67,10 +68,50 @@ function makeCollage(collage, tracks) {
     tile.style.transformOrigin = `${originX} ${originY}`;
 
     collage.appendChild(tile);
+    tiles.push([tile, track]);
+  });
+
+  showTrackOnHover(collage, tiles);
+}
+
+// ---------- ジャケットにマウスを乗せたら、下の文章をその曲にする ----------
+
+// 曲の説明文を作る(アルバム名、リリース年、長さ)
+function describe(track) {
+  const parts = [];
+  if (track.album) parts.push(`アルバム「${track.album}」`);
+  if (track.release_date) parts.push(`${track.release_date.slice(0, 4)} 年リリース`);
+  if (track.duration_ms) {
+    const seconds = Math.round(track.duration_ms / 1000);
+    parts.push(`${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`);
+  }
+  return parts.join(" / ");
+}
+
+// section の h2 / h3 / p を、マウスが乗った曲の「曲名 / アーティスト / 説明」にする。
+// コラージュから離れたら、もとの文章(ジャンル名など)に戻す
+function showTrackOnHover(collage, tiles) {
+  const section = collage.closest(".genre");
+  const h2 = section.querySelector("h2");
+  const h3 = section.querySelector("h3");
+  const p = section.querySelector("p");
+  const original = { h2: h2.textContent, h3: h3.textContent, p: p.textContent }; // 最初の文章を覚えておく
+
+  for (const [tile, track] of tiles) {
+    tile.addEventListener("mouseenter", () => {
+      h2.textContent = track.name;
+      h3.textContent = track.artist;
+      p.textContent = describe(track);
+    });
+  }
+  collage.addEventListener("mouseleave", () => {
+    h2.textContent = original.h2;
+    h3.textContent = original.h3;
+    p.textContent = original.p;
   });
 }
 
-// ---------- おすすめアーティストのカードを作る ----------
+// ---------- 好きなアーティストのカードを作る ----------
 
 // artist: data/artists.json の 1 組分 { name, spotify_url, image_url, track }
 function makeCard(artist) {
@@ -117,7 +158,7 @@ async function main() {
     }
   }
 
-  // おすすめアーティストの 3 枚のカード
+  // 好きなアーティストの 3 枚のカード
   const response = await fetch("data/artists.json");
   const data = await response.json();
   const cards = document.getElementById("cards");

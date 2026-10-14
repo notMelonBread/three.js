@@ -213,15 +213,22 @@ img {
 .sticker--sparkle-cluster { left: 90%; top: 76%; width: 29%; transform: rotate(6deg); }
 .sticker--sparkle-right { left: 104%; top: 94%; width: 20%; }
 
-/* おすすめ(こちらは section.artists を基準にしている) */
+/* 月のステッカー(こちらは section.artists を基準にしている) */
 .artists { position: relative; }
 .sticker--moon { left: 4%; top: 0; width: 13%; }
 
-/* --- ⑤ おすすめアーティスト --- */
+/* --- ⑤ 好きなアーティスト --- */
 
 .artists {
   position: relative;
   padding: 12% 2% 10%;
+}
+
+.artists h2 {
+  margin: 0 0 8%;
+  font-size: 13px;
+  font-weight: normal;
+  text-align: center;
 }
 
 .cards {
