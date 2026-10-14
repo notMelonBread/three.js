@@ -41,7 +41,6 @@ function toItem(track) {
     spotify_url: track.external_urls.spotify,
     album: track.album.name,
     release_date: track.album.release_date,
-    duration_ms: track.duration_ms,
   };
 }
 
@@ -107,7 +106,13 @@ function random(min, max) {
 function makeCollage(collage, tracks) {
   const COLUMNS = 5; // CSS の grid-template-columns と同じ数にする
   const rows = Math.ceil(tracks.length / COLUMNS); // 行の数(切り上げ)
-  const tiles = []; // [tile, track] のペア。あとでマウスの処理に使う
+
+  // コラージュの下の文章(h2 / h3 / p)。マウスが乗った曲の「曲名 / アーティスト / 説明」に変える
+  const section = collage.closest(".genre");
+  const h2 = section.querySelector("h2");
+  const h3 = section.querySelector("h3");
+  const p = section.querySelector("p");
+  const original = [h2.textContent, h3.textContent, p.textContent]; // 最初の文章を覚えておく
 
   tracks.forEach((track, i) => {
     // 何列目・何行目のマスか
@@ -119,7 +124,6 @@ function makeCollage(collage, tracks) {
     tile.className = "tile";
     tile.href = track.spotify_url;
     tile.target = "_blank";
-    tile.title = `${track.name} / ${track.artist}`;
     const img = document.createElement("img");
     img.src = track.image_url;
     img.alt = track.name;
@@ -144,54 +148,28 @@ function makeCollage(collage, tracks) {
     const originY = isTop ? "top" : isBottom ? "bottom" : "center";
     tile.style.transformOrigin = `${originX} ${originY}`;
 
+    // マウスが乗ったら、下の文章をこの曲にする
+    tile.addEventListener("mouseenter", () => {
+      h2.textContent = track.name;
+      h3.textContent = track.artist;
+      p.textContent = `アルバム「${track.album}」 / ${track.release_date.slice(0, 4)} 年リリース`;
+    });
+
     collage.appendChild(tile);
-    tiles.push([tile, track]);
   });
 
-  showTrackOnHover(collage, tiles);
+  // コラージュから離れたら、もとの文章(ジャンル名など)に戻す
+  collage.addEventListener("mouseleave", () => {
+    h2.textContent = original[0];
+    h3.textContent = original[1];
+    p.textContent = original[2];
+  });
 }
 
 // 1 つの section(ジャンル)に、そのジャンルのコラージュを入れる
 async function fillGenre(token, section) {
   const tracks = await fetchTracks(token, section.dataset.genre); // HTML の data-genre="..." の値
   makeCollage(section.querySelector(".collage"), tracks);
-}
-
-// ---------- ジャケットにマウスを乗せたら、下の文章をその曲にする ----------
-
-// 曲の説明文を作る(アルバム名、リリース年、長さ)
-function describe(track) {
-  const parts = [];
-  if (track.album) parts.push(`アルバム「${track.album}」`);
-  if (track.release_date) parts.push(`${track.release_date.slice(0, 4)} 年リリース`);
-  if (track.duration_ms) {
-    const seconds = Math.round(track.duration_ms / 1000);
-    parts.push(`${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`);
-  }
-  return parts.join(" / ");
-}
-
-// section の h2 / h3 / p を、マウスが乗った曲の「曲名 / アーティスト / 説明」にする。
-// コラージュから離れたら、もとの文章(ジャンル名など)に戻す
-function showTrackOnHover(collage, tiles) {
-  const section = collage.closest(".genre");
-  const h2 = section.querySelector("h2");
-  const h3 = section.querySelector("h3");
-  const p = section.querySelector("p");
-  const original = { h2: h2.textContent, h3: h3.textContent, p: p.textContent }; // 最初の文章を覚えておく
-
-  for (const [tile, track] of tiles) {
-    tile.addEventListener("mouseenter", () => {
-      h2.textContent = track.name;
-      h3.textContent = track.artist;
-      p.textContent = describe(track);
-    });
-  }
-  collage.addEventListener("mouseleave", () => {
-    h2.textContent = original.h2;
-    h3.textContent = original.h3;
-    p.textContent = original.p;
-  });
 }
 
 // ---------- 好きなアーティストのカードを作る ----------
